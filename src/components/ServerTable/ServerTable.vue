@@ -462,10 +462,12 @@ export default {
         height: 25px;
         line-height: 25px;
         padding-left: 4px;
-        font-size: 14px;
-        font-weight: 400;
+        font-size: 18px;
+        font-family: 'microsoftyahei';
+        font-weight:600;
         margin: 0;
-        text-align: center
+        text-align: center;
+        color: #666;
     }
     .exportbtn {
         position: absolute;

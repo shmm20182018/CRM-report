@@ -119,7 +119,7 @@ export default {
         },
         'showChartFlag'(val){
            if(!this.phoneFlag){
-                setTimeout(()=>{this.$refs.easyTable.resize()},310) 
+                setTimeout(()=>{this.$refs.easyTable.resize()},340) 
            }
                 
         },

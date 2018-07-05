@@ -55,7 +55,6 @@
 import FilterForm from '../components/FilterForm/FilterForm.vue'
 import ServerTable from '../components/ServerTable/ServerTable.vue'
 import ServerChart from '../components/ServerChart/ServerChart.vue'
-
 export default {
   data () {
     return {
@@ -189,7 +188,6 @@ export default {
     FilterForm 
   }
 }
-
 </script>
 <style>
 .report-show-wrapper{

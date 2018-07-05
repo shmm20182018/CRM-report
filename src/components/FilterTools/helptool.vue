@@ -263,18 +263,15 @@ export default {
         },
         pageChange(pageIndex){ 
             this.pageIndex = pageIndex;
-
             if(this.interTableData[pageIndex]){
                 this.tableInfo.tableData =  this.interTableData[pageIndex];
                 return;
             }
-
             this.$Http('post',"api/help/search",this.searchRequestData).then((res)=>{
                 this.tableInfo.tableData = res.data.rowData;
                 this.tableInfo.total = res.data.total;
                 if( this.tableInfo.tableData.length>0)
                     this.interTableData[pageIndex] = this.tableInfo.tableData ;
-
              });
         },
         onSubmit(){

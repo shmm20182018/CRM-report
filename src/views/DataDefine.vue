@@ -614,6 +614,9 @@ export default {
     margin-left: 15px;
     cursor: pointer;
 }
+.right-top-wrapper li:hover{
+    color: #1A8BE6;
+}
 .right-middle-wrapper{
     position: absolute;
     top: 30px;

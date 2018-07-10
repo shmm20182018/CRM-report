@@ -946,7 +946,7 @@ body .el-select-dropdown__item.selected {
     color: #808080;
     z-index: 10;
 }
-.filter-config-wrapper .config-title .full-screen-icon{
+.right-propterty-config .config-title .full-screen-icon{
     position: absolute;
     top: 0;
     right: 40px;

@@ -1011,15 +1011,15 @@ export default {
     display:flex;
 }
 .obj-config-wrapper .left-obj-config{
-    flex:1;
+    flex: 0 0 500px;
+    width: 500px;
     height: 520px;
     border-top: 1px solid #E6E7EB;
     padding-top: 5px;
     box-sizing: border-box;
 }
 .obj-config-wrapper .right-obj-config{
-    flex: 0 0 400px;
-    width: 400px;
+    flex: 1;
     border: 1px solid #E6E7EB;
     padding: 0 10px;
 }

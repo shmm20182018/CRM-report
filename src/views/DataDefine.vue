@@ -6,7 +6,7 @@
                     <el-input v-model="filterText"  placeholder="搜索"></el-input>
                 </el-form-item>
                 <el-form-item label="">
-                    <el-select v-model="filterSelect" placeholder="请选择模块" @change.native="moduleChange">
+                    <el-select v-model="filterSelect" filterable clearable placeholder="请选择模块" @change.native="moduleChange">
                         <el-option v-for="item in treeData.moduleList" :label="item.Value" :value="item.Key" :key="item.Key"></el-option>
                     </el-select>
                 </el-form-item>    
@@ -67,7 +67,7 @@
                     </div>
                     <div class="right-middle-data">
                         <div class="right-middle-data-item" v-for="(data,index) in reportInfo.steps" :index="index" :key="data.index">
-                            <div class="right-object-property"  @drop='dropObject($event,index)'  @dragover.prevent>
+                            <div class="right-object-property"  @drop='dropDataSource($event,index)'  @dragover.prevent>
                                 <draggable v-model="data.dataSource" :options="{group:'people'}" @start="drag=true" @end="drag=false">
                                 <el-tag type="info" class="objectTag"
                                     v-for="(tag,index2) in data.dataSource"
@@ -97,7 +97,7 @@
                             <div class="right-result-property">
                                 <el-tag class="resultTag" v-if="data.result" type="success" draggable="true"  @dragstart.native="resultdrag($event,index)">
                                    <span class="tag-content"> 
-                                       <i class="tag-text">结果属性</i>
+                                       <i class="tag-text">{{data.result.name}}</i>
                                        <i class="el-icon-setting" @click.prevent.stop="openConfig(index,0,'result')"></i>
                                     </span>
                                 </el-tag>
@@ -114,6 +114,7 @@
                                         <i class="el-icon-menu"></i>
                                         <span>{{'属性设置 step-'+(index+1)}}</span>
                                         <i class="el-icon-close close-config" @click="closeConfig"></i>
+                                        <i class="full-screen-icon" :class="fullscreen?'icon-shrink':'icon-enlarge'"  @click="fullScreenToggle"></i>
                                     </p>
                                     <property-config
                                         :step="data" 
@@ -123,7 +124,9 @@
                                         :filterParams="reportInfo.params"
                                         :rightMatchArray="rightMatchArray[index]"
                                         :paramMatchArray="paramMatchArray[index]"
-                                        :assocFormulaArray="assocFormulaArray[index]">
+                                        :assocFormulaArray="assocFormulaArray[index]"
+                                        :allDSCheckedNodes ="allDSCheckedNodes[index]"
+                                        :fieldDataSourceNames="fieldDataSourceNames">
                                     </property-config>
                                 </div>
                             </div>  
@@ -275,9 +278,12 @@ export default {
     data() {
       return {  
         reportTitle:'报表定义',
+        fullscreen: false,
         dragPropertyDOM:'',
         dragFilterDOM:'',
         openDataSourceIndex:0,  //待打开数据源的索引
+        allDSCheckedNodes:[],//result操作使用
+        fieldDataSourceNames:[],//result操作使用
         reportInfo:{
             id:'',
             code:'',
@@ -447,6 +453,7 @@ export default {
         },
         tagClose(index2,index) {//删除tag标签
             this.reportInfo.steps[index].dataSource.splice(index2, 1);
+            this.allDSCheckedNodes[index].splice(index2,1)
         },
         cogTabClick(tab, event){
            // console.log(tab, event);
@@ -454,7 +461,7 @@ export default {
         resultdrag:function(event,fromIndex){
             event.dataTransfer.setData("Text",fromIndex+',resType');
         },
-        dropObject:function(event,index){
+        dropDataSource:function(event,index){
             event.preventDefault();
             var data = event.dataTransfer.getData("Text").split(',');
             if(data[3] !=='objType'){
@@ -469,6 +476,8 @@ export default {
             this.$Http('get',treeDataUrl).then((res)=>{
                 dataSource.fields = res.data     
                 this.reportInfo.steps[index].dataSource.push(dataSource);
+                this.allDSCheckedNodes[index].push({selectNodes:[]})
+                console.log(res.data)
              })
         },
         handleDragStart(node, ev) {
@@ -500,7 +509,12 @@ export default {
                     tqljFlag:'0',
                     qjhbFlag:'0'
                 },
-                result:{}   
+                result:{
+                    id:this.guid(),
+                    name:'结果属性',
+                    isEndResult:'0',
+                    rows:[]
+                }   
             });
             this.paramMatchArray.push([{
                 lbracket:'', 
@@ -527,11 +541,38 @@ export default {
                 sourceIndex1:0,
                 sourceIndex2:0
             }])
+            this.allDSCheckedNodes.push([])
         },
         deleteStep(index){
             this.reportInfo.steps.splice(index,1)
-        }
-       
+            this.paramMatchArray.splice(index,1)
+            this.rightMatchArray.splice(index,1)
+            this.assocFormulaArray.splice(index,1)
+            this.allDSCheckedNodes.splice(index,1)
+        },
+        fullScreenToggle () {
+            if(!this.fullscreen){
+                this.configStyle = Object.assign(this.configStyle,{
+                    left: '0',
+                    top: '0',
+                    right:'0',
+                    bottom:'0',
+                    width:'auto',
+                    height: 'auto',
+                })
+            }else{
+                this.configStyle = Object.assign(this.configStyle,{
+                    left: 'calc(50% - 450px)',
+                    top: '50px',
+                    right:'auto',
+                    bottom:'auto',
+                    width:'900',
+                    height: '600',
+                })    
+            }
+           
+            this.fullscreen = !this.fullscreen
+        },   
     },
     created(){
         this.getTreeData();
@@ -897,6 +938,18 @@ body .el-select-dropdown__item.selected {
     position: absolute;
     top: 0;
     right: 10px;
+    font-size: 16px;
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    color: #808080;
+    z-index: 10;
+}
+.filter-config-wrapper .config-title .full-screen-icon{
+    position: absolute;
+    top: 0;
+    right: 40px;
     font-size: 16px;
     width: 25px;
     height: 25px;

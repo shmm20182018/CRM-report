@@ -12,7 +12,8 @@
                      :paramsInfo="reportInfo.paramsInfo"
                      @query-params-change ="queryParamsChange"
                      @search-data ="searchData"
-                     :phoneFlag="phoneFlag"></filter-form>
+                     :phoneFlag="phoneFlag"
+                     ref="filter"></filter-form>
       </transition>
     </div>
     <p class="report-title" v-if="!phoneFlag">{{reportTitle}}</p>
@@ -38,7 +39,7 @@
         <server-table  v-show="showTableFlag"
                       :tableInfo="reportInfo.tableInfo" 
                       :hasChart="reportInfo.chartInfo.series"
-                      :queryParams = "queryParams"
+                      :queryParams ="queryParams"
                       :id ="reportInfo.id"
                       :engine ="$route.params.engine"
                       :phoneFlag="phoneFlag"
@@ -135,8 +136,15 @@ export default {
           if(this.reportInfo.chartInfo.series){
             this.showChartFlag =true;        
           }
-          if(this.reportInfo.queryImmediately)
-            this.searchData(true);
+          if(this.reportInfo.queryImmediately){
+            //调用api查询数据时，过滤参数的值是从查询按钮触发取值的
+            //必填的日期类型控件在定义中有可能没有默认值，我们在组件中设置了默认值（没有在api中设置是因为多种解析引擎都需要设置）
+            //因为设计问题，我们想实现立即查询的效果，就要从这里触发查询按钮事件，并且必须等到过滤组件DOM完成刷新后在异步调用
+            //项目初期对vue理解的不深，目前设计的过滤参数的传递方式应该是比较变扭的，需要重构
+            this.$refs.filter.$nextTick(function(){
+               this.submitForm('ruleForm');
+            })          
+          }
       });
     },
     showToggle(type){
@@ -150,12 +158,7 @@ export default {
         this.showChartFlag =!this.showChartFlag;        
       }
     },
-    searchData(immediately){
-      if(immediately){
-        this.reportInfo.paramsInfo.forEach(param => {
-          this.queryParams[param.id] = param.defaultValue;
-        });
-      }
+    searchData(){
       this.$Http('post',"api/report/search",this.searchParams).then((res)=>{
         if(res.data.tableInfo){
           this.reportInfo.tableInfo = Object.assign({},this.reportInfo.tableInfo,res.data.tableInfo); 

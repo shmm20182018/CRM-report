@@ -1,6 +1,6 @@
 <template>
     <div class="config-content">
-        <el-tabs v-if="changeFullScreen" v-model="activeNameTag" @tab-click="tabClick">
+        <el-tabs v-if="changeFullScreen" v-model="activeNameTag">
             <el-tab-pane label="数据源属性" name="dataSource">
                 <div class="obj-config-wrapper">
                     <div class="left-obj-config">
@@ -14,6 +14,7 @@
                             </el-form-item>    
                         </el-form>   
                         <el-tree
+                            :check-strictly = "true"
                             :data="selectDsTreeData"
                             show-checkbox
                             highlight-current
@@ -52,12 +53,12 @@
                                     <i class="el-icon-setting" @click="openQuan"></i>
                                 </el-form-item> 
                             </el-collapse-item>
-                            <el-collapse-item title="列属性" name="4" v-if="step.operation.type==3 && currentDataSourceTreeNode.field" >
+                            <el-collapse-item title="列属性" name="4" v-if="operation.type==3 && currentDataSourceTreeNode.field" >
                                     <el-form-item label="是否分组主列">
-                                        <el-switch v-model="currentDataSourceTreeNode.isKeyCol" active-value="1" inactive-value="0"></el-switch>
+                                        <el-switch v-model="currentDataSourceTreeNode.isKeyCol" active-value="1" inactive-value="0" @change="colPropKeyChange"></el-switch>
                                     </el-form-item>
                                     <el-form-item label="是否数据列">
-                                        <el-switch v-model="currentDataSourceTreeNode.isUnoCol"  active-value="1" inactive-value="0"></el-switch>
+                                        <el-switch v-model="currentDataSourceTreeNode.isUnoCol"  active-value="1" inactive-value="0" @change="colPropUnoChange"></el-switch>
                                     </el-form-item>
                                     <el-form-item label="是否日期列">
                                         <el-switch v-model="currentDataSourceTreeNode.isDateCol" active-value="1" inactive-value="0"></el-switch>
@@ -114,25 +115,25 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="step.operation.type == 2" class="guanlian-operate-wrapper">
+                    <div v-if="operation.type == 2" class="guanlian-operate-wrapper">
                         <el-form class="guanlian-operate-form" :model="form" label-width="100px" size="small" label-position="left" >
                         <div class="guanlian-operate-content">
                             <el-form-item label="选择操作主表">
-                                <el-select v-model="dsCompareId"  @change='opeSelChange(dsCompareId)' placeholder="">
+                                <!-- <el-select v-model="dsCompareId"  @change='opeSelChange(dsCompareId)' placeholder="">
                                     <el-option v-for="(ds,selIndex) in dataSourceIdList" 
                                         :selIndex="selIndex" 
                                         :key="ds.selIndex"
                                         :label="ds.senmaName" 
                                         :value="ds.id">
                                     </el-option>
-                                </el-select>
+                                </el-select> -->
                             </el-form-item>
                             <el-form-item class="guanlian-operate-textarea" label="对象关联关系">
-                                <el-input type="textarea" v-model="step.operation.mapColFormula"></el-input>
-                                <el-button @click="openAssoc" type="primary" plain class="guanlian-operate-btn">设置关系</el-button>
+                                <el-input type="textarea" v-model="operation.mapColFormula"></el-input>
+                                <el-button @click="openAssoc" class="guanlian-operate-btn">设置关系</el-button>
                             </el-form-item>
                              <el-form-item label="链接方式">
-                                <el-select v-model="step.operation.mapColText" placeholder="">
+                                <el-select v-model="operation.mapColText" placeholder="">
                                     <el-option  label="左连接" value="0"></el-option>
                                     <el-option  label="全连接" value="1"></el-option>
                                 </el-select>
@@ -140,58 +141,54 @@
                         </div>
                         </el-form>
                     </div>
-                    <div v-if="step.operation.type == 3" class="duibi-operate-wrapper">
+                    <div v-if="operation.type == 3" class="duibi-operate-wrapper">
                         <el-form class="duibi-operate-form" :model="form" label-width="100px" size="small" label-position="left" >
                             <div class="duibi-form-left">
-                                <el-form-item label="操作对象列表">
-                                    <el-select v-model="dsCompareId" @change='opeSelChange(dsCompareId)' placeholder="">
-                                        <el-option v-for="(ds,selIndex) in dataSourceIdList" 
-                                            :selIndex="selIndex" 
-                                            :key="ds.selIndex"
+                                <el-form-item label="操作对象">
+                                    <el-select v-model="step.dataSource[0].id" disabled   placeholder="">
+                                        <el-option v-for="(ds) in step.dataSource" 
+                                            :key="ds.id"
                                             :label="ds.senmaName" 
                                             :value="ds.id">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
                                 <el-form-item label="已选主列列表">
-                                    <el-select v-model="dsCompareKey" filterable placeholder="请选择主列">
+                                    <el-select placeholder="" mainColList>
                                         <el-option
-                                            v-for="(ds,selIndex) in step.operation.mainColList" 
-                                            :selIndex="selIndex" 
-                                            :key="ds.selIndex"
-                                            :label="ds.label" 
-                                            :value="ds.id">
+                                            v-for="(mainCol,index) in mainColList" 
+                                            :key= index
+                                            :label="mainCol.label" 
+                                            :value="mainCol.field">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
                                 <el-form-item label="已选数据列列表">
-                                    <el-select v-model="dsCompareUno" filterable placeholder="请选择数据列">
+                                    <el-select  placeholder="">
                                         <el-option 
-                                            v-for="(ds,selIndex) in step.operation.dataColList" 
-                                            :selIndex="selIndex" 
-                                            :key="ds.selIndex"
-                                            :label="ds.label" 
-                                            :value="ds.id">
+                                            v-for="(dataCol,index) in dataColList" 
+                                            :key= index
+                                            :label="dataCol.label" 
+                                            :value="dataCol.field">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
-                                <input type="hidden" v-model="compText">
                             </div>
                             <div class="duibi-form-right">
                                 <el-form-item label="同期">
-                                    <el-switch v-model="step.operation.tqFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.tqFlag" active-value="1" inactive-value="0"></el-switch>
                                 </el-form-item>
                                 <el-form-item label="上期">
-                                    <el-switch v-model="step.operation.sqFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.sqFlag" active-value="1" inactive-value="0"></el-switch>
                                 </el-form-item>
                                 <el-form-item label="本年累计">
-                                    <el-switch v-model="step.operation.bnljFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.bnljFlag" active-value="1" inactive-value="0"></el-switch>
                                 </el-form-item>
                                 <el-form-item label="同期累计">
-                                    <el-switch v-model="step.operation.tqljFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.tqljFlag" active-value="1" inactive-value="0"></el-switch>
                                 </el-form-item>
                                 <el-form-item label="区间环比">
-                                    <el-switch v-model="step.operation.qjhbFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.qjhbFlag" active-value="1" inactive-value="0"></el-switch>
                                 </el-form-item>
                             </div>       
                         </el-form>
@@ -536,6 +533,7 @@ export default {
   'paramMatchArray','assocFormulaArray','allDSCheckedNodes','fullscreen'],
   data () {
     return {
+        operation: this.step.operation,   //操作对象
         dragParamDOM:'',
         dragAuthDOM:'',
         dragFormulaDOM:'',
@@ -550,9 +548,9 @@ export default {
         assocFormulaIndex:0,
         resultRowIndex:0,
         compSelIndex:0,
-        dsCompareId:'',//比较操作
-        dsCompareKey:'',//比较操作
-        dsCompareUno:'',//比较操作
+        // dsCompareId:'',//比较操作
+        // dsCompareKey:'',//比较操作
+        // dsCompareUno:'',//比较操作
         paramShowFlag:false,//参数配置
         authShowFlag:false,//权限配置
         paramFormulaShowFlag:false,//公式配置
@@ -613,26 +611,9 @@ export default {
             this.changeFullScreen = true;
         })
     }
-    /*selectDsTreeCheckedNodes:{
-        handler: function (newNode) { 
-            this.step.operation.mainColList.length = 0
-            this.step.operation.dataColList.length = 0
-             for(let node of newNode){
-                if(node.isKeyCol){
-                    this.step.operation.mainColList.push(node)
-                }
-                if(node.isUnoCol){
-                    this.step.operation.dataColList.push(node)
-                }
-            }
-            console.log(this.step.operation.dataColList)
-        },
-        deep:true 
-    }*/
   },
   computed:{
     selectDataSource(){
-
         return  this.step.dataSource[this.selectDataSourceIndex];
     },
     selectDsTreeData(){
@@ -663,24 +644,78 @@ export default {
         findCheckdKeys(fields);
         return checkedKeys;
     },
-    dataSourceIdList(){
-        var dataSourceIdList = []
-        for(let dataSoruce of this.step['dataSource']){
-            dataSourceIdList.push(dataSoruce)
+    // dataSourceIdList(){
+    //     var dataSourceIdList = []
+    //     for(let dataSoruce of this.step['dataSource']){
+    //         dataSourceIdList.push(dataSoruce)
+    //     }
+    //     this.$set(this.operation,'dataSourceIdList',dataSourceIdList)
+    //     this.dsCompareId = this.operation.dataSourceIdList[0].id
+    //     return dataSourceIdList
+    // },
+    // compText(){
+    //     this.operation.compText = this.operation.tqFlag+';'+this.operation.sqFlag+';'+this.operation.bnljFlag
+    //             +';'+this.operation.tqljFlag+';'+this.operation.qjhbFlag
+    //             console.log(this.operation.compText)
+    //     return this.operation.tqFlag+';'+this.operation.sqFlag+';'+this.operation.bnljFlag
+    //             +';'+this.operation.tqljFlag+';'+this.operation.qjhbFlag
+    // },
+    mainColList(){
+        var mainColList = [];
+        for(let ds of this.step.dataSource){
+            var fields =  ds.fields;       
+            var findMainCol = function(fields){
+            fields.forEach(function(field){
+                    if(field.useFlag=='1' && field.isKeyCol=='1' ){
+                     mainColList.push(field);
+                    }
+                    else if(field.hasChild){
+                        findMainCol(field.children);
+                    }
+                });          
+            }
+            findMainCol(fields);
         }
-        this.$set(this.step.operation,'dataSourceIdList',dataSourceIdList)
-        this.dsCompareId = this.step.operation.dataSourceIdList[0].id
-        return dataSourceIdList
+        return mainColList;
     },
-    compText(){
-        this.step.operation.compText = this.step.operation.tqFlag+';'+this.step.operation.sqFlag+';'+this.step.operation.bnljFlag
-                +';'+this.step.operation.tqljFlag+';'+this.step.operation.qjhbFlag
-                console.log(this.step.operation.compText)
-        return this.step.operation.tqFlag+';'+this.step.operation.sqFlag+';'+this.step.operation.bnljFlag
-                +';'+this.step.operation.tqljFlag+';'+this.step.operation.qjhbFlag
+    dataColList(){
+       var dataColList = [];
+        for(let ds of this.step.dataSource){
+            var fields =  ds.fields;       
+            var findDataCol = function(fields){
+            fields.forEach(function(field){
+                    if(field.useFlag=='1' && field.isUnoCol=='1' ){
+                     dataColList.push(field);
+                    }
+                    else if(field.hasChild){
+                        findDataCol(field.children);
+                    }
+                });          
+            }
+            findDataCol(fields);
+        }
+        return dataColList;
     }
   },
   methods: {
+    //列属性-是否分组主列值变化
+    colPropKeyChange(newVal){
+        this.$set( this.operation.mainColList,this.currentDataSourceTreeNode.id,{ 
+            useFlag:this.currentDataSourceTreeNode.useFlag,
+            checked:newVal,
+            field:this.currentDataSourceTreeNode.field,
+            label:this.currentDataSourceTreeNode.label
+        })
+    },
+    //列属性-是否数据列值变化
+    colPropUnoChange(newVal){
+        this.$set( this.operation.dataColList,this.currentDataSourceTreeNode.id,{ 
+            useFlag:this.currentDataSourceTreeNode.useFlag,
+            checked:newVal,
+            field:this.currentDataSourceTreeNode.field,
+            label:this.currentDataSourceTreeNode.label
+        })
+    },
     nodeClick(currentNode){
         this.currentDataSourceTreeNode=currentNode
     },
@@ -692,24 +727,26 @@ export default {
         this.allDSCheckedNodes[this.selectDataSourceIndex]['selectNodes'] = selectDsTreeCheckedNodes
 
     },
-    tabClick(tab,event){
-       if(tab.index ==0){
-            return false;
-        }else if(tab.index ==1){
-        //console.log(this.selectDsTreeCheckedNodes)
-            this.step.operation.mainColList.length = 0
-            this.step.operation.dataColList.length = 0
-            for(let node of this.selectDsTreeCheckedNodes){
-                if(node.isKeyCol=='1'){
-                    this.step.operation.mainColList.push(node)
-                }
-                if(node.isUnoCol =='1'){
-                    this.step.operation.dataColList.push(node)
-                }
-            }
-        }  
+    //在这里处理操作的数据是错误的
+    // tabClick(tab,event){
+    //    if(tab.index !=1){
+    //         return false;
+    //     }else{
+
+    //     //console.log(this.selectDsTreeCheckedNodes)
+    //         this.operation.mainColList.length = 0
+    //         this.operation.dataColList.length = 0
+    //          for(let node of this.selectDsTreeCheckedNodes){
+    //             if(node.isKeyCol=='1'){
+    //                 this.operation.mainColList.push(node)
+    //             }
+    //             if(node.isUnoCol =='1'){
+    //                 this.operation.dataColList.push(node)
+    //             }
+    //         }
+    //     }   
         
-    },
+    // },
     openCan(){
         this.paramShowFlag = true;
         this.$nextTick(()=>{
@@ -876,16 +913,16 @@ export default {
         }  
     },
     saveAssoc(){
-        this.step.operation.mapColFormula = ''
+        this.operation.mapColFormula = ''
         for(let assoc of  this.assocFormulaArray){
             var dsFirst = assoc.dsFirst.split(',')
             var fieldFirst = assoc.fieldFirst.split(',')
             var fieldSecond = assoc.fieldSecond.split(',')
             var dsSecond = assoc.dsSecond.split(',')
-            this.step.operation.mapColFormula += dsFirst[1] + '.[' + fieldFirst[1]+ ']=' + dsSecond[1] + '.[' + fieldSecond[1] + '],'
+            this.operation.mapColFormula += dsFirst[1] + '.[' + fieldFirst[1]+ ']=' + dsSecond[1] + '.[' + fieldSecond[1] + '],'
         }
-        this.step.operation.mapColFormula = this.step.operation.mapColFormula.substring(0,this.step.operation.mapColFormula.length-1)  
-        console.log(this.step.operation.mapColFormula)
+        this.operation.mapColFormula = this.operation.mapColFormula.substring(0,this.operation.mapColFormula.length-1)  
+        console.log(this.operation.mapColFormula)
     },
     changeAssocIndex(index){
         if(this.assocFormulaIndex == index){

@@ -303,7 +303,7 @@ export default {
         operation:[
             {type:'1',name:'合并操作'},
             {type:'2',name:'关联操作',mapColText:'',mapColFormula:''},
-            {type:'3',name:'对比操作',mainColList:[],dataColList:[],compText:''}
+            {type:'3',name:'对比操作',mainColList:{},dataColList:{}}
         ],
         configData:{},//每一步对象
         filterText:'',
@@ -483,7 +483,6 @@ export default {
             event.dataTransfer.setData("Text",node.data.id+','+node.data.label+','+node.data.tableName+',objType');
         },
         allowDrag(draggingNode) {
-            //console.log(draggingNode)
             if(draggingNode.childNodes && draggingNode.childNodes.length) return false;
             else return true;
         },
@@ -499,9 +498,8 @@ export default {
                     name:"合并操作",
                     mapColText:'0',
                     mapColFormula:'',
-                    dataSourceIdList:[],
-                    mainColList:[],
-                    dataColList:[],
+                    mainColList:{},
+                    dataColList:{},
                     tqFlag:'0',
                     sqFlag:'0',
                     bnljFlag:'0',

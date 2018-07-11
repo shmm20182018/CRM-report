@@ -14,6 +14,7 @@
                             </el-form-item>    
                         </el-form>   
                         <el-tree
+                            check-strictly
                             :data="selectDsTreeData"
                             show-checkbox
                             highlight-current
@@ -152,27 +153,28 @@
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="已选主列列表">
-                                    <el-select placeholder="">
-                                        <el-option
-                                            v-if="operation.mainColList[key].useFlag=='1' && operation.mainColList[key].checked=='1'"  v-for="(key) in Object.keys(operation.mainColList)" 
-                                            :key="operation.mainColList[key].field"
-                                            :label="operation.mainColList[key].label" 
-                                            :value="operation.mainColList[key].field">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="已选数据列列表">
-                                    <el-select  placeholder="">
-                                        <el-option 
-                                            v-for="(ds,selIndex) in operation.dataColList" 
-                                            :selIndex="selIndex" 
-                                            :key="ds.selIndex"
-                                            :label="ds.label" 
-                                            :value="ds.id">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
+                                <el-dropdown>
+                                    <span class="el-dropdown-link">
+                                        已选主列列表<i class="el-icon-arrow-down el-icon--right"></i>
+                                    </span>  
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="col.isKeyCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
+                                            {{ col.label}}
+                                        </el-dropdown-item>     
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                                 <el-dropdown>
+                                    <span class="el-dropdown-link">
+                                        已选数据列表<i class="el-icon-arrow-down el-icon--right"></i>
+                                    </span>  
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="col.isUnoCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
+                                            {{ col.label}}
+                                        </el-dropdown-item>     
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                               
+                               
                             </div>
                             <div class="duibi-form-right">
                                 <el-form-item label="同期">
@@ -537,16 +539,12 @@ export default {
         dragAssocDOM:'',
         selectDataSourceIndex:this.dataSourceIndex, //当前选择的数据源索引
         currentDataSourceTreeNode:{},             //当前选中的数据源树节点,在created时需要根据计算属性selectDsTreeData初始
-        selectDsTreeCheckedNodes:[],
         resultFinallyShowFlag:false,//用于result
         rightMatchIndex:0,
         paramMatchIndex:0,
         assocFormulaIndex:0,
         resultRowIndex:0,
         compSelIndex:0,
-        // dsCompareId:'',//比较操作
-        // dsCompareKey:'',//比较操作
-        // dsCompareUno:'',//比较操作
         paramShowFlag:false,//参数配置
         authShowFlag:false,//权限配置
         paramFormulaShowFlag:false,//公式配置
@@ -606,27 +604,13 @@ export default {
         },
         deep:true
     }
-    /*selectDsTreeCheckedNodes:{
-        handler: function (newNode) { 
-            this.operation.mainColList.length = 0
-            this.operation.dataColList.length = 0
-             for(let node of newNode){
-                if(node.isKeyCol){
-                    this.operation.mainColList.push(node)
-                }
-                if(node.isUnoCol){
-                    this.operation.dataColList.push(node)
-                }
-            }
-            console.log(this.operation.dataColList)
-        },
-        deep:true 
-    }*/
   },
   computed:{
+    //当前选中的数据源
     selectDataSource(){
         return  this.step.dataSource[this.selectDataSourceIndex];
     },
+    //当前选中数据源tree data
     selectDsTreeData(){
         var parentNode = {
              id:this.selectDataSource.senmaId,
@@ -638,6 +622,7 @@ export default {
         }
         return [parentNode];
     },
+    //当前选中数据源tree的默认选中节点，用于tree节点的默认勾选
     selectDsTreeDefaultCheckedKeys(){
         var fields =  this.selectDataSource.fields;
         var checkedKeys = [];
@@ -655,73 +640,46 @@ export default {
         findCheckdKeys(fields);
         return checkedKeys;
     },
-    // dataSourceIdList(){
-    //     var dataSourceIdList = []
-    //     for(let dataSoruce of this.step['dataSource']){
-    //         dataSourceIdList.push(dataSoruce)
-    //     }
-    //     this.$set(this.operation,'dataSourceIdList',dataSourceIdList)
-    //     this.dsCompareId = this.operation.dataSourceIdList[0].id
-    //     return dataSourceIdList
-    // },
-    // compText(){
-    //     this.operation.compText = this.operation.tqFlag+';'+this.operation.sqFlag+';'+this.operation.bnljFlag
-    //             +';'+this.operation.tqljFlag+';'+this.operation.qjhbFlag
-    //             console.log(this.operation.compText)
-    //     return this.operation.tqFlag+';'+this.operation.sqFlag+';'+this.operation.bnljFlag
-    //             +';'+this.operation.tqljFlag+';'+this.operation.qjhbFlag
-    // }
+    //对比操作使用-已选主列列表、已选数据列列表
+    mainAndDataColList(){
+        var firstDs = this.step.dataSource[0];
+        var fields = firstDs.fields;
+        var list = [];
+
+        var findKeys = function(fields){
+            fields.forEach(function(field){
+                if(field.useFlag=='1' && (field.isKeyCol=='1' || field.isUnoCol=='1')){
+                   list.push({
+                       id:field.id,
+                       label:field.label,
+                       isKeyCol:field.isKeyCol,
+                       isUnoCol:field.isUnoCol
+                    });
+                }
+                else if(field.hasChild){
+                    findKeys(field.children);
+                }
+            });          
+        }
+        findKeys(fields);
+        return list;
+    }
   },
   methods: {
-    //列属性-是否分组主列值变化
-    colPropKeyChange(newVal){
-        this.$set( this.operation.mainColList,this.currentDataSourceTreeNode.id,{ 
-            useFlag:this.currentDataSourceTreeNode.useFlag,
-            checked:newVal,
-            field:this.currentDataSourceTreeNode.field,
-            label:this.currentDataSourceTreeNode.label
-        })
-    },
-    //列属性-是否数据列值变化
-    colPropUnoChange(newVal){
-        this.$set( this.operation.dataColList,this.currentDataSourceTreeNode.id,{ 
-            useFlag:this.currentDataSourceTreeNode.useFlag,
-            checked:newVal,
-            field:this.currentDataSourceTreeNode.field,
-            label:this.currentDataSourceTreeNode.label
-        })
-    },
     nodeClick(currentNode){
         this.currentDataSourceTreeNode=currentNode
     },
     checkChange(currentNode,isChecked,isHasChecked){
-        currentNode.useFlag = isChecked == true ? '1':'0';
-        this.selectDsTreeCheckedNodes = this.$refs.conTree.getCheckedNodes()
-        var selectDsTreeCheckedNodes = this.$refs.conTree.getCheckedNodes()
-        if(selectDsTreeCheckedNodes.length && selectDsTreeCheckedNodes[0].tableName){selectDsTreeCheckedNodes.splice(0,1)}
-        this.allDSCheckedNodes[this.selectDataSourceIndex]['selectNodes'] = selectDsTreeCheckedNodes
+        this.$refs.conTree.setCurrentNode(currentNode);
+        this.nodeClick(currentNode);
+        currentNode.useFlag = isChecked == true ? '1':'0';     
+        //所有选择的树节点
+        // this.selectDsTreeCheckedNodes = this.$refs.conTree.getCheckedNodes()
+        // var selectDsTreeCheckedNodes = this.$refs.conTree.getCheckedNodes()
+        // if(selectDsTreeCheckedNodes.length && selectDsTreeCheckedNodes[0].tableName){selectDsTreeCheckedNodes.splice(0,1)}
+        // this.allDSCheckedNodes[this.selectDataSourceIndex]['selectNodes'] = selectDsTreeCheckedNodes
 
     },
-    //在这里处理操作的数据是错误的
-    // tabClick(tab,event){
-    //    if(tab.index !=1){
-    //         return false;
-    //     }else{
-
-    //     //console.log(this.selectDsTreeCheckedNodes)
-    //         this.operation.mainColList.length = 0
-    //         this.operation.dataColList.length = 0
-    //          for(let node of this.selectDsTreeCheckedNodes){
-    //             if(node.isKeyCol=='1'){
-    //                 this.operation.mainColList.push(node)
-    //             }
-    //             if(node.isUnoCol =='1'){
-    //                 this.operation.dataColList.push(node)
-    //             }
-    //         }
-    //     }   
-        
-    // },
     openCan(){
         this.paramShowFlag = true;
         this.$nextTick(()=>{

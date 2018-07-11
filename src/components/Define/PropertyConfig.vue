@@ -257,7 +257,7 @@
                                 </div>
                                 <div class="result-fieldWidth result-data-item">
                                     <el-form-item>
-                                        <el-input  v-model.number="row.fieldWidth" type="number"></el-input>  
+                                        <el-input  v-model.number="row.fieldWidth" type="number"  min="0"></el-input>  
                                     </el-form-item>
                                 </div>
                                 <div class="result-fieldFormula result-data-item">
@@ -272,7 +272,7 @@
                                 </div>
                                 <div class="result-colWidth result-data-item" v-show="resultFinallyShowFlag">
                                     <el-form-item>
-                                        <el-input  v-model="row.colWidth"></el-input>  
+                                        <el-input  v-model.number="row.colWidth" type="number"  min="0"></el-input>  
                                     </el-form-item>
                                 </div>
                                 <div class="result-alignType result-data-item" v-show="resultFinallyShowFlag">
@@ -592,9 +592,6 @@ export default {
             height: '500px',
             border: '1px solid #ccc',
             background: '#fff',
-        },
-        form:{
-            name:'123'
         }
     };
   },
@@ -623,7 +620,8 @@ export default {
              name:this.selectDataSource.name,
              senName:this.selectDataSource.senmaName,
              tableName:this.selectDataSource.senmaTableName,
-             children:this.selectDataSource.fields
+             children:this.selectDataSource.fields,
+             disabled:true
         }
         return [parentNode];
     },
@@ -720,33 +718,35 @@ export default {
         this.currentDataSourceTreeNode=currentNode
     },
     checkChange(currentNode,isChecked,isHasChecked){
+        this.currentDataSourceTreeNode=currentNode
         currentNode.useFlag = isChecked == true ? '1':'0';
         this.selectDsTreeCheckedNodes = this.$refs.conTree.getCheckedNodes()
-        var selectDsTreeCheckedNodes = this.$refs.conTree.getCheckedNodes()
-        if(selectDsTreeCheckedNodes.length && selectDsTreeCheckedNodes[0].tableName){selectDsTreeCheckedNodes.splice(0,1)}
-        this.allDSCheckedNodes[this.selectDataSourceIndex]['selectNodes'] = selectDsTreeCheckedNodes
+        if(isChecked){
+            this.step.result.rows.push({
+                id:this.guid(),
+                fieldId:currentNode.fieldId,
+                fieldName:currentNode.label,
+                field:currentNode.field,
+                fieldFormula:'',
+                colTitle:currentNode.label,
+                fieldType:currentNode.fieldType,
+                fieldWidth:currentNode.fieldLength,
+                colWidth:'150',
+                alignType:'C',
+                showArea:'0'
+            })
+        }else{
+           var currentIndex = this.step.result.rows.findIndex(function(value, index, arr) {
+                                    return value.fieldId == currentNode.fieldId;
+                                })
+            this.step.result.rows.splice(currentIndex,1)
+        }
+        console.log(this.step.result.rows.splice)
+        //var selectDsTreeCheckedNodes = this.selectDsTreeCheckedNodes
+        //if(selectDsTreeCheckedNodes.length && selectDsTreeCheckedNodes[0].tableName){selectDsTreeCheckedNodes.splice(0,1)}
+       // this.allDSCheckedNodes[this.selectDataSourceIndex]['selectNodes'] = selectDsTreeCheckedNodes
 
     },
-    //在这里处理操作的数据是错误的
-    // tabClick(tab,event){
-    //    if(tab.index !=1){
-    //         return false;
-    //     }else{
-
-    //     //console.log(this.selectDsTreeCheckedNodes)
-    //         this.operation.mainColList.length = 0
-    //         this.operation.dataColList.length = 0
-    //          for(let node of this.selectDsTreeCheckedNodes){
-    //             if(node.isKeyCol=='1'){
-    //                 this.operation.mainColList.push(node)
-    //             }
-    //             if(node.isUnoCol =='1'){
-    //                 this.operation.dataColList.push(node)
-    //             }
-    //         }
-    //     }   
-        
-    // },
     openCan(){
         this.paramShowFlag = true;
         this.$nextTick(()=>{
@@ -983,7 +983,7 @@ export default {
                     newAddRows.push({
                         id:this.guid(),
                         sort:newAddRows.length,
-                        fieldId:node.id,
+                        fieldId:node.fieldId,
                         fieldName:node.label,
                         field:node.field,
                         fieldFormula:'',

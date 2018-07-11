@@ -1,6 +1,6 @@
 <template>
     <div class="config-content">
-        <el-tabs v-model="activeNameTag" @tab-click="tabClick">
+        <el-tabs v-if="changeFullScreen" v-model="activeNameTag" @tab-click="tabClick">
             <el-tab-pane label="数据源属性" name="dataSource">
                 <div class="obj-config-wrapper">
                     <div class="left-obj-config">
@@ -212,12 +212,12 @@
                             <div class="result-list-title">
                                 <div class="result-select result-title-item"></div>
                                 <div class="result-sort result-title-item">序号</div>
-                                <div class="result-fieldDSId result-title-item">数据源</div>
                                 <div class="result-fieldName result-title-item">字段名称</div>
                                 <div class="result-field result-title-item">结果列名</div>
                                 <div class="result-colTitle1 result-title-item">结果名称</div>
                                 <div class="result-fieldType1 result-title-item">字段类型</div>
                                 <div class="result-fieldWidth result-title-item">字段长度</div>
+                                <div class="result-fieldFormula result-title-item">辅助列公式</div>
                                 <div class="result-colTitle2 result-title-item" v-show="resultFinallyShowFlag">标题</div>
                                 <div class="result-colWidth result-title-item" v-show="resultFinallyShowFlag">列宽</div>
                                 <div class="result-alignType result-title-item" v-show="resultFinallyShowFlag">对齐方式</div>
@@ -225,18 +225,14 @@
                                 <div class="result-showArea result-title-item" v-show="resultFinallyShowFlag">显示位置</div>
                             </div>
                             <el-form>
+                            <draggable v-model="step.result.rows"  @start="drag=true" @end="drag=false">
                             <div v-for="(row,index) in step.result.rows" :key="index" class="result-list-item"  @click="changeResultRowIndex(index)">
                                 <div class="result-select result-data-item">
                                     <i v-show="resultRowIndex==index" class="el-icon-check"></i>
                                 </div>  
                                 <div class="result-sort result-data-item">
                                     <el-form-item >
-                                        <el-input  v-model="row.sort" :disabled="true"></el-input>
-                                    </el-form-item>
-                                </div>
-                                <div class="result-fieldDSId result-data-item">
-                                    <el-form-item >
-                                       <el-input  v-model="fieldDataSourceNames[index]" :disabled="true"></el-input> 
+                                       <el-input :value="index" :disabled="true"></el-input> 
                                     </el-form-item>
                                 </div>
                                 <div class="result-fieldName result-data-item">
@@ -264,7 +260,12 @@
                                 </div>
                                 <div class="result-fieldWidth result-data-item">
                                     <el-form-item>
-                                        <el-input  v-model="row.fieldWidth"></el-input>  
+                                        <el-input  v-model.number="row.fieldWidth" type="number"></el-input>  
+                                    </el-form-item>
+                                </div>
+                                <div class="result-fieldFormula result-data-item">
+                                    <el-form-item >
+                                       <el-input  v-model="row.fieldFormula" :disabled="true"></el-input> 
                                     </el-form-item>
                                 </div>
                                 <div class="result-colTitle2 result-data-item" v-show="resultFinallyShowFlag">
@@ -304,6 +305,7 @@
                                     </el-form-item>
                                 </div>
                             </div>
+                            </draggable>
                             </el-form>
                         </div>
                     </div>
@@ -527,10 +529,11 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
 import FormulaConfig from './FormulaConfig.vue'
 export default {
   props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','rightMatchArray',
-  'paramMatchArray','assocFormulaArray','allDSCheckedNodes','fieldDataSourceNames'],
+  'paramMatchArray','assocFormulaArray','allDSCheckedNodes','fullscreen'],
   data () {
     return {
         dragParamDOM:'',
@@ -541,6 +544,7 @@ export default {
         currentDataSourceTreeNode:{},             //当前选中的数据源树节点,在created时需要根据计算属性selectDsTreeData初始
         selectDsTreeCheckedNodes:[],
         resultFinallyShowFlag:false,//用于result
+        resultDragRows:this.step.result.rows,
         rightMatchIndex:0,
         paramMatchIndex:0,
         assocFormulaIndex:0,
@@ -553,6 +557,7 @@ export default {
         authShowFlag:false,//权限配置
         paramFormulaShowFlag:false,//公式配置
         assocShowFlag:false,//关系操作公式配置
+        changeFullScreen:true, 
         activeNames:['1','2','3','4'],
         activeNameTag:this.activeNameCon,
         authList:[
@@ -602,11 +607,11 @@ export default {
         },
         deep:true      
     },
-    allDSCheckedNodes:{
-        handler: function (newVal) { 
-            console.log(newVal)
-        },
-        deep:true
+    fullscreen(){
+        this.changeFullScreen = false;
+        this.$nextTick(()=>{
+            this.changeFullScreen = true;
+        })
     }
     /*selectDsTreeCheckedNodes:{
         handler: function (newNode) { 
@@ -921,37 +926,53 @@ export default {
         this.resultRowIndex = index;
     },
     createResult(){
+        for(let i=0; i<this.step.result.rows.length; i++){//sort按新排序赋值
+            this.$set(this.step.result.rows[i],'sort',i)
+        }
         var oldRows = this.step.result.rows.concat()
-        this.step.result.rows.length = 0
+        var newAddRows = []
+        this.step.result.rows.length = 0   
         for(let i in  this.allDSCheckedNodes){
             for(let node of this.allDSCheckedNodes[i]['selectNodes']){
                 var isNewNode = true;
                 for(let oldRow of oldRows){
                     if(node.id == oldRow.fieldId){
-                        this.step.result.rows.push(oldRow)
+                        this.step.result.rows.push(oldRow)//原来rows排序已被打乱，按照数据源顺序排序
                         isNewNode = false;
                         break;
                     }
                 }
                 if(isNewNode){
-                    this.step.result.rows.push({
+                    newAddRows.push({
                         id:this.guid(),
-                        sort:this.step.result.rows.length,
-                        fieldDataSourceId:this.step.dataSource[i].id,
+                        sort:newAddRows.length,
                         fieldId:node.id,
                         fieldName:node.label,
                         field:node.field,
-                        colTitle:'',
-                        fieldType:'',
-                        fieldWidth:'',
-                        colWidth:'',
-                        alignType:'',
-                        showArea:''
-                    })
+                        fieldFormula:'',
+                        colTitle:node.label,
+                        fieldType:node.fieldType,
+                        fieldWidth:node.fieldLength,
+                        colWidth:'150',
+                        alignType:'C',
+                        showArea:'0'
+                    }) 
                 }
-                this.fieldDataSourceNames.push(this.step.dataSource[i].name)
             } 
-        }    
+        }
+        if(this.step.result.rows.length){
+            this.step.result.rows.sort(function (a, b) {//oldRow恢复排序
+                return a['sort']*1 - b['sort']*1;  
+            }); 
+            for(let n in this.step.result.rows){ //去掉已删除的字段row的序号，再次排序
+                this.step.result.rows[n]['sort'] = n
+            }
+            var rowsLength = this.step.result.rows.length -1
+            for(let newrow of  newAddRows){ //新添加的字段row序号处理
+                newrow.sort = newrow.sort*1 + rowsLength
+            }
+        }     
+        this.step.result.rows = this.step.result.rows.concat(newAddRows)
     },
     createFinallyResult(){
         this.resultFinallyShowFlag = !this.resultFinallyShowFlag
@@ -961,6 +982,7 @@ export default {
      this.currentDataSourceTreeNode = this.selectDsTreeData[0];
   },
   components:{
+      draggable,
       FormulaConfig:FormulaConfig
   }
   
@@ -999,8 +1021,11 @@ export default {
     color: #808080;
     z-index: 10;
 }
+.right-propterty-config .el-tabs__nav{
+    width: 100%;
+}
 .right-propterty-config .el-tabs__item {
-    width: 300px;
+    width: 33.3333333%;
     text-align: center;
 }
 .obj-config-wrapper,.ope-config-wrapper,.res-config-wrapper{
@@ -1671,6 +1696,7 @@ export default {
 .result-list-item:hover .el-input__inner{
     border-radius: 0;
     background: #E0F4F7;
+    cursor: pointer;
 }
 .result-title-item,.result-data-item{
     border-left: 1px solid #E6E7EB;
@@ -1706,7 +1732,7 @@ export default {
     width: 80px;
 }
 .result-field,.result-colTitle1,.result-colTitle2,.result-fieldName,
-.result-fieldDSId{
+.result-fieldFormula{
     flex: 0.2;
 }
 .result-finally-show .result-fieldType1{
@@ -1720,11 +1746,11 @@ export default {
 .result-finally-show .result-field,
 .result-finally-show .result-colTitle1,
 .result-finally-show .result-fieldName,
-.result-finally-show .result-fieldDSId{
+.result-finally-show .result-fieldFormula{
     flex: 0.25;
 }
 .result-data-item .el-form-item {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 .result-data-item .el-form-item__content{
     line-height: 30px;

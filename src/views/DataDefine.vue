@@ -126,7 +126,7 @@
                                         :paramMatchArray="paramMatchArray[index]"
                                         :assocFormulaArray="assocFormulaArray[index]"
                                         :allDSCheckedNodes ="allDSCheckedNodes[index]"
-                                        :fieldDataSourceNames="fieldDataSourceNames">
+                                        :fullscreen="fullscreen">
                                     </property-config>
                                 </div>
                             </div>  
@@ -283,7 +283,6 @@ export default {
         dragFilterDOM:'',
         openDataSourceIndex:0,  //待打开数据源的索引
         allDSCheckedNodes:[],//result操作使用
-        fieldDataSourceNames:[],//result操作使用
         reportInfo:{
             id:'',
             code:'',
@@ -409,7 +408,7 @@ export default {
                     code:'',
                     name:'',
                     sort:'',
-                    paramType:'',
+                    paramType:'1',
                     helpId:'',
                     helpBH:'',
                     helpTJ:'',
@@ -558,19 +557,18 @@ export default {
                     right:'0',
                     bottom:'0',
                     width:'auto',
-                    height: 'auto',
+                    height: 'auto'
                 })
             }else{
                 this.configStyle = Object.assign(this.configStyle,{
                     left: 'calc(50% - 450px)',
-                    top: '50px',
+                    top: '20px',
                     right:'auto',
                     bottom:'auto',
-                    width:'900',
-                    height: '600',
+                    width:'900px',
+                    height: '600px'
                 })    
             }
-           
             this.fullscreen = !this.fullscreen
         },   
     },

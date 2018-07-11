@@ -12,7 +12,7 @@
           <div class="filter-code">参数编号</div>
           <div class="filter-name">参数名称</div>
         </div>
-        <div v-for="(filter,index) in filterParams" :key="index" @click="changeIndex(index)" class="filter-list-item">
+        <div v-for="(filter,index) in filterParams" :key="index" @click="changeIndex(index)" class="filter-list-item" :class="filterIndex==index?'filter-list-item-active':''">
           <div class="filter-code">{{filter.code}}</div>
           <div class="filter-name">{{filter.name}}</div>
         </div>
@@ -112,7 +112,7 @@ export default {
             code:'',
             name:'',
             sort:'',
-            paramType:'',
+            paramType:'1',
             helpId:'',
             helpBH:'',
             helpTJ:'',
@@ -232,8 +232,11 @@ export default {
   font-size: 12px;
   font-weight: normal;
 }
-.filter-list-title:hover,.filter-list-item:hover{
-  background-color: #f5f7fa;
+.filter-list-item:hover{
+  background-color: #E0F4F7;
+}
+.filter-list-item-active{
+  background-color: #E0F4F7;
 }
 .filter-config-left .filter-code{
   flex: 0 0 100px;

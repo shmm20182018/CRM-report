@@ -14,7 +14,7 @@
                             </el-form-item>    
                         </el-form>   
                         <el-tree
-                            :check-strictly = "true"
+                            check-strictly
                             :data="selectDsTreeData"
                             show-checkbox
                             highlight-current
@@ -153,26 +153,28 @@
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="已选主列列表">
-                                    <el-select placeholder="" mainColList>
-                                        <el-option
-                                            v-for="(mainCol,index) in mainColList" 
-                                            :key= index
-                                            :label="mainCol.label" 
-                                            :value="mainCol.field">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="已选数据列列表">
-                                    <el-select  placeholder="">
-                                        <el-option 
-                                            v-for="(dataCol,index) in dataColList" 
-                                            :key= index
-                                            :label="dataCol.label" 
-                                            :value="dataCol.field">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
+                                <el-dropdown>
+                                    <span class="el-dropdown-link">
+                                        已选主列列表<i class="el-icon-arrow-down el-icon--right"></i>
+                                    </span>  
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="col.isKeyCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
+                                            {{ col.label}}
+                                        </el-dropdown-item>     
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                                 <el-dropdown>
+                                    <span class="el-dropdown-link">
+                                        已选数据列表<i class="el-icon-arrow-down el-icon--right"></i>
+                                    </span>  
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="col.isUnoCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
+                                            {{ col.label}}
+                                        </el-dropdown-item>     
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                               
+                               
                             </div>
                             <div class="duibi-form-right">
                                 <el-form-item label="同期">
@@ -540,7 +542,6 @@ export default {
         dragAssocDOM:'',
         selectDataSourceIndex:this.dataSourceIndex, //当前选择的数据源索引
         currentDataSourceTreeNode:{},             //当前选中的数据源树节点,在created时需要根据计算属性selectDsTreeData初始
-        selectDsTreeCheckedNodes:[],
         resultFinallyShowFlag:false,//用于result
         resultDragRows:this.step.result.rows,
         rightMatchIndex:0,
@@ -548,9 +549,6 @@ export default {
         assocFormulaIndex:0,
         resultRowIndex:0,
         compSelIndex:0,
-        // dsCompareId:'',//比较操作
-        // dsCompareKey:'',//比较操作
-        // dsCompareUno:'',//比较操作
         paramShowFlag:false,//参数配置
         authShowFlag:false,//权限配置
         paramFormulaShowFlag:false,//公式配置
@@ -610,9 +608,11 @@ export default {
     }
   },
   computed:{
+    //当前选中的数据源
     selectDataSource(){
         return  this.step.dataSource[this.selectDataSourceIndex];
     },
+    //当前选中数据源tree data
     selectDsTreeData(){
         var parentNode = {
              id:this.selectDataSource.senmaId,
@@ -625,6 +625,7 @@ export default {
         }
         return [parentNode];
     },
+    //当前选中数据源tree的默认选中节点，用于tree节点的默认勾选
     selectDsTreeDefaultCheckedKeys(){
         var fields =  this.selectDataSource.fields;
         var checkedKeys = [];
@@ -642,78 +643,32 @@ export default {
         findCheckdKeys(fields);
         return checkedKeys;
     },
-    // dataSourceIdList(){
-    //     var dataSourceIdList = []
-    //     for(let dataSoruce of this.step['dataSource']){
-    //         dataSourceIdList.push(dataSoruce)
-    //     }
-    //     this.$set(this.operation,'dataSourceIdList',dataSourceIdList)
-    //     this.dsCompareId = this.operation.dataSourceIdList[0].id
-    //     return dataSourceIdList
-    // },
-    // compText(){
-    //     this.operation.compText = this.operation.tqFlag+';'+this.operation.sqFlag+';'+this.operation.bnljFlag
-    //             +';'+this.operation.tqljFlag+';'+this.operation.qjhbFlag
-    //             console.log(this.operation.compText)
-    //     return this.operation.tqFlag+';'+this.operation.sqFlag+';'+this.operation.bnljFlag
-    //             +';'+this.operation.tqljFlag+';'+this.operation.qjhbFlag
-    // },
-    mainColList(){
-        var mainColList = [];
-        for(let ds of this.step.dataSource){
-            var fields =  ds.fields;       
-            var findMainCol = function(fields){
+    //对比操作使用-已选主列列表、已选数据列列表
+    mainAndDataColList(){
+        var firstDs = this.step.dataSource[0];
+        var fields = firstDs.fields;
+        var list = [];
+
+        var findKeys = function(fields){
             fields.forEach(function(field){
-                    if(field.useFlag=='1' && field.isKeyCol=='1' ){
-                     mainColList.push(field);
-                    }
-                    else if(field.hasChild){
-                        findMainCol(field.children);
-                    }
-                });          
-            }
-            findMainCol(fields);
+                if(field.useFlag=='1' && (field.isKeyCol=='1' || field.isUnoCol=='1')){
+                   list.push({
+                       id:field.id,
+                       label:field.label,
+                       isKeyCol:field.isKeyCol,
+                       isUnoCol:field.isUnoCol
+                    });
+                }
+                else if(field.hasChild){
+                    findKeys(field.children);
+                }
+            });          
         }
-        return mainColList;
-    },
-    dataColList(){
-       var dataColList = [];
-        for(let ds of this.step.dataSource){
-            var fields =  ds.fields;       
-            var findDataCol = function(fields){
-            fields.forEach(function(field){
-                    if(field.useFlag=='1' && field.isUnoCol=='1' ){
-                     dataColList.push(field);
-                    }
-                    else if(field.hasChild){
-                        findDataCol(field.children);
-                    }
-                });          
-            }
-            findDataCol(fields);
-        }
-        return dataColList;
+        findKeys(fields);
+        return list;
     }
   },
   methods: {
-    //列属性-是否分组主列值变化
-    colPropKeyChange(newVal){
-        this.$set( this.operation.mainColList,this.currentDataSourceTreeNode.id,{ 
-            useFlag:this.currentDataSourceTreeNode.useFlag,
-            checked:newVal,
-            field:this.currentDataSourceTreeNode.field,
-            label:this.currentDataSourceTreeNode.label
-        })
-    },
-    //列属性-是否数据列值变化
-    colPropUnoChange(newVal){
-        this.$set( this.operation.dataColList,this.currentDataSourceTreeNode.id,{ 
-            useFlag:this.currentDataSourceTreeNode.useFlag,
-            checked:newVal,
-            field:this.currentDataSourceTreeNode.field,
-            label:this.currentDataSourceTreeNode.label
-        })
-    },
     nodeClick(currentNode){
         this.currentDataSourceTreeNode=currentNode
     },

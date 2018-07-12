@@ -214,7 +214,7 @@ export default {
   flex: 1;
   margin:10px;
   height: 515px;
-  overflow: hidden;
+  overflow: auto;
   box-sizing: border-box;
   border: 1px solid #E6E7EB;
 }
@@ -242,11 +242,13 @@ export default {
   flex: 0 0 100px;
   width: 100px;
   padding-left: 5px;
+  overflow:hidden;
 }
 .filter-config-left .filter-name{
   flex: 1;
   padding-left: 5px;
   border-left: 1px solid #E6E7EB;
+  overflow:hidden;
 }
 .filter-config-right{
   flex: 0 0 450px;

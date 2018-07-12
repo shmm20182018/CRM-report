@@ -125,7 +125,6 @@
                                         :rightMatchArray="rightMatchArray[index]"
                                         :paramMatchArray="paramMatchArray[index]"
                                         :assocFormulaArray="assocFormulaArray[index]"
-                                        :allDSCheckedNodes ="allDSCheckedNodes[index]"
                                         :fullscreen="fullscreen">
                                     </property-config>
                                 </div>
@@ -282,7 +281,6 @@ export default {
         dragPropertyDOM:'',
         dragFilterDOM:'',
         openDataSourceIndex:0,  //待打开数据源的索引
-        allDSCheckedNodes:[],//result操作使用
         reportInfo:{
             id:'',
             code:'',
@@ -451,8 +449,8 @@ export default {
             return data.label.indexOf(value) !== -1;
         },
         tagClose(index2,index) {//删除tag标签
+            if(this.configShowFlag){return false;}
             this.reportInfo.steps[index].dataSource.splice(index2, 1);
-            this.allDSCheckedNodes[index].splice(index2,1)
         },
         cogTabClick(tab, event){
            // console.log(tab, event);
@@ -475,7 +473,6 @@ export default {
             this.$Http('get',treeDataUrl).then((res)=>{
                 dataSource.fields = res.data     
                 this.reportInfo.steps[index].dataSource.push(dataSource);
-                this.allDSCheckedNodes[index].push({selectNodes:[]})
                 console.log(res.data)
              })
         },
@@ -538,14 +535,12 @@ export default {
                 sourceIndex1:0,
                 sourceIndex2:0
             }])
-            this.allDSCheckedNodes.push([])
         },
         deleteStep(index){
             this.reportInfo.steps.splice(index,1)
             this.paramMatchArray.splice(index,1)
             this.rightMatchArray.splice(index,1)
             this.assocFormulaArray.splice(index,1)
-            this.allDSCheckedNodes.splice(index,1)
         },
         fullScreenToggle () {
             if(!this.fullscreen){
@@ -661,7 +656,7 @@ export default {
     z-index: 1000;
     width: 100%;
     min-height: 400px; 
-    overflow-y: scroll;
+    overflow-y: auto;
     border-bottom: 1px solid #D6DBDB;
     padding: 8px;
     box-sizing: border-box;

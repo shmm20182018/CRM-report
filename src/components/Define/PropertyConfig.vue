@@ -55,10 +55,10 @@
                             </el-collapse-item>
                             <el-collapse-item title="列属性" name="4" v-if="operation.type==3 && currentDataSourceTreeNode.field" >
                                     <el-form-item label="是否分组主列">
-                                        <el-switch v-model="currentDataSourceTreeNode.isKeyCol" active-value="1" inactive-value="0" @change="colPropKeyChange"></el-switch>
+                                        <el-switch v-model="currentDataSourceTreeNode.isKeyCol" active-value="1" inactive-value="0"></el-switch>
                                     </el-form-item>
                                     <el-form-item label="是否数据列">
-                                        <el-switch v-model="currentDataSourceTreeNode.isUnoCol"  active-value="1" inactive-value="0" @change="colPropUnoChange"></el-switch>
+                                        <el-switch v-model="currentDataSourceTreeNode.isUnoCol"  active-value="1" inactive-value="0"></el-switch>
                                     </el-form-item>
                                     <el-form-item label="是否日期列">
                                         <el-switch v-model="currentDataSourceTreeNode.isDateCol" active-value="1" inactive-value="0"></el-switch>
@@ -153,28 +153,16 @@
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
-                                <el-dropdown>
-                                    <span class="el-dropdown-link">
-                                        已选主列列表<i class="el-icon-arrow-down el-icon--right"></i>
-                                    </span>  
-                                    <el-dropdown-menu slot="dropdown">
-                                        <el-dropdown-item v-if="col.isKeyCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
-                                            {{ col.label}}
-                                        </el-dropdown-item>     
-                                    </el-dropdown-menu>
-                                </el-dropdown>
-                                 <el-dropdown>
-                                    <span class="el-dropdown-link">
-                                        已选数据列表<i class="el-icon-arrow-down el-icon--right"></i>
-                                    </span>  
-                                    <el-dropdown-menu slot="dropdown">
-                                        <el-dropdown-item v-if="col.isUnoCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
-                                            {{ col.label}}
-                                        </el-dropdown-item>     
-                                    </el-dropdown-menu>
-                                </el-dropdown>
-                               
-                               
+                                <div class="duibi-checkedcol-list">
+                                    <div class="duibi-keyCol">
+                                        <div class="duibi-col-title" :class="mainAndDataColList.length?'':'last-col-item'">已选主列列表</div>
+                                        <div class="duibi-col-item" :class="(index == mainAndDataColList.length-1)?'last-col-item':''"  v-if="col.isKeyCol=='1'"  v-for="(col,index) in mainAndDataColList" :key="index" >{{ col.label}}</div>
+                                    </div>
+                                    <div class="duibi-UnoCol">
+                                        <div class="duibi-col-title" :class="mainAndDataColList.length?'':'last-col-item'">已选数据列列表</div>
+                                        <div class="duibi-col-item"  :class="(index == mainAndDataColList.length-1)?'last-col-item':''"  v-if="col.isUnoCol=='1'"  v-for="(col,index) in mainAndDataColList" :key="index">{{ col.label}}</div>
+                                    </div>
+                                </div>  
                             </div>
                             <div class="duibi-form-right">
                                 <el-form-item label="同期">
@@ -201,7 +189,6 @@
                 <div class="res-config-wrapper">
                     <div class="result-config-menu">
                         <ul>
-                            <li @click="createResult">重新生成结果</li>
                             <li >字段公式操作</li>
                             <li @click="createFinallyResult">设置最终结果</li>
                         </ul>
@@ -345,21 +332,21 @@
                         </div>  
                         <div class="canshu-lbracket canshu-data-item">
                             <el-form-item >
-                                <el-select v-model="paramMatch.lbracket" clearable placeholder="">
+                                <el-select v-model="paramMatch.lbracket" clearable @focus="changeParamIndex(index)" placeholder="">
                                     <el-option label="(" value="0"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
                         <div class="canshu-source canshu-data-item">
                             <el-form-item >
-                                <el-select v-model="paramMatch.dataSource" clearable @change="changeParamSourceIndex(paramMatch.dataSource,index)" placeholder="">
+                                <el-select v-model="paramMatch.dataSource" clearable @focus="changeParamIndex(index)" @change="changeParamSourceIndex(paramMatch.dataSource,index)" placeholder="">
                                     <el-option v-for="(obj,index) in step.dataSource" :key="index" :label="obj.name" :value="obj.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
                         <div class="canshu-field canshu-data-item">
                             <el-form-item>
-                                <el-select v-model="paramMatch.field" filterable clearable placeholder="" @change="changeParamIndex(index)">
+                                <el-select v-model="paramMatch.field" filterable clearable placeholder=""  @change="changeParamField(index)" @focus="changeParamIndex(index)">
                                     <el-option  v-for="(obj,index) in step.dataSource[paramMatch.sourceIndex].fields" :key="index" :label="obj.label" :value="obj.id+','+obj.label"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -371,28 +358,28 @@
                         </div>
                         <div class="canshu-paramType canshu-data-item">
                             <el-form-item>
-                                <el-select v-model="paramMatch.paramType" clearable placeholder="" @change="changeParamIndex(index)">
+                                <el-select v-model="paramMatch.paramType" clearable placeholder="" @focus="changeParamIndex(index)">
                                     <el-option v-for="(obj,index) in paramTypes" :key="index" :label="obj.name" :value="obj.value"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
                         <div class="canshu-param canshu-data-item">
                             <el-form-item>
-                                <el-select v-model="paramMatch.param" clearable placeholder="" @change="changeParamIndex(index)">
+                                <el-select v-model="paramMatch.param" clearable placeholder="" @focus="changeParamIndex(index)">
                                     <el-option  v-for="(filterParam,index) in filterParams" :key="index" :label="filterParam.code" :value="filterParam.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
                         <div class="canshu-rbracket canshu-data-item">
                             <el-form-item >
-                                <el-select v-model="paramMatch.lbracket" clearable placeholder="" @change="changeParamIndex(index)">
+                                <el-select v-model="paramMatch.lbracket" clearable placeholder="" @focus="changeParamIndex(index)">
                                     <el-option label=")" value="0"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
                         <div class="canshu-relation canshu-data-item">
                             <el-form-item >
-                                <el-select v-model="paramMatch.relation" clearable placeholder="" @change="changeParamIndex(index)">
+                                <el-select v-model="paramMatch.relation" clearable placeholder="" @focus="changeParamIndex(index)">
                                     <el-option label="并且" value="0"></el-option>
                                     <el-option label="或者" value="1"></el-option>
                                 </el-select>
@@ -431,21 +418,21 @@
                         </div>  
                         <div class="quanxian-source">
                             <el-form-item>
-                                <el-select v-model="rightMatch.dataSource" clearable @change="changeRightSourceIndex(rightMatch.dataSource,index)" placeholder="请选择">
+                                <el-select v-model="rightMatch.dataSource" clearable @focus="changeRightIndex(index)" @change="changeRightSourceIndex(rightMatch.dataSource,index)" placeholder="请选择">
                                     <el-option v-for="(obj,index) in step.dataSource" :key="index" :label="obj.name" :value="obj.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
                         <div class="quanxian-field">
                             <el-form-item>
-                                <el-select v-model="rightMatch.field" filterable clearable placeholder="请选择" @change="changeRightIndex(index)">
+                                <el-select v-model="rightMatch.field" filterable clearable placeholder="请选择" @focus="changeRightIndex(index)">
                                     <el-option v-for="(obj,index) in step.dataSource[rightMatch.sourceIndex].fields" :key="index" :label="obj.label" :value="obj.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
                         <div class="quanxian-type">
                             <el-form-item>
-                                <el-select v-model="rightMatch.type" clearable placeholder="请选择" @change="changeRightIndex(index)">
+                                <el-select v-model="rightMatch.type" clearable placeholder="请选择" @focus="changeRightIndex(index)">
                                     <el-option v-for="(authItem,index) in  authList" :key="index" :label="authItem.name" :value="authItem.value"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -485,14 +472,14 @@
                         </div>  
                         <div class="assoc-ds-first assoc-data-item">
                             <el-form-item >
-                                <el-select v-model="assocFormula.dsFirst" clearable @change="changeAssocSourceIndex(assocFormula.dsFirst,index,'sourceIndex1','fieldFirst')" placeholder="请选择">
+                                <el-select v-model="assocFormula.dsFirst" clearable @focus="changeAssocIndex(index)" @change="changeAssocSourceIndex(assocFormula.dsFirst,index,'sourceIndex1','fieldFirst')" placeholder="请选择">
                                     <el-option v-for="(ds,index) in step.dataSource" :key="index" :label="ds.name" :value="ds.id+','+ds.name"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
                         <div class="assoc-field-first assoc-data-item">
                             <el-form-item >
-                                <el-select v-model="assocFormula.fieldFirst" clearable filterable placeholder="请选择" @change="changeAssocIndex(index)">
+                                <el-select v-model="assocFormula.fieldFirst" clearable filterable placeholder="请选择" @focus="changeAssocIndex(index)">
                                     <el-option  v-for="(obj,index) in step.dataSource[assocFormula.sourceIndex1].fields" :key="index" :label="obj.label" :value="obj.id+','+obj.label"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -502,14 +489,14 @@
                         </div>
                         <div class="assoc-ds-second assoc-data-item">
                             <el-form-item >
-                                <el-select v-model="assocFormula.dsSecond" clearable @change="changeAssocSourceIndex(assocFormula.dsSecond,index,'sourceIndex2','fieldSecond')" placeholder="请选择">
+                                <el-select v-model="assocFormula.dsSecond" clearable @focus="changeAssocIndex(index)" @change="changeAssocSourceIndex(assocFormula.dsSecond,index,'sourceIndex2','fieldSecond')" placeholder="请选择">
                                     <el-option v-for="(ds,index) in step.dataSource" :key="index" :label="ds.name" :value="ds.id+','+ds.name"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
                         <div class="assoc-field-second assoc-data-item">
                             <el-form-item >
-                                <el-select v-model="assocFormula.fieldSecond" clearable filterable  placeholder="请选择" @change="changeAssocIndex(index)">
+                                <el-select v-model="assocFormula.fieldSecond" clearable filterable  placeholder="请选择" @focus="changeAssocIndex(index)">
                                     <el-option  v-for="(obj,index) in step.dataSource[assocFormula.sourceIndex2].fields" :key="index" :label="obj.label" :value="obj.id+','+obj.label"></el-option>
                                 </el-select>
                             </el-form-item>
@@ -532,7 +519,7 @@ import draggable from 'vuedraggable'
 import FormulaConfig from './FormulaConfig.vue'
 export default {
   props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','rightMatchArray',
-  'paramMatchArray','assocFormulaArray','allDSCheckedNodes','fullscreen'],
+  'paramMatchArray','assocFormulaArray','fullscreen'],
   data () {
     return {
         operation: this.step.operation,   //操作对象
@@ -543,7 +530,6 @@ export default {
         selectDataSourceIndex:this.dataSourceIndex, //当前选择的数据源索引
         currentDataSourceTreeNode:{},             //当前选中的数据源树节点,在created时需要根据计算属性selectDsTreeData初始
         resultFinallyShowFlag:false,//用于result
-        resultDragRows:this.step.result.rows,
         rightMatchIndex:0,
         paramMatchIndex:0,
         assocFormulaIndex:0,
@@ -590,6 +576,9 @@ export default {
             height: '500px',
             border: '1px solid #ccc',
             background: '#fff',
+        },
+        form:{
+            name:'123'
         }
     };
   },
@@ -620,8 +609,7 @@ export default {
              name:this.selectDataSource.name,
              senName:this.selectDataSource.senmaName,
              tableName:this.selectDataSource.senmaTableName,
-             children:this.selectDataSource.fields,
-             disabled:true
+             children:this.selectDataSource.fields
         }
         return [parentNode];
     },
@@ -659,7 +647,7 @@ export default {
                        isUnoCol:field.isUnoCol
                     });
                 }
-                else if(field.hasChild){
+                if(field.hasChild){
                     findKeys(field.children);
                 }
             });          
@@ -676,7 +664,7 @@ export default {
         this.currentDataSourceTreeNode=currentNode
         currentNode.useFlag = isChecked == true ? '1':'0';
         this.selectDsTreeCheckedNodes = this.$refs.conTree.getCheckedNodes()
-        if(isChecked){
+        if(isChecked && !currentNode.tableName){
             this.step.result.rows.push({
                 id:this.guid(),
                 fieldId:currentNode.fieldId,
@@ -690,17 +678,12 @@ export default {
                 alignType:'C',
                 showArea:'0'
             })
-        }else{
+        }else if(!isChecked && !currentNode.tableName){
            var currentIndex = this.step.result.rows.findIndex(function(value, index, arr) {
                                     return value.fieldId == currentNode.fieldId;
                                 })
             this.step.result.rows.splice(currentIndex,1)
         }
-        console.log(this.step.result.rows.splice)
-        //var selectDsTreeCheckedNodes = this.selectDsTreeCheckedNodes
-        //if(selectDsTreeCheckedNodes.length && selectDsTreeCheckedNodes[0].tableName){selectDsTreeCheckedNodes.splice(0,1)}
-       // this.allDSCheckedNodes[this.selectDataSourceIndex]['selectNodes'] = selectDsTreeCheckedNodes
-
     },
     openCan(){
         this.paramShowFlag = true;
@@ -763,6 +746,9 @@ export default {
         }else{
             this.paramMatchIndex = index;
         }
+    },
+    changeParamField(index){
+        this.paramMatchArray[index]['formula'] = ''
     },
     changeParamSourceIndex(id,index){
         this.$set(this.paramMatchArray[index],'field','')
@@ -916,55 +902,6 @@ export default {
     },
     changeResultRowIndex(index){
         this.resultRowIndex = index;
-    },
-    createResult(){
-        for(let i=0; i<this.step.result.rows.length; i++){//sort按新排序赋值
-            this.$set(this.step.result.rows[i],'sort',i)
-        }
-        var oldRows = this.step.result.rows.concat()
-        var newAddRows = []
-        this.step.result.rows.length = 0   
-        for(let i in  this.allDSCheckedNodes){
-            for(let node of this.allDSCheckedNodes[i]['selectNodes']){
-                var isNewNode = true;
-                for(let oldRow of oldRows){
-                    if(node.id == oldRow.fieldId){
-                        this.step.result.rows.push(oldRow)//原来rows排序已被打乱，按照数据源顺序排序
-                        isNewNode = false;
-                        break;
-                    }
-                }
-                if(isNewNode){
-                    newAddRows.push({
-                        id:this.guid(),
-                        sort:newAddRows.length,
-                        fieldId:node.fieldId,
-                        fieldName:node.label,
-                        field:node.field,
-                        fieldFormula:'',
-                        colTitle:node.label,
-                        fieldType:node.fieldType,
-                        fieldWidth:node.fieldLength,
-                        colWidth:'150',
-                        alignType:'C',
-                        showArea:'0'
-                    }) 
-                }
-            } 
-        }
-        if(this.step.result.rows.length){
-            this.step.result.rows.sort(function (a, b) {//oldRow恢复排序
-                return a['sort']*1 - b['sort']*1;  
-            }); 
-            for(let n in this.step.result.rows){ //去掉已删除的字段row的序号，再次排序
-                this.step.result.rows[n]['sort'] = n
-            }
-            var rowsLength = this.step.result.rows.length -1
-            for(let newrow of  newAddRows){ //新添加的字段row序号处理
-                newrow.sort = newrow.sort*1 + rowsLength
-            }
-        }     
-        this.step.result.rows = this.step.result.rows.concat(newAddRows)
     },
     createFinallyResult(){
         this.resultFinallyShowFlag = !this.resultFinallyShowFlag
@@ -1151,6 +1088,8 @@ export default {
     border-top: 1px solid #E6E7EB;
     border-right: 1px solid #E6E7EB;
     height: 100%;
+    overflow:auto;
+    box-sizing: border-box;
 }
 .duibi-form-left .el-select{
     width: 75%;
@@ -1164,6 +1103,39 @@ export default {
     padding: 10px 20px;
     border-top: 1px solid #E6E7EB;
     height: 100%;
+}
+.duibi-checkedcol-list{
+    display: flex;
+    width: calc((100% - 100px) * 0.75 + 100px);
+    box-sizing: border-box;
+    border: 1px solid #E6E7EB;
+    font-size: 12px; 
+}
+.duibi-checkedcol-list .duibi-keyCol{
+    flex: .5;
+    height:auto;
+}
+.duibi-checkedcol-list .duibi-UnoCol{
+    flex: .5;
+    height: auto;
+}
+.duibi-checkedcol-list .duibi-UnoCol{
+    border-left:1px solid #E6E7EB;
+}
+.duibi-col-title,.duibi-col-item{
+    border-bottom: 1px solid #E6E7EB;
+    height: 40px;
+    line-height: 40px;
+    padding-left: 5px;
+}
+.duibi-col-title{
+    background-color: #f5f7fa;
+}
+.last-col-item{
+    border-bottom: none;
+}
+.duibi-col-item:hover{
+  background-color: #E0F4F7;
 }
 .canshu-config-wrapper,.quanxian-config-wrapper{
     z-index: 3010;

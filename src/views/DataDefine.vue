@@ -487,24 +487,21 @@ export default {
             return false;
         },
         insertStep(){
+            var id = this.guid();
             this.reportInfo.steps.push({
                 dataSource:[],
                 operation:{
-                    id:this.guid(),
+                    id:id,
                     type:'1',
                     name:"合并操作",
                     mapColText:'0',
                     mapColFormula:'',
                     mainColList:{},
                     dataColList:{},
-                    tqFlag:'0',
-                    sqFlag:'0',
-                    bnljFlag:'0',
-                    tqljFlag:'0',
-                    qjhbFlag:'0'
+                    compType:['','','','','']
                 },
                 result:{
-                    id:this.guid(),
+                    id:id,
                     name:'结果属性',
                     isEndResult:'0',
                     rows:[]

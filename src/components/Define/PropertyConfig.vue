@@ -155,7 +155,6 @@
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
-<<<<<<< Updated upstream
                                 <div class="duibi-checkedcol-list">
                                     <div class="duibi-keyCol">
                                         <div class="duibi-col-title" :class="mainAndDataColList.length?'':'last-col-item'">已选主列列表</div>
@@ -166,44 +165,22 @@
                                         <div class="duibi-col-item"  :class="(index == mainAndDataColList.length-1)?'last-col-item':''"  v-if="col.isUnoCol=='1'"  v-for="(col,index) in mainAndDataColList" :key="index">{{ col.label}}</div>
                                     </div>
                                 </div>  
-=======
-                                <el-dropdown>
-                                    <span class="el-dropdown-link">
-                                        已选主列列表<i class="el-icon-arrow-down el-icon--right"></i>
-                                    </span>  
-                                    <el-dropdown-menu slot="dropdown">
-                                        <el-dropdown-item v-if="col.isKeyCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
-                                            {{ col.label}}
-                                        </el-dropdown-item>     
-                                    </el-dropdown-menu>
-                                </el-dropdown>
-                                 <el-dropdown>
-                                    <span class="el-dropdown-link">
-                                        已选数据列表<i class="el-icon-arrow-down el-icon--right"></i>
-                                    </span>  
-                                    <el-dropdown-menu slot="dropdown">
-                                        <el-dropdown-item v-if="col.isUnoCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
-                                            {{ col.label}}
-                                        </el-dropdown-item>     
-                                    </el-dropdown-menu>
-                                </el-dropdown>
->>>>>>> Stashed changes
                             </div>
                             <div class="duibi-form-right">
                                 <el-form-item label="同期">
-                                    <el-switch v-model="operation.tqFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.compType[0]" active-value="TQ" inactive-value=""></el-switch>
                                 </el-form-item>
                                 <el-form-item label="上期">
-                                    <el-switch v-model="operation.sqFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.compType[1]" active-value="SY" inactive-value=""></el-switch>
                                 </el-form-item>
                                 <el-form-item label="本年累计">
-                                    <el-switch v-model="operation.bnljFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.compType[2]" active-value="BNLJ" inactive-value=""></el-switch>
                                 </el-form-item>
                                 <el-form-item label="同期累计">
-                                    <el-switch v-model="operation.tqljFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.compType[3]" active-value="TQLJ" inactive-value=""></el-switch>
                                 </el-form-item>
                                 <el-form-item label="区间环比">
-                                    <el-switch v-model="operation.qjhbFlag" active-value="1" inactive-value="0"></el-switch>
+                                    <el-switch v-model="operation.compType[4]" active-value="QJLJ" inactive-value=""></el-switch>
                                 </el-form-item>
                             </div>       
                         </el-form>
@@ -253,7 +230,7 @@
                                 </div>
                                 <div class="result-field result-data-item">
                                     <el-form-item>
-                                        <el-input  v-model="row.field"></el-input>  
+                                        <el-input  v-model="row.aliasCol"></el-input>  
                                     </el-form-item>
                                 </div>
                                 <div class="result-colTitle1 result-data-item">
@@ -276,7 +253,7 @@
                                 </div>
                                 <div class="result-fieldFormula result-data-item">
                                     <el-form-item >
-                                       <el-input  v-model="row.fieldFormula" :disabled="true"></el-input> 
+                                       <el-input  :disabled="true"></el-input> 
                                     </el-form-item>
                                 </div>
                                 <div class="result-colTitle2 result-data-item" v-show="resultFinallyShowFlag">
@@ -629,7 +606,8 @@ export default {
     //当前选中数据源tree data
     selectDsTreeData(){
         var parentNode = {
-             id:this.selectDataSource.senmaId,
+             id:this.selectDataSource.id,
+             senmaID:this.selectDataSource.senmaId,
              label:this.selectDataSource.name,
              name:this.selectDataSource.name,
              senName:this.selectDataSource.senmaName,
@@ -688,14 +666,16 @@ export default {
     checkChange(currentNode,isChecked,isHasChecked){
         this.currentDataSourceTreeNode=currentNode
         currentNode.useFlag = isChecked == true ? '1':'0';
-        this.selectDsTreeCheckedNodes = this.$refs.conTree.getCheckedNodes()
+
         if(isChecked && !currentNode.tableName){
             this.step.result.rows.push({
                 id:this.guid(),
+                srcId:this.selectDsTreeData[0].id,
                 fieldId:currentNode.fieldId,
                 fieldName:currentNode.label,
                 field:currentNode.field,
-                fieldFormula:'',
+                fieldFormula:currentNode.field,
+                aliasCol:currentNode.field,                
                 colTitle:currentNode.label,
                 fieldType:currentNode.fieldType,
                 fieldWidth:currentNode.fieldLength,

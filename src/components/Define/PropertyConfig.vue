@@ -15,15 +15,17 @@
                         </el-form>   
                         <el-tree
                             check-strictly
-                            :data="selectDsTreeData"
                             show-checkbox
                             highlight-current
+                            :expand-on-click-node="false"
                             :check-on-click-node="false"
-                            node-key="id"
+                            :data="selectDsTreeData"
+                            :default-checked-keys="selectDsTreeDefaultCheckedKeys"
                             @node-click="nodeClick"
                             @check-change="checkChange"
+                            node-key="id"
                             ref="conTree" 
-                            :default-checked-keys="selectDsTreeDefaultCheckedKeys" >
+                            >
                         </el-tree>                                                         
                     </div>
                     <div class="right-obj-config">
@@ -153,6 +155,7 @@
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
+<<<<<<< Updated upstream
                                 <div class="duibi-checkedcol-list">
                                     <div class="duibi-keyCol">
                                         <div class="duibi-col-title" :class="mainAndDataColList.length?'':'last-col-item'">已选主列列表</div>
@@ -163,6 +166,28 @@
                                         <div class="duibi-col-item"  :class="(index == mainAndDataColList.length-1)?'last-col-item':''"  v-if="col.isUnoCol=='1'"  v-for="(col,index) in mainAndDataColList" :key="index">{{ col.label}}</div>
                                     </div>
                                 </div>  
+=======
+                                <el-dropdown>
+                                    <span class="el-dropdown-link">
+                                        已选主列列表<i class="el-icon-arrow-down el-icon--right"></i>
+                                    </span>  
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="col.isKeyCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
+                                            {{ col.label}}
+                                        </el-dropdown-item>     
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                                 <el-dropdown>
+                                    <span class="el-dropdown-link">
+                                        已选数据列表<i class="el-icon-arrow-down el-icon--right"></i>
+                                    </span>  
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="col.isUnoCol=='1'" v-for="col in mainAndDataColList" :key="col.id">                                         
+                                            {{ col.label}}
+                                        </el-dropdown-item>     
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+>>>>>>> Stashed changes
                             </div>
                             <div class="duibi-form-right">
                                 <el-form-item label="同期">
@@ -623,7 +648,7 @@ export default {
                 if(field.useFlag=='1'){
                    checkedKeys.push(field.id);
                 }
-                else if(field.hasChild){
+                if(field.hasChild){
                     findCheckdKeys(field.children);
                 }
             });          

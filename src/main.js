@@ -35,9 +35,11 @@ Vue.directive('drag',//自定义指令
                          //通过事件委托，计算移动的距离 
                            let l = e.clientX - disX;
                            let t = e.clientY - disY;
-                         //移动当前元素  
-                           oDiv.style.left = l + 'px';
-                           oDiv.style.top = t + 'px';
+                         //移动当前元素 
+                         if(l>-300&&t>0&&l<document.body.clientWidth-50&&t<document.body.clientHeight-50){
+                          oDiv.style.left = l + 'px';
+                          oDiv.style.top = t + 'px';
+                         } 
                             //将此时的位置传出去
                            //binding.value({x:e.pageX,y:e.pageY})
                        };

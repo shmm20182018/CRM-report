@@ -124,7 +124,6 @@
                                         :filterParams="reportInfo.params"
                                         :rightMatchArray="rightMatchArray[index]"
                                         :paramMatchArray="paramMatchArray[index]"
-                                        :assocFormulaArray="assocFormulaArray[index]"
                                         :fullscreen="fullscreen">
                                     </property-config>
                                 </div>
@@ -312,7 +311,6 @@ export default {
         configShowFlag:false,//属性配置显示
         rightMatchArray:[],
         paramMatchArray:[],
-        assocFormulaArray:[],
         reportRules:{
             code:[{required:true,trigger: 'blur'}],
             name:[{required:true,trigger: 'blur'}]
@@ -473,7 +471,7 @@ export default {
             this.$Http('get',treeDataUrl).then((res)=>{
                 dataSource.fields = res.data     
                 this.reportInfo.steps[index].dataSource.push(dataSource);
-                console.log(res.data)
+                console.log(this.reportInfo.steps[index].dataSource)
              })
         },
         handleDragStart(node, ev) {
@@ -494,7 +492,7 @@ export default {
                     id:id,
                     type:'1',
                     name:"合并操作",
-                    mapColText:'0',
+                    mapColText:'',
                     mapColFormula:'',
                     mainColList:{},
                     dataColList:{},
@@ -524,20 +522,11 @@ export default {
                 type:'',
                 sourceIndex:'0',
             }])
-            this.assocFormulaArray.push([{
-                dsFirst:'',
-                fieldFirst:'',
-                dsSecond:'',
-                fieldSecond:'',
-                sourceIndex1:0,
-                sourceIndex2:0
-            }])
         },
         deleteStep(index){
             this.reportInfo.steps.splice(index,1)
             this.paramMatchArray.splice(index,1)
             this.rightMatchArray.splice(index,1)
-            this.assocFormulaArray.splice(index,1)
         },
         fullScreenToggle () {
             if(!this.fullscreen){

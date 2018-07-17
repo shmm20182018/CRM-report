@@ -176,6 +176,7 @@
                     <div class="result-config-menu">
                         <ul>
                             <li >字段公式操作</li>
+                            <li @click="deleteResult">删除分录</li>
                             <li @click="createFinallyResult">设置最终结果</li>
                         </ul>
                     </div>
@@ -224,7 +225,7 @@
                                 </div>
                                 <div class="result-fieldType1 result-data-item">
                                    <el-form-item >
-                                        <el-select v-model="row.fieldType"  placeholder="" @change="changeResultRowIndex(index)">
+                                        <el-select v-model="row.fieldType"  placeholder="" @focus="changeResultRowIndex(index)">
                                             <el-option label="字符串" value="C"></el-option>
                                             <el-option label="数值" value="F"></el-option>
                                         </el-select>
@@ -252,7 +253,7 @@
                                 </div>
                                 <div class="result-alignType result-data-item" v-show="resultFinallyShowFlag">
                                     <el-form-item >
-                                        <el-select v-model="row.alignType"  placeholder="" @change="changeResultRowIndex(index)">
+                                        <el-select v-model="row.alignType"  placeholder="" @focus="changeResultRowIndex(index)">
                                             <el-option label="中间对齐" value="C"></el-option>
                                             <el-option label="左对齐" value="L"></el-option>
                                             <el-option label="右对齐" value="R"></el-option>
@@ -261,7 +262,7 @@
                                 </div>
                                 <div class="result-fieldType2 result-data-item" v-show="resultFinallyShowFlag">
                                    <el-form-item >
-                                        <el-select v-model="row.fieldType"  placeholder="" @change="changeResultRowIndex(index)">
+                                        <el-select v-model="row.fieldType"  placeholder="" @focus="changeResultRowIndex(index)">
                                             <el-option label="字符串" value="C"></el-option>
                                             <el-option label="数值" value="F"></el-option>
                                         </el-select>
@@ -269,7 +270,7 @@
                                 </div>
                                  <div class="result-showArea result-data-item" v-show="resultFinallyShowFlag">
                                     <el-form-item >
-                                        <el-select v-model="row.showArea"  placeholder="" @change="changeResultRowIndex(index)">
+                                        <el-select v-model="row.showArea"  placeholder="" @focus="changeResultRowIndex(index)">
                                             <el-option label="行标题区" value="0"></el-option>
                                             <el-option label="列标题区" value="1"></el-option>
                                             <el-option label="数据区" value="2"></el-option>
@@ -333,7 +334,7 @@
                         <div class="canshu-field canshu-data-item">
                             <el-form-item>
                                 <el-select v-model="paramMatch.field" filterable clearable placeholder=""  @change="changeParamField(index)" @focus="changeParamIndex(index)">
-                                    <el-option  v-for="(obj,index) in step.dataSource[paramMatch.sourceIndex].fields" :key="index" :label="obj.label" :value="obj.id+','+obj.label"></el-option>
+                                    <el-option  v-for="(obj,index) in checkedFieldList[paramMatch.sourceIndex]" :key="index" :label="obj.label" :value="obj.id+','+obj.label"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
@@ -412,7 +413,7 @@
                         <div class="quanxian-field">
                             <el-form-item>
                                 <el-select v-model="rightMatch.field" filterable clearable placeholder="请选择" @focus="changeRightIndex(index)">
-                                    <el-option v-for="(obj,index) in step.dataSource[rightMatch.sourceIndex].fields" :key="index" :label="obj.label" :value="obj.id"></el-option>
+                                    <el-option v-for="(obj,index) in checkedFieldList[rightMatch.sourceIndex]" :key="index" :label="obj.label" :value="obj.id"></el-option>
                                 </el-select>
                             </el-form-item>
                         </div>
@@ -447,7 +448,7 @@ import FormulaConfig from './FormulaConfig.vue'
 import AssocOperation from './AssocOperation.vue'
 export default {
   props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','rightMatchArray',
-  'paramMatchArray','assocFormulaArray','fullscreen'],
+  'paramMatchArray','fullscreen'],
   data () {
     return {
         operation: this.step.operation,   //操作对象
@@ -581,6 +582,26 @@ export default {
             });          
         }
         findKeys(fields);
+        return list;
+    },
+    checkedFieldList(){//选中的字段，语义对象设置使用
+        var list = [];
+        for(let i in  this.step.dataSource){
+            list.push([])
+            var fields = this.step.dataSource[i].fields;
+            var findKeys = function(fields){
+                fields.forEach(function(field){
+                    if(field.useFlag=='1'){
+                        list[i].push({
+                            id:field.id,
+                            label:field.label,
+                            field:field.field,
+                        });
+                    }
+                });
+            }    
+            findKeys(fields);          
+        }
         return list;
     }
   },
@@ -779,6 +800,9 @@ export default {
     },
     createFinallyResult(){
         this.resultFinallyShowFlag = !this.resultFinallyShowFlag
+    },
+    deleteResult(){
+        this.step.result.rows.splice(this.resultRowIndex,1)
     }
   },
   created(){    
@@ -1256,120 +1280,7 @@ export default {
     box-shadow:gray 0 0 30px;
     background: #fff;
 }
-.assoc-config-menu{
-  height: 40px;
-  line-height: 40px;
-  border: 1px solid #E6E7EB;
-  font-size: 12px;
-  font-weight: normal;
-}
-.assoc-config-menu li{
-  display: inline-block;
-  width: 60px;
-  height: 28px;
-  line-height: 28px;
-  border: 1px solid #E6E7EB;
-  text-align: center;
-  margin-left: 5px;
-}
-.assoc-config-menu li:hover{
-  background: #109EFF;
-  color: #fff;
-  cursor: pointer;
-}
-.assoc-config-content{
-  width: 100%;
-  padding: 10px 5px; 
-  box-sizing: border-box;
-}
-.assoc-config-table{
-    width: 100%;
-    border:1px solid #E6E7EB;
-    font-size: 12px;
-    height: 380px;
-    overflow: auto;
-}
-.assoc-list-title,.assoc-list-item{
-    display: flex;
-    height: 32px;
-    line-height: 32px;
-    border-bottom: 1px solid #E6E7EB; 
-}
-.assoc-list-title:hover,.assoc-data-item:hover{
-    background-color: #f5f7fa;
-}
-.assoc-list-title{
-    background-color:  #f5f7fa;
-}
-.assoc-title-item{
-    font-size: 12px;
-    padding-left: 5px;
-    box-sizing: border-box;
-}
-.assoc-list-item{
-    font-size: 12px;
-    font-weight: normal;
-}
-.assoc-list-item:hover .el-input__inner,.assoc-list-item:hover .assoc-symbol{
-    border-radius: 0;
-    background: #E0F4F7;
-}
-.assoc-title-item,.assoc-data-item{
-    border-left: 1px solid #E6E7EB;
-}
-.assoc-select{
-    border-left:none;
-    flex: 0 0 32px;
-    width: 32px;
-    text-align: center;
-    font-size: 14px;
-    color: #109EFF
-}
-.assoc-symbol{
-    flex: 0 0 80px;
-    width: 80px;
-    text-align: center;
-    font-size: 14px;
-}
-.assoc-ds-first,.assoc-field-first,.assoc-ds-second,.assoc-field-second{
-    flex: 0.25;
-}
-.assoc-data-item .el-form-item {
-  margin-bottom: 0;
-}
-.assoc-data-item .el-form-item__content{
-    line-height: 30px;
-}
-.assoc-data-item .el-select{
-    width: 100%;
-}
-.assoc-data-item .el-input{
-    font-size: 12px;
-}
-.assoc-data-item .el-input__inner{
-    height: 32px;
-    line-height: 32px;
-    border: none;
-    padding-left: 5px;
-    padding-right: 14px;
-}
-.assoc-formula .el-input__inner{
-    padding-right: 5px;
-}
-.assoc-data-item .el-input__suffix{
-    right: 2px;
-}
-.assoc-data-item .el-select .el-input .el-select__caret{
-    font-size: 12px;
-    width: 14px;
-    opacity: 0;
-}
-.assoc-data-item .el-select .el-input .el-select__caret.is-show-close{
-    opacity: 1;
-}
-.assoc-data-item .el-select .el-input .el-select__caret.is-reverse {
-    opacity: 1;
-}
+
 .merge-config-menu{
   height: 40px;
   line-height: 40px;

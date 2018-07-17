@@ -7,7 +7,8 @@
             @change="$emit('rule-form-change',param.id,internalValue)"
             :disabled="param.readonly"
             :type="getType()"
-            :value-format="getValueFormat()">
+            :value-format="getValueFormat()"
+            placeholder="请选择">
         </el-date-picker>
       </el-form-item>        
     </div>

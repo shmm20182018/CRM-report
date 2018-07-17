@@ -27,8 +27,8 @@
               :footer-row-height="40"
               @sort-change="sortChange"
               :paging-index="(pageIndex-1)*interTableInfo.pageSize"
-              :title-row-height="phoneFlag?26:22"
-              :row-height="phoneFlag?28:24"
+              :title-row-height="phoneFlag?44:36"
+              :row-height="phoneFlag?40:32"
               :page-size="interTableInfo.pageSize" 
               :cell-merge="cellMerge"
               >
@@ -40,8 +40,8 @@
                                    :total="interTableInfo.total" 
                                    :page-size="interTableInfo.pageSize" 
                                    :page-index="pageIndex"
-                                   :layout="layoutArray"></v-pagination>
-        <span v-if="phoneFlag" class="page-count">{{pageCount}}</span>                           
+                                   :showPagingCount="1"
+                                   :layout="layoutArray"></v-pagination>                          
        </div>
   </div>
 </template>
@@ -81,7 +81,7 @@ export default {
         },
         layoutArray(){
             if(this.phoneFlag){
-                return ['total', 'prev', 'next', 'sizer', 'jumper']
+                return ['total', 'pager','sizer']
             }else{
                 return ['total', 'prev', 'pager', 'next', 'sizer', 'jumper']
             }
@@ -295,7 +295,7 @@ export default {
                             return {
                                 colSpan: 1,
                                 rowSpan: count,
-                                content: `<div class="${colorIndex?'span-cell-div-odd':'span-cell-div-even'}"><span style="padding:0 4px">${prop}</span></div>` 
+                                content: `<div class="${colorIndex?'span-cell-div-odd':'span-cell-div-even'}"><span style="padding:0 8px">${prop}</span></div>` 
                             }
                         }
                         startIndex += count;
@@ -490,39 +490,138 @@ export default {
 }  
 </script>
 <style>
-    .title-wrapper {
-        position: relative;
-        margin: 10px;
-    }
-    .title-wrapper p {
-        height: 25px;
-        line-height: 25px;
-        padding-left: 4px;
-        font-size: 18px;
-        font-weight: 700;
-        margin: 0;
-        text-align: center;
-        color: #666;
+    .table-wrapper [class^="v-icon-"]:before, .table-wrapper [class*=" v-icon-"]:before {
+        width: auto; 
+        margin-right: 0; 
+        margin-left: 0; 
     }
     .table-wrapper .exportbtn {
         position: absolute;
-        right: 15px;
-        bottom: 0px;
+        right: 22px;
+        top:0;
+        width: 16px;
+        font-size: 16px;
+        color:#7591BC;
+        margin-left: 16px;
     }
-    .v-table-class{
+    body .el-dropdown-menu{
+        margin:0;
+    }
+    body .el-dropdown-menu__item {
+        line-height: 30px;
+        padding: 0px 12px;
+        margin: 0;
+        font-size: 12px;
+        color: #606266;
+    }
+    .table-wrapper .v-table-title-cell {
+        border-color:#dadee9;
+    }
+    .table-wrapper .v-table-header, .table-wrapper .v-table-toolbar, .table-wrapper .v-table-pager, .table-wrapper .v-table-footer-inner {
+        border-color: #dadee9;;
+    }
+    .table-wrapper .v-table-body-cell{
+        padding:0 8px;
+        border-color: #e9ecf4;
+    }
+    .table-wrapper .v-table-class{
         font-size: 12px;
     }
     .v-table-body-class{
-        color:#1a1a1a;
+        color:#6C6D6F;
     }
     .v-table-sort-icon i{
-        color: #fff
+        color: #7591BC
     }
     .v-table-sort-icon i:first-child {
         top: -2px;
     }
-    .table-pagination{
-        margin-top: 15px;
+    .table-wrapper .table-pagination{
+        margin:0;
+        height: 38px;
+        line-height: 38px;
+        border: 1px solid #dadee9;
+        border-top: none;
+        background-color:#eef5ff;
+        color: #6C6D6F
+    }
+    .table-wrapper .v-page-ul{
+        margin:7px 0 7px 0;
+    }
+    .table-wrapper .v-page-li {
+        margin-right: 0; 
+        background-color:transparent; 
+        border: none; 
+        border-radius: 2px;
+    }
+    .table-wrapper .v-page-li a {
+        color: #6C6D6F;
+    }
+    .table-wrapper .v-page-li-active a {
+        color: #fff;
+    }
+    .table-wrapper .v-page-prev i, .table-wrapper .v-page-next i {
+        color: #6e94cf;
+    }
+    .table-wrapper .v-page-disabled i{
+        color: #ccc;
+    }
+    .table-wrapper .v-page-li-active {
+        background-color: #6e94cf;
+    }
+    .table-wrapper .v-page-li-active:hover {
+        border:none;
+        background-color: #6e94cf;
+    }
+    .table-wrapper .v-page-total{
+        margin: 0 30px 0 17px;
+    }
+    .table-wrapper .v-page-prev{
+        text-align: left;
+    }
+    .table-wrapper .v-page-next{
+        text-align: right;
+    }
+    .table-wrapper .v-dropdown{
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+    .table-wrapper .v-dropdown a, .table-wrapper .v-dropdown a:visited {
+        color: #6C6D6F;
+    }
+    .table-wrapper .v-dropdown--small .v-dropdown-selected, .table-wrapper .v-dropdown--small .v-dropdown-items-li {
+        font-size: 12px;
+        line-height: 22px;
+    }
+    .table-wrapper .v-dropdown-selected {
+        border: 1px solid #cdd9ec;
+        border-radius: 2px;
+    }
+    .table-wrapper .v-select-selected-i{
+        color: #6e94cf;
+        right: 6px;
+    }
+    .table-wrapper .v-dropdown-items-li.active a {
+        color: #fff;
+    }
+    .table-wrapper .v-dropdown-dd,.table-wrapper .v-dropdown-dt{
+        background-color: transparent;
+    } 
+    .table-wrapper .v-select-selected-span{
+        padding-left:0;
+    }
+    .table-wrapper .v-page-goto{
+        margin: 0;
+
+    }
+    .table-wrapper .v-page-goto-input {
+        padding: 1px 7px;
+        border: 1px solid #cdd9ec;
+        background-color: transparent;
+        border-radius: 2px;
+        color: #6C6D6F;
+        margin:0 5px;
+        vertical-align: top;
     }
     .green-style .v-table-title-class td{
         background-color: #29926F;
@@ -541,10 +640,6 @@ export default {
         background-color:rgba(77, 147, 117, 0.05) !important;
     }
     .green-style .v-page-li-active {
-        border-color: #2db7f5;
-        background-color: #2db7f5;
-    }
-    .v-page-li-active:hover {
         border-color: #2db7f5;
         background-color: #2db7f5;
     }
@@ -582,28 +677,24 @@ export default {
     }
 
     .wathet-style .v-table-title-class td{
-        background-color: #13B3BF;
-        font-weight: bold;
-        color: #fff;
+        background-color: #eaf3ff;
+        font-weight: normal;
+        color: #6C6D6F;
         white-space: nowrap;
         overflow: hidden;
     } 
      .wathet-style .v-table-body-class tr:nth-child(even){
-        background-color: #F3FBFC!important
+        background-color: #fff
     }  
      .wathet-style .v-table-body-class tr:nth-child(odd){
-        background-color:  #D1F0F2 !important;
-        color:#1a1a1a;
+        background-color:  #F5F9FF;
+        color:#6C6D6F;
     }
      .wathet-style .v-table-body-class tr:hover{
-        background-color:#D1F0F2 !important;
-    }
-     .wathet-style .v-page-li-active {
-        border-color: #2db7f5;
-        background-color: #2db7f5;
+        background-color:#ffe7e7;
     }
     .wathet-style .v-table-header-inner{
-        background-color: #13B5BC;
+        background-color: #eaf3ff;
         border-bottom: 1px solid rgb(221,221,221)
     }
     .wathet-style .v-table-header-inner tbody tr:last-child td>div{
@@ -646,7 +737,7 @@ export default {
         top: 0;
         right: 1px;
         bottom: 1px;
-        background-color: #F2FBFC;
+        background-color: #ffffff;
     }
     .span-cell-div-odd{
         position:absolute;
@@ -654,17 +745,14 @@ export default {
         top: 0;
         right: 1px;
         bottom: 1px;
-        background-color: #CCF1F2;
+        background-color: #f5f9f5;
     }
     .span-cell-div-even:hover,.span-cell-div-odd:hover{
-        background-color: #CCF1F2;
+        background-color: #eaf3ff;
     }
     .v-table-body-class td {
         position: relative;
     } 
-    .btn{
-        font-size:25px;
-    }
     .table-wrapper .v-page--small .v-page-goto .v-page-goto-input {
         outline: none;
     }
@@ -675,28 +763,34 @@ export default {
     .phone-style-class .title-wrapper{
         margin: 0;
     }
-    .phone-style-class .table-wrapper .table-pagination .page-count{
-        position: absolute;
-        top: 0;
-        right: 0;
-        font-size: 12px;
-        vertical-align: top;
-        height: 24px;
-        line-height: 24px;
-        width: 5%
+    .phone-style-class .table-wrapper .v-table-class {
+        font-size: 14px;
     }
     .phone-style-class .table-wrapper .table-pagination{
-        position: relative;
+        height: 40px;
+        line-height: 40px;
     }
-    .phone-style-class .table-wrapper .table-pagination .v-page-ul{
-        display: flex;
-        position: relative;
-        width: 95%
+    .table-wrapper .v-page-ul {
+      
+        margin: 7px 0 7px 0;
     }
-    .phone-style-class .table-wrapper .table-pagination .v-page-goto{
-        position: absolute;
-        right: 0;
-        top: 0; 
+    .phone-style-class .v-page--small .v-page-total,
+    .phone-style-class .v-page--small .v-page-li,
+    .phone-style-class .v-page--small .v-page-select,
+    .phone-style-class .v-page--small .v-page-goto,
+    .phone-style-class .v-page--small .v-page-goto .v-page-goto-input{
+        font-size:14px;
+        height:29px;
+        line-height: 29px;
+        min-width: 29px;
+    }
+    .phone-style-class  .table-wrapper .v-dropdown--small .v-dropdown-selected, .table-wrapper .v-dropdown--small .v-dropdown-items-li {
+        font-size: 14px;
+        line-height: 29px;
+    }
+    .phone-style-class .v-dropdown--small .v-dropdown-selected,
+    .phone-style-class .v-dropdown--small .v-dropdown-items-li{
+        height: 29px;
     }
     @media screen and (max-width:320px){
         .v-page--small .v-page-goto .v-page-goto-input {

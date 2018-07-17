@@ -120,25 +120,9 @@
                     <div v-if="operation.type == 2" class="guanlian-operate-wrapper">
                         <el-form class="guanlian-operate-form" :model="form" label-width="100px" size="small" label-position="left" >
                         <div class="guanlian-operate-content">
-                            <el-form-item label="选择操作主表">
-                                <!-- <el-select v-model="dsCompareId"  @change='opeSelChange(dsCompareId)' placeholder="">
-                                    <el-option v-for="(ds,selIndex) in dataSourceIdList" 
-                                        :selIndex="selIndex" 
-                                        :key="ds.selIndex"
-                                        :label="ds.senmaName" 
-                                        :value="ds.id">
-                                    </el-option>
-                                </el-select> -->
-                            </el-form-item>
                             <el-form-item class="guanlian-operate-textarea" label="对象关联关系">
-                                <el-input type="textarea" v-model="operation.mapColFormula"></el-input>
+                                <el-input type="textarea" v-model="operation.mapColText"></el-input>
                                 <el-button @click="openAssoc" class="guanlian-operate-btn">设置关系</el-button>
-                            </el-form-item>
-                             <el-form-item label="链接方式">
-                                <el-select v-model="operation.mapColText" placeholder="">
-                                    <el-option  label="左连接" value="0"></el-option>
-                                    <el-option  label="全连接" value="1"></el-option>
-                                </el-select>
                             </el-form-item>
                         </div>
                         </el-form>
@@ -444,70 +428,11 @@
                 </div>  
             </div>
         </div>
-        <div v-if="assocShowFlag" v-drag="dragAssocDOM" class="assoc-config-wrapper">
-             <p class="config-title" id="dragassoc">
-                <i class="el-icon-menu"></i>
-                <span>数据源列名匹配</span>
-                <i class="el-icon-close close-config" @click="closeAssoc"></i>
-            </p>
-            <div class="assoc-config-menu">
-                <ul>
-                    <li @click="addAssoc">新增</li>
-                    <li @click="delAssoc">删除</li>
-                    <li @click="saveAssoc">保存</li>
-                </ul>
-            </div>
-            <div class="assoc-config-content"> 
-                <div class="assoc-config-table">
-                    <div class="assoc-list-title">
-                        <div class="assoc-select assoc-title-item"></div>
-                        <div class="assoc-ds-first assoc-title-item">对象1</div>
-                        <div class="assoc-field-first assoc-title-item">对象字段1</div>
-                        <div class="assoc-symbol assoc-title-item">连接符</div>
-                        <div class="assoc-ds-second assoc-title-item">对象2</div>
-                        <div class="assoc-field-second assoc-title-item">对象字段2</div>
-                    </div>
-                    <el-form>
-                    <div v-for="(assocFormula,index) in assocFormulaArray" :key="index" class="assoc-list-item">
-                        <div class="assoc-select assoc-data-item" @click="changeAssocIndex(index)">
-                            <i v-show="assocFormulaIndex==index" class="el-icon-check"></i>
-                        </div>  
-                        <div class="assoc-ds-first assoc-data-item">
-                            <el-form-item >
-                                <el-select v-model="assocFormula.dsFirst" clearable @focus="changeAssocIndex(index)" @change="changeAssocSourceIndex(assocFormula.dsFirst,index,'sourceIndex1','fieldFirst')" placeholder="请选择">
-                                    <el-option v-for="(ds,index) in step.dataSource" :key="index" :label="ds.name" :value="ds.id+','+ds.name"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="assoc-field-first assoc-data-item">
-                            <el-form-item >
-                                <el-select v-model="assocFormula.fieldFirst" clearable filterable placeholder="请选择" @focus="changeAssocIndex(index)">
-                                    <el-option  v-for="(obj,index) in step.dataSource[assocFormula.sourceIndex1].fields" :key="index" :label="obj.label" :value="obj.id+','+obj.label"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="assoc-symbol assoc-data-item"  @click="changeAssocIndex(index)">
-                           =
-                        </div>
-                        <div class="assoc-ds-second assoc-data-item">
-                            <el-form-item >
-                                <el-select v-model="assocFormula.dsSecond" clearable @focus="changeAssocIndex(index)" @change="changeAssocSourceIndex(assocFormula.dsSecond,index,'sourceIndex2','fieldSecond')" placeholder="请选择">
-                                    <el-option v-for="(ds,index) in step.dataSource" :key="index" :label="ds.name" :value="ds.id+','+ds.name"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="assoc-field-second assoc-data-item">
-                            <el-form-item >
-                                <el-select v-model="assocFormula.fieldSecond" clearable filterable  placeholder="请选择" @focus="changeAssocIndex(index)">
-                                    <el-option  v-for="(obj,index) in step.dataSource[assocFormula.sourceIndex2].fields" :key="index" :label="obj.label" :value="obj.id+','+obj.label"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                    </div>
-                    </el-form>
-                </div>
-            </div>
-        </div>
+        <assoc-operation  v-if="assocShowFlag" v-drag="dragAssocDOM" class="assoc-config-wrapper"
+            :step=step
+            @on-open-assoc="openAssoc" 
+            @on-close-assoc="closeAssoc"
+            ></assoc-operation>
         <formula-config v-if="paramFormulaShowFlag"  v-drag="dragFormulaDOM" class="formula-config-wrapper"
             :formulaFieldValue = paramMatchArray[paramMatchIndex].formula
             @on-close-formula="closeParamFormula" 
@@ -519,6 +444,7 @@
 <script>
 import draggable from 'vuedraggable'
 import FormulaConfig from './FormulaConfig.vue'
+import AssocOperation from './AssocOperation.vue'
 export default {
   props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','rightMatchArray',
   'paramMatchArray','assocFormulaArray','fullscreen'],
@@ -534,7 +460,6 @@ export default {
         resultFinallyShowFlag:false,//用于result
         rightMatchIndex:0,
         paramMatchIndex:0,
-        assocFormulaIndex:0,
         resultRowIndex:0,
         compSelIndex:0,
         paramShowFlag:false,//参数配置
@@ -837,62 +762,6 @@ export default {
     closeAssoc(){
         this.assocShowFlag = false;
     },
-    addAssoc(){
-         if(this.assocFormulaArray.length){
-            this.assocFormulaIndex++;
-        }
-        this.assocFormulaArray.push({
-            dsFirst:'',
-            fieldFirst:'',
-            dsSecond:'',
-            fieldSecond:'',
-            sourceIndex1:0,
-            sourceIndex2:0
-        });
-    },
-    delAssoc(){
-        if(this.assocFormulaArray.length){
-            this.assocFormulaArray.splice(this.assocFormulaIndex,1);
-        }
-        if(this.assocFormulaIndex){
-            this.assocFormulaIndex--;
-        }  
-    },
-    saveAssoc(){
-        this.operation.mapColFormula = ''
-        for(let assoc of  this.assocFormulaArray){
-            var dsFirst = assoc.dsFirst.split(',')
-            var fieldFirst = assoc.fieldFirst.split(',')
-            var fieldSecond = assoc.fieldSecond.split(',')
-            var dsSecond = assoc.dsSecond.split(',')
-            this.operation.mapColFormula += dsFirst[1] + '.[' + fieldFirst[1]+ ']=' + dsSecond[1] + '.[' + fieldSecond[1] + '],'
-        }
-        this.operation.mapColFormula = this.operation.mapColFormula.substring(0,this.operation.mapColFormula.length-1)  
-        console.log(this.operation.mapColFormula)
-    },
-    changeAssocIndex(index){
-        if(this.assocFormulaIndex == index){
-            return false;
-        }else{
-            this.assocFormulaIndex = index;
-        }
-    },
-    changeAssocSourceIndex(ds,index,sourceIndex,field){
-        var id = ds.split(',')
-        this.$set(this.assocFormulaArray[index],field,'')
-        var source = this.step['dataSource']
-        for(var i in source){
-            if(id[0] == source[i]['id']){
-                this.assocFormulaArray[index][sourceIndex] = i;
-                break;
-            }
-        }
-        if(this.assocFormulaIndex == index){
-            return false;
-        }else{
-            this.assocFormulaIndex = index;
-        }
-    },
     addMerge(){
         
     },
@@ -917,7 +786,8 @@ export default {
   },
   components:{
       draggable,
-      FormulaConfig:FormulaConfig
+      FormulaConfig:FormulaConfig,
+      AssocOperation:AssocOperation
   }
   
 }

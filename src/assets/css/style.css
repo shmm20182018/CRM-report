@@ -23,6 +23,10 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+[class*=" el-icon-"], [class^=el-icon-] {
+  font-family: element-icons!important;
+  font-weight: 400;
+}
 
 .icon-floppy-disk:before {
   content: "\e962";

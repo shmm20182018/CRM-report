@@ -1,12 +1,11 @@
 <template>
   <div :class="phoneClass" class="report-show-wrapper" v-wechat-title="reportTitle">
-    <div class="filter-tools">
-      <el-tooltip content="过滤条件区" placement="bottom" effect="light">
-        <div class="filter-toggle-wrapper" @click="showToggle('filter')">
-          <img v-if="phoneFlag" class="img-toggle" src="../assets/image/filter.png" alt="">
-          <i :class="iconArrowFilter" class="icon-toggle"></i>
-        </div>
-      </el-tooltip>
+    <el-tooltip v-if="phoneFlag" content="过滤条件区" placement="bottom" effect="light">
+      <div class="filter-toggle-wrapper" @click="showToggle('filter')">
+        <i :class="iconArrowFilter" class="icon-toggle"></i>
+      </div>
+    </el-tooltip>
+    <div class="filter-tools" :class="showFilterFlag?'':'phone-filter-tools'">
       <transition name="slide-fade">
         <filter-form v-show="showFilterFlag" 
                      :paramsInfo="reportInfo.paramsInfo"
@@ -16,25 +15,29 @@
                      ref="filter"></filter-form>
       </transition>
     </div>
-    <p class="report-title" v-if="!phoneFlag">{{reportTitle}}</p>
-    <div class="chart-wrapper" v-if="reportInfo.chartInfo.series" >
-      <el-tooltip content="图表展示区" placement="bottom" effect="light">
-        <div class="filter-toggle-wrapper" @click="showToggle('chart')">
-          <img v-if="phoneFlag" class="img-toggle" src="../assets/image/chart.png" alt="">
+    <el-tooltip v-if="!phoneFlag" content="过滤条件区" placement="bottom" effect="light">
+      <div class="filter-toggle-wrapper" @click="showToggle('filter')">
+        <i :class="iconArrowFilter" class="icon-toggle"></i>
+      </div>
+    </el-tooltip>
+    <div class="report-title" v-if="reportInfo.chartInfo.series">
+        <div class="chart-toggle-wrapper" @click="showToggle('chart')">
+          <i>{{reportTitle}}</i>  
           <i :class="iconArrowChart" class="icon-toggle"></i>
         </div>
-      </el-tooltip>
+    </div>
+    <div class="chart-wrapper" v-if="reportInfo.chartInfo.series"  :class="showChartFlag?'':'chart-wrapper-hide'">
       <transition name="fade">
         <server-chart v-show="showChartFlag" :chartInfo="reportInfo.chartInfo" :queryParams = "queryParams"></server-chart> 
       </transition> 
     </div>
+    <div class="report-title" v-if="reportInfo.tableInfo.columns">
+      <div class="table-toggle-wrapper" @click="showToggle('table')">
+        <i>{{reportTableTitle}}</i>  
+        <i :class="iconArrowTable" class="icon-toggle"></i>
+      </div>
+    </div>
     <div class="report-table-wrapper" v-if="reportInfo.tableInfo.columns" v-show="reportInfo.tableInfo.columns.length>0">
-      <el-tooltip content="表格展示区" placement="bottom" effect="light">
-        <div class="filter-toggle-wrapper" @click="showToggle('table')">
-          <img v-if="phoneFlag" class="img-toggle img-toggle-table" src="../assets/image/table.png" alt="">
-          <i :class="iconArrowTable" class="icon-toggle"></i>
-        </div>
-      </el-tooltip>
       <transition name="fade" >
         <server-table  v-show="showTableFlag"
                       :tableInfo="reportInfo.tableInfo" 
@@ -90,7 +93,14 @@ export default {
       }else if(this.reportInfo.tableInfo.title){
         return this.reportInfo.tableInfo.title
       }else{
-        return ""
+        return "图表展示区域"
+      }
+    },
+    reportTableTitle(){
+      if(this.reportInfo.tableInfo.title){
+        return this.reportInfo.tableInfo.title
+      }else{
+        return "表格展示区域"
       }
     },
     initApiUrl:function(){
@@ -160,6 +170,8 @@ export default {
     },
     searchData(){
       this.$Http('post',"api/report/search",this.searchParams).then((res)=>{
+
+        console.log(res.data)
         if(res.data.tableInfo){
           this.reportInfo.tableInfo = Object.assign({},this.reportInfo.tableInfo,res.data.tableInfo); 
           if(this.phoneFlag){
@@ -194,29 +206,53 @@ export default {
 </script>
 <style>
 .report-show-wrapper{
-  padding:0 8px;
+  padding:0;
   box-sizing: border-box;
 }
 .chart-wrapper{
   width: 100%;
   display: flex;
   justify-content:center;
+   padding:28px 22px 26px 22px;
 }
-.filter-tools,.report-table-wrapper,.chart-wrapper{
+.filter-tools,.report-table-wrapper, .chart-wrapper{
   position: relative;
-  padding-top: 18px;
+}
+.report-table-wrapper{
+  padding:28px 22px 26px 22px;
+}
+.chart-wrapper-hide{
+  padding:0 22px;
+}
+.filter-tools{
+  padding:18px 22px 16px 22px;
+  border-bottom: 1px solid #E1E8F5;
 }
 .filter-toggle-wrapper{
-  position: absolute;
-  top: 0px;
-  right: 5px;
-  font-size: 18px;
+  margin-left: 49%;
+  width: 2%;
+  height: 16px;
+  line-height: 16px;
+  font-size: 14px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  text-align: center;
+  color: #7591bc;
+  background-color:#DDE6F5;
+  margin-bottom: 10px;
 }
 .img-toggle{
   height: 18px;
 }
 .icon-toggle{
   font-size: 18px;
+}
+.chart-toggle-wrapper i,.table-toggle-wrapper i{
+  font-size: 14px;
+  vertical-align: top;
+}
+.chart-toggle-wrapper .icon-toggle,.table-toggle-wrapper .icon-toggle{
+  margin-left: 6px;
 }
 .slide-fade-enter-active {
   transition: all .3s ease;
@@ -237,42 +273,39 @@ export default {
 .fade-enter, .fade-leave-to{
   opacity: 0;
 }
-.report-table-wrapper{
-  position: relative;
-  padding-top: 18px;
-}
 .report-title{
-  height: 18px;
-  line-height: 18px;
-  padding-left: 4px;
-  font-size: 18px;
-  font-weight: 700;
+  height: 14px;
+  line-height: 14px;
+  padding: 0 22px;
   margin: 0;
-  text-align: center;
-  color: #666;
-}
-.phone-style-class .filter-tools{
-  margin-bottom: 5px;
-}
-.phone-style-class .filter-toggle-wrapper{
-  height: 28px;
-  line-height: 28px;
-}
-.phone-style-class .img-toggle{
-  height: 28px;
-}
-.phone-style-class .img-toggle-table{
-  height: 24px;
-  width: 26px;
-}
-.phone-style-class .icon-toggle{
-  display: inline-block;
-  font-size: 18px;
-  height: 28px;
-  line-height: 28px;
-  vertical-align: top;
+  margin-bottom: 15px;
+  font-size: 0;
+  color: #7591bc;
+  cursor: pointer;
 }
 .phone-style-class .filter-tools, .phone-style-class .report-table-wrapper, .phone-style-class .chart-wrapper{
-  padding-top: 28px;
+  padding:0;
+  border-bottom: none;
+}
+.phone-style-class .filter-tools{
+  border-top: 1px solid#E1E8F5;
+}
+.phone-style-class .report-title{
+  height: 44px;
+  line-height: 44px;
+  padding: 0 15px;
+  margin: 0;
+  margin-bottom: 15px;
+  font-size: 0;
+  color: #999;
+  border-top: 1px solid #eaeaea;
+  border-bottom: 1px solid #ddd;
+  background-color: #f5f5ff;
+}
+.phone-style-class .chart-toggle-wrapper i,.phone-style-class .table-toggle-wrapper i {
+  vertical-align: baseline;
+}
+.phone-style-class .phone-filter-tools{
+  border-top: none;
 }
 </style>

@@ -306,6 +306,6 @@ export default {
 }
 .phone-filter-btn-right{
   margin-left: 10px;
-  margin-right: 15px;
+  margin-right: 10px;
 }
 </style>

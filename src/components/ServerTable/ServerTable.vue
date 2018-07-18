@@ -770,9 +770,8 @@ export default {
         height: 40px;
         line-height: 40px;
     }
-    .table-wrapper .v-page-ul {
-      
-        margin: 7px 0 7px 0;
+    .phone-style-class .table-wrapper .v-page-ul {   
+        margin: 5px 0 6px 0;
     }
     .phone-style-class .v-page--small .v-page-total,
     .phone-style-class .v-page--small .v-page-li,

@@ -228,6 +228,7 @@ export default {
     line-height: 44px;
     font-size: 14px;
     border: none;
+    background-color: #fff;
   }
   .phone-style-class [class*=el-col-] {
     border-bottom: 1px solid #eaeaea;

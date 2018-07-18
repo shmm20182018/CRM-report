@@ -25,6 +25,7 @@
                     </div>
                     <div class="content-wrapper">
                         <div class="search-form-wrapper">
+                            <i v-if="phoneFlag" class="icon-back el-icon-arrow-left"  @click="closeHelp"></i>
                             <div v-if="!phoneFlag" class="search-select">
                                 <el-select v-model="searchText" class="search-select">
                                     <el-option v-for="tableData in tableInfo.tableData" :key="tableData.F_BH" :value="tableData.F_BH" :label="tableData.F_MC"></el-option>
@@ -39,7 +40,7 @@
                             </div>
                         </div>
                         <div class="table-content-wrapper">
-                            <v-table  ref='table'
+                            <v-table ref='table'                            
                                 id=""
                                 :error-content-height = '320'
                                 is-vertical-resize
@@ -49,7 +50,6 @@
                                 style="width:100%"
                                 :multiple-sort="false"
                                 :min-height="300"
-                                :height="350"
                                 odd-bg-color="#F5F9FF"
                                 even-bg-color="#FFFFFF"
                                 row-click-color="#ffe7e7"                    
@@ -235,8 +235,12 @@ export default {
                      this.tableInfo.columns.unshift({width: 60, titleAlign: 'center',columnAlign:'center',type: 'selection'});
                 this.interTableData[1]=this.tableInfo.tableData;
                 this.helpShowFlag = true;
+    
                 this.$nextTick(()=>{
                     this.dragDOM = document.getElementById('drag')
+                    if(this.phoneFlag){
+                    setTimeout(()=>{this.$refs.table.resize()},340) 
+                }
                 })              
             });
         },
@@ -371,7 +375,7 @@ export default {
 .help-wrapper .search-form-wrapper{
     display: flex;
     margin-bottom: 15px;
-} 
+}
 .help-wrapper .search-form-wrapper .el-icon-search {
     position: static;
     color: #346187;
@@ -592,16 +596,19 @@ body .el-tooltip__popper.is-dark {
 .pc-style-class .help-wrapper .v-table-empty-scroll{
     height: 310px !important;
 }
-.phone-style-class     .help-slide-enter-active {
-        transition: all .3s ease;
-    }
-.phone-style-class     .help-slide-leave-active {
-        transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-    }
-.phone-style-class     .help-slide-enter, .help-slide-leave-to{
-        transform: translateX(-100%);
-        opacity: 0;
-    }
+.pc-style-class .v-table-body{
+    height: 275px !important;
+}
+.phone-style-class  .help-slide-enter-active {
+    transition: all .3s ease;
+}
+.phone-style-class    .help-slide-leave-active {
+    transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.phone-style-class  .help-slide-enter, .help-slide-leave-to{
+    transform: translateX(-100%);
+    opacity: 0;
+}
 .phone-style-class  .phone-help-wrapper-mask{
     position: static;
     background: #fff;
@@ -659,6 +666,12 @@ body .el-tooltip__popper.is-dark {
 }
 .phone-style-class    .help-wrapper .content-wrapper{
     height: 100%;
+}
+.phone-style-class .help-wrapper .icon-back{
+    font-size: 14px;
+    color: #fff;
+    line-height: 40px;
+    margin-right: 10px;
 }
 .phone-style-class .table-content-wrapper{
     height: calc(100% - 55px)

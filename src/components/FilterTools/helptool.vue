@@ -678,6 +678,6 @@ body .el-tooltip__popper.is-dark {
 }
 .phone-style-class    .help-wrapper .v-table-views {
     height: calc(100% - 40px) !important;
-    
+    overflow: scroll;
 }
 </style>

@@ -239,7 +239,7 @@ export default {
                 this.$nextTick(()=>{
                     this.dragDOM = document.getElementById('drag')
                     if(this.phoneFlag){
-                    setTimeout(()=>{this.$refs.table.resize()},340) 
+                    setTimeout(()=>{this.$refs.table.resize()},350) 
                 }
                 })              
             });

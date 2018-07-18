@@ -503,6 +503,7 @@ export default {
         font-size: 16px;
         color:#7591BC;
         margin-left: 16px;
+        cursor: pointer;
     }
     body .el-dropdown-menu{
         margin:0;
@@ -758,7 +759,7 @@ export default {
     }
    
     .phone-style-class  .table-wrapper{
-        padding-top: 0;
+        padding:0 15px;
     }
     .phone-style-class .title-wrapper{
         margin: 0;

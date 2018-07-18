@@ -39,8 +39,7 @@ Vue.directive('drag',//自定义指令
             if(l>0&&l<document.body.clientWidth-50&&t>0&&t<document.body.clientHeight-50){
               oDiv.style.left = l + 'px';
               oDiv.style.top = t + 'px';
-            }
-            
+            }        
               //将此时的位置传出去
               //binding.value({x:e.pageX,y:e.pageY})
           };

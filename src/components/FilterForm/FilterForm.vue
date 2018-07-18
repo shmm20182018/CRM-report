@@ -71,8 +71,6 @@ export default {
         this.isLineFeed = true
         return  ''
       }
-     
-
     }
   },
   watch:{
@@ -105,8 +103,9 @@ export default {
         }
       });
     },
-    resetForm(){
-      
+    resetForm(formName) {
+      console.log(1111)
+      this.$refs[formName].resetFields();
     }
   },
   components: {
@@ -228,7 +227,12 @@ export default {
     line-height: 44px;
     font-size: 14px;
     border: none;
-    background-color: #fff;
+  }
+ .phone-style-class .filterForm .el-form-item.is-error .el-input__inner{
+   border-bottom:1px solid #f56c6c;
+  }
+  .phone-style-class .filterForm .el-select .el-input__inner {
+    background-color: #ffffff;
   }
   .phone-style-class [class*=el-col-] {
     border-bottom: 1px solid #eaeaea;
@@ -270,9 +274,6 @@ export default {
     width: 30px;
     margin-bottom: 0;
 }
-  .phone-style-class  .filterForm .el-select .el-input.is-disabled .el-input__inner{
-    background-color: #fff;
-  }
   .phone-style-class ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
     color:    #ccc;
     font-size: 14px;

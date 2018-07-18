@@ -231,6 +231,7 @@ export default {
 .filter-toggle-wrapper{
   margin-left: 49%;
   width: 2%;
+  min-width: 30px;
   height: 16px;
   line-height: 16px;
   font-size: 14px;
@@ -242,10 +243,10 @@ export default {
   margin-bottom: 10px;
 }
 .img-toggle{
-  height: 18px;
+  height: 16px;
 }
 .icon-toggle{
-  font-size: 18px;
+  font-size: 16px;
 }
 .chart-toggle-wrapper i,.table-toggle-wrapper i{
   font-size: 14px;

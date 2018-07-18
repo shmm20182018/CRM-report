@@ -37,6 +37,8 @@ html{
 body{
   margin:0;
   height: 100%;
+  -webkit-text-size-adjust: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 #app{
   height: 100%;
@@ -63,11 +65,15 @@ li{
 body .el-tooltip__popper[x-placement^=bottom] {
     margin-top: 5px;
 }
-body .el-tooltip__popper {
+body .el-tooltip__popper.is-light {
     position: absolute;
+    padding: 0 6px;
+    height: 28px;
+    line-height: 26px;
     border-radius: 4px;
-    padding: 4px;
-    background: #F5F7F9;
+    color: #909399;
+    background-color: rgba(144,147,153,.1);
+    border-color: rgba(144,147,153,.2);
 }
 body .el-tooltip__popper[x-placement^=bottom] .popper__arrow {
     top: -5px;

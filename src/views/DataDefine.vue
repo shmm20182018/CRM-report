@@ -599,10 +599,13 @@ export default {
 .left-search-form .el-select {
     width: 100%;
 }
-.el-select-dropdown__item{
+body .el-select-dropdown__item{
     height: 28px;
     line-height: 28px;
     font-size: 12px;
+}
+body .el-select-dropdown__item span {
+    line-height: 28px !important;
 }
 .left-wrapper .el-tree{
     overflow: auto;

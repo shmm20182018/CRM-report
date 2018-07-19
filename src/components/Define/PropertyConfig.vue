@@ -285,167 +285,31 @@
                 </div>
             </el-tab-pane>
         </el-tabs>
-        <div v-if="paramShowFlag" v-drag="dragParamDOM" :style="canStyle" class="canshu-config-wrapper">
-             <p class="config-title" id="dragParam">
-                <i class="el-icon-menu"></i>
-                <span>{{'参数设置'}}</span>
-                <i class="el-icon-close close-config" @click="closeCan"></i>
-            </p>
-            <div class="canshu-config-menu">
-                <ul>
-                    <li @click="addParam">新增</li>
-                    <li @click="delParam">删除</li>
-                    <li @click="saveParam">保存</li>
-                    <li @click="openParamFormula">公式处理</li>
-                </ul>
-            </div>
-            <div class="canshu-config-content"> 
-                <div class="canshu-config-table">
-                    <div class="canshu-list-title">
-                        <div class="canshu-select canshu-title-item"></div>
-                        <div class="canshu-lbracket canshu-title-item">括号</div>
-                        <div class="canshu-source canshu-title-item">操作对象</div>
-                        <div class="canshu-field canshu-title-item">对象字段</div>
-                        <div class="canshu-formula canshu-title-item">公式处理结果</div>
-                        <div class="canshu-paramType canshu-title-item">对应参数方式</div>
-                        <div class="canshu-param canshu-title-item">参数</div>
-                        <div class="canshu-rbracket canshu-title-item">括号</div>
-                        <div class="canshu-relation canshu-title-item">关联关系</div>
-                    </div>
-                    <el-form>
-                    <div v-for="(paramMatch,index) in paramMatchArray" :key="index" class="canshu-list-item">
-                        <div class="canshu-select canshu-data-item" @click="changeParamIndex(index)">
-                            <i v-show="paramMatchIndex==index" class="el-icon-check"></i>
-                        </div>  
-                        <div class="canshu-lbracket canshu-data-item">
-                            <el-form-item >
-                                <el-select v-model="paramMatch.lbracket" clearable @focus="changeParamIndex(index)" placeholder="">
-                                    <el-option label="(" value="0"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="canshu-source canshu-data-item">
-                            <el-form-item >
-                                <el-select v-model="paramMatch.dataSource" clearable @focus="changeParamIndex(index)" @change="changeParamSourceIndex(paramMatch.dataSource,index)" placeholder="">
-                                    <el-option v-for="(obj,index) in step.dataSource" :key="index" :label="obj.name" :value="obj.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="canshu-field canshu-data-item">
-                            <el-form-item>
-                                <el-select v-model="paramMatch.field" filterable clearable placeholder=""  @change="changeParamField(index)" @focus="changeParamIndex(index)">
-                                    <el-option  v-for="(obj,index) in checkedFieldList[paramMatch.sourceIndex]" :key="index" :label="obj.label" :value="obj.id+','+obj.label"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="canshu-formula canshu-data-item">
-                            <el-form-item>
-                                <el-input  v-model="paramMatch.formula" :disabled="true"></el-input>  
-                            </el-form-item>
-                        </div>
-                        <div class="canshu-paramType canshu-data-item">
-                            <el-form-item>
-                                <el-select v-model="paramMatch.paramType" clearable placeholder="" @focus="changeParamIndex(index)">
-                                    <el-option v-for="(obj,index) in paramTypes" :key="index" :label="obj.name" :value="obj.value"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="canshu-param canshu-data-item">
-                            <el-form-item>
-                                <el-select v-model="paramMatch.param" clearable placeholder="" @focus="changeParamIndex(index)">
-                                    <el-option  v-for="(filterParam,index) in filterParams" :key="index" :label="filterParam.code" :value="filterParam.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="canshu-rbracket canshu-data-item">
-                            <el-form-item >
-                                <el-select v-model="paramMatch.lbracket" clearable placeholder="" @focus="changeParamIndex(index)">
-                                    <el-option label=")" value="0"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="canshu-relation canshu-data-item">
-                            <el-form-item >
-                                <el-select v-model="paramMatch.relation" clearable placeholder="" @focus="changeParamIndex(index)">
-                                    <el-option label="并且" value="0"></el-option>
-                                    <el-option label="或者" value="1"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                    </div>
-                    </el-form>
-                </div>
-            </div>
-        </div>
-        <div v-if="authShowFlag" v-drag="dragAuthDOM" :style="quanStyle" class="quanxian-config-wrapper">
-            <p class="config-title" id="dragAuth">
-                <i class="el-icon-menu"></i>
-                <span>{{'权限设置'}}</span>
-                <i class="el-icon-close close-config" @click="closeQuan"></i>
-            </p>
-            <div class="quanxian-config-menu">
-                <ul>
-                    <li @click="addAuth">新增</li>
-                    <li @click="delAuth">删除</li>
-                    <li @click="authCompelete">设置完毕</li>
-                </ul>
-            </div>
-            <div class="quanxian-config-content">
-                <div class="quanxian-list-table">
-                    <div class="quanxian-list-title">
-                        <div class="quanxian-select"></div>
-                        <div class="quanxian-source">操作对象</div>
-                        <div class="quanxian-field">操作字段</div>
-                        <div class="quanxian-type">权限类型</div>
-                    </div>
-                    <el-form>
-                    <div class="quanxian-list-item" v-for="(rightMatch,index) in rightMatchArray" :key="index">
-                        <div class="quanxian-select" @click="changeRightIndex(index)">
-                            <i v-show="rightMatchIndex==index" class="el-icon-check"></i>
-                        </div>  
-                        <div class="quanxian-source">
-                            <el-form-item>
-                                <el-select v-model="rightMatch.dataSource" clearable @focus="changeRightIndex(index)" @change="changeRightSourceIndex(rightMatch.dataSource,index)" placeholder="请选择">
-                                    <el-option v-for="(obj,index) in step.dataSource" :key="index" :label="obj.name" :value="obj.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="quanxian-field">
-                            <el-form-item>
-                                <el-select v-model="rightMatch.field" filterable clearable placeholder="请选择" @focus="changeRightIndex(index)">
-                                    <el-option v-for="(obj,index) in checkedFieldList[rightMatch.sourceIndex]" :key="index" :label="obj.label" :value="obj.id"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                        <div class="quanxian-type">
-                            <el-form-item>
-                                <el-select v-model="rightMatch.type" clearable placeholder="请选择" @focus="changeRightIndex(index)">
-                                    <el-option v-for="(authItem,index) in  authList" :key="index" :label="authItem.name" :value="authItem.value"></el-option>
-                                </el-select>
-                            </el-form-item>
-                        </div>
-                    </div> 
-                    </el-form> 
-                </div>  
-            </div>
-        </div>
+        <param-config v-if="paramShowFlag" v-drag="dragParamDOM" :style="canStyle" class="canshu-config-wrapper"
+            :step=step
+            :paramMatchArray="paramMatchArray"
+            :checkedFieldList="checkedFieldList"
+            :filterParams="filterParams"
+            @on-close-param="closeCan"
+        ></param-config>
+        <auth-conifg v-if="authShowFlag" v-drag="dragAuthDOM" :style="quanStyle" class="quanxian-config-wrapper"       
+            :step=step
+            :rightMatchArray="rightMatchArray"
+            :checkedFieldList="checkedFieldList"
+            @on-close-auth="closeQuan"
+        ></auth-conifg>
         <assoc-operation  v-if="assocShowFlag" v-drag="dragAssocDOM" class="assoc-config-wrapper"
             :step=step
-            @on-open-assoc="openAssoc" 
             @on-close-assoc="closeAssoc"
             ></assoc-operation>
-        <formula-config v-if="paramFormulaShowFlag"  v-drag="dragFormulaDOM" class="formula-config-wrapper"
-            :formulaFieldValue = paramMatchArray[paramMatchIndex].formula
-            @on-close-formula="closeParamFormula" 
-            @on-save-formula="saveParamFormula">
-        </formula-config>
     </div>                         
 </template>
 
 <script>
 import draggable from 'vuedraggable'
-import FormulaConfig from './FormulaConfig.vue'
-import AssocOperation from './AssocOperation.vue'
+import AssocOperation from './AssocOperation.vue'//关联操作配置
+import AuthConifg from './AuthConfig.vue'//语义对象权限配置
+import ParamConfig from './ParamConfig.vue'//语义对象参数配置
 export default {
   props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','rightMatchArray',
   'paramMatchArray','fullscreen'],
@@ -454,39 +318,18 @@ export default {
         operation: this.step.operation,   //操作对象
         dragParamDOM:'',
         dragAuthDOM:'',
-        dragFormulaDOM:'',
         dragAssocDOM:'',
         selectDataSourceIndex:this.dataSourceIndex, //当前选择的数据源索引
         currentDataSourceTreeNode:{},             //当前选中的数据源树节点,在created时需要根据计算属性selectDsTreeData初始
         resultFinallyShowFlag:false,//用于result
-        rightMatchIndex:0,
-        paramMatchIndex:0,
         resultRowIndex:0,
         compSelIndex:0,
         paramShowFlag:false,//参数配置
         authShowFlag:false,//权限配置
-        paramFormulaShowFlag:false,//公式配置
         assocShowFlag:false,//关系操作公式配置
         changeFullScreen:true, 
         activeNames:['1','2','3','4'],
         activeNameTag:this.activeNameCon,
-        authList:[
-            {name:'部门权限',value:'1'},
-            {name:'地区权限',value:'2'},
-            {name:'事业部权限',value:'3'},
-            {name:'大区权限',value:'4'},
-            {name:'人员权限',value:'5'}
-        ],
-        paramTypes:[
-            {name:'等于',value:'1'},
-            {name:'不等于',value:'2'},
-            {name:'大于',value:'3'},
-            {name:'大于等于',value:'4'},
-            {name:'小于',value:'5'},
-            {name:'小于等于',value:'6'},
-            {name:'包含',value:'7'},
-            {name:'被包含',value:'8'}
-        ],
         canStyle:{
             position:'fixed',
             left: 'calc(50% - 450px)',
@@ -511,12 +354,6 @@ export default {
     };
   },
   watch:{
-    filterParams:{
-        handler: function (newVal) { 
-            console.log(newVal)
-        },
-        deep:true      
-    },
     fullscreen(){
         this.changeFullScreen = false;
         this.$nextTick(()=>{
@@ -606,6 +443,14 @@ export default {
     }
   },
   methods: {
+    openMessage(msg,type){
+      this.$message({
+        showClose: true,
+        message: msg,
+        type: type,
+        duration:'1000'
+      })
+    },
     nodeClick(currentNode){
         this.currentDataSourceTreeNode=currentNode
     },
@@ -664,116 +509,6 @@ export default {
             } 
         }
     },
-    addParam(){
-        if(this.paramMatchArray.length){
-            this.paramMatchIndex++;
-        }
-        this.paramMatchArray.push({
-            lbracket:'', 
-            dataSource:'',
-            field:'',
-            formula:'',
-            paramType:'',
-            param:'',
-            rbracket:'',
-            relation:'',
-            sourceIndex:0
-        });
-    },
-    delParam(){
-        if(this.paramMatchArray.length){
-            this.paramMatchArray.splice(this.paramMatchIndex,1);
-        }
-        if(this.paramMatchIndex){
-            this.paramMatchIndex--;
-        }  
-    },
-    saveParam(){
-
-    },
-    changeParamIndex(index){
-        if(this.paramMatchIndex == index){
-            return false;
-        }else{
-            this.paramMatchIndex = index;
-        }
-    },
-    changeParamField(index){
-        this.paramMatchArray[index]['formula'] = ''
-    },
-    changeParamSourceIndex(id,index){
-        this.$set(this.paramMatchArray[index],'field','')
-        var source = this.step['dataSource']
-        for(var i in source){
-            if(id == source[i]['id']){
-                this.paramMatchArray[index]['sourceIndex'] = i;
-                break;
-            }
-        }
-        if(this.paramMatchIndex == index){
-            return false;
-        }else{
-            this.paramMatchIndex = index;
-        }
-    },
-    openParamFormula(){
-        var fieldValue = this.paramMatchArray[this.paramMatchIndex]['field'].split(',')
-        this.paramMatchArray[this.paramMatchIndex]['formula'] = fieldValue[1],
-        this.paramFormulaShowFlag = true;
-        this.$nextTick(()=>{
-            this.dragFormulaDOM = document.getElementById('dragFormula')
-        })  
-    },
-    closeParamFormula(){
-        this.paramFormulaShowFlag = false;
-    },
-    saveParamFormula(formulaString){
-        this.paramMatchArray[this.paramMatchIndex]['formula'] = formulaString
-    },
-    addAuth(){
-        if(this.rightMatchArray.length){
-            this.rightMatchIndex++;
-        }
-        this.rightMatchArray.push({
-            dataSource:'',
-            field:'',
-            type:'',
-            sourceIndex:'0'
-        });
-    },
-    delAuth(){
-        if(this.rightMatchArray.length){
-            this.rightMatchArray.splice(this.rightMatchIndex,1);
-        }
-        if(this.rightMatchIndex){
-            this.rightMatchIndex--;
-        }  
-    },
-    changeRightIndex(index){
-        if(this.rightMatchIndex == index){
-            return false;
-        }else{
-            this.rightMatchIndex = index;
-        }
-    },
-    changeRightSourceIndex(id,index){
-        this.$set(this.rightMatchArray[index],'field','')
-        var source = this.step['dataSource']
-        for(var i in source){
-            if(id == source[i]['id']){
-                this.rightMatchArray[index]['sourceIndex'] = i;
-                break;
-            }
-        }
-        if(this.rightMatchIndex == index){
-            return false;
-        }else{
-            this.rightMatchIndex = index;
-        }
-    },
-    authCompelete(){
-
-    },
     openAssoc(){
         this.assocShowFlag = true;
         this.$nextTick(()=>{
@@ -810,8 +545,9 @@ export default {
   },
   components:{
       draggable,
-      FormulaConfig:FormulaConfig,
-      AssocOperation:AssocOperation
+      AssocOperation:AssocOperation,
+      AuthConifg:AuthConifg,
+      ParamConfig:ParamConfig
   }
   
 }
@@ -1040,123 +776,15 @@ export default {
     z-index: 3010;
     box-shadow:gray 0 0 30px;
 }
-.canshu-config-menu{
-  height: 40px;
-  line-height: 40px;
-  border: 1px solid #E6E7EB;
-  font-size: 12px;
-  font-weight: normal;
-}
-.canshu-config-menu li{
-  display: inline-block;
-  width: 60px;
-  height: 28px;
-  line-height: 28px;
-  border: 1px solid #E6E7EB;
-  text-align: center;
-  margin-left: 5px;
-}
-.canshu-config-menu li:hover{
-  background: #109EFF;
-  color: #fff;
-  cursor: pointer;
-}
-.canshu-config-content{
-  width: 100%;
-  padding: 10px 5px; 
-  box-sizing: border-box;
-}
-.canshu-config-table{
-    width: 100%;
-    border:1px solid #E6E7EB;
-    font-size: 12px;
-    height: 380px;
-    overflow: auto;
-}
-.canshu-list-title,.canshu-list-item{
-    display: flex;
-    height: 32px;
-    line-height: 32px;
-    border-bottom: 1px solid #E6E7EB; 
-}
-.canshu-list-title:hover,.canshu-data-item:hover{
-  background-color: #f5f7fa;
-}
-.canshu-list-title{
-    background-color:  #f5f7fa;
-}
-.canshu-title-item{
-  font-size: 12px;
-  padding-left: 5px;
-  box-sizing: border-box;
-}
-.canshu-list-item{
-    font-size: 12px;
-    font-weight: normal;
-}
-.canshu-list-item:hover .el-input__inner {
-    border-radius: 0;
-    background: #E0F4F7;
-}
-.canshu-title-item,.canshu-data-item{
-    border-left: 1px solid #E6E7EB;
-}
-.canshu-select{
-    border-left:none;
-    flex: 0 0 32px;
-    width: 32px;
-    text-align: center;
-    font-size: 14px;
-    color: #109EFF
-}
-.canshu-lbracket,.canshu-rbracket{
-    flex: 0 0 60px;
-    width: 60px;
-    box-sizing: border-box;
-}
-.canshu-paramType,.canshu-relation{
-    flex: 0 0 100px;
-    width: 100px;
-    box-sizing: border-box;
-}
-.canshu-source,.canshu-field,.canshu-param,.canshu-formula{
-  flex:0.25;
-}
-.canshu-data-item .el-form-item {
-  margin-bottom: 0;
-}
-.canshu-data-item .el-form-item__content{
-    line-height: 30px;
-}
-.canshu-data-item .el-select{
-    width: 100%;
-}
-.canshu-data-item .el-input{
-    font-size: 12px;
-}
-.canshu-data-item .el-input__inner{
-    height: 32px;
-    line-height: 32px;
-    border: none;
-    padding-left: 5px;
-    padding-right: 14px;
-}
-.canshu-formula .el-input__inner{
-    padding-right: 5px;
-}
-.canshu-data-item .el-input__suffix{
-    right: 2px;
-}
-.canshu-data-item .el-select .el-input .el-select__caret{
-    font-size: 12px;
-    width: 14px;
-    opacity: 0;
-}
-.canshu-data-item .el-select .el-input .el-select__caret.is-show-close{
-    opacity: 1;
-}
-.canshu-data-item .el-select .el-input .el-select__caret.is-reverse {
-    opacity: 1;
+.assoc-config-wrapper{
+    position: fixed;
+    width: 900px;
+    height: 500px;
+    left:calc(50% - 450px);
+    top: 50px;
+    z-index: 3020;
+    box-shadow:gray 0 0 30px;
+    background: #fff;
 }
 .quanxian-config-menu{
   height: 40px;
@@ -1179,108 +807,6 @@ export default {
   color: #fff;
   cursor: pointer;
 }
-.quanxian-config-content{
-  width: 100%;
-  padding:10px 5px;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-.quanxian-list-table{
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid #E6E7EB;
-    height: 380px;
-    overflow: auto;
-}
-.quanxian-list-title,.quanxian-list-item{
-    display: flex;
-    height: 32px;
-    line-height: 32px;
-    border-bottom: 1px solid #E6E7EB; 
-}
-.quanxian-list-title{
-    background-color: #f5f7fa
-}
-.quanxian-list-title .quanxian-source,
-.quanxian-list-title .quanxian-field,
-.quanxian-list-title .quanxian-type{
-  font-size: 12px;
-  padding-left: 5px;
-  box-sizing: border-box;
-}
-.quanxian-list-item{
-  font-size: 12px;
-  font-weight: normal;
-}
-.quanxian-list-item:hover .el-input__inner {
-    border-radius: 0;
-    background: #E0F4F7;
-}
-.quanxian-select{
-    flex: 0 0 32px;
-    width: 32px;
-    text-align: center;
-    font-size: 14px;
-    color: #109EFF
-}
-.quanxian-source,.quanxian-field,.quanxian-type{
-    border-left: 1px solid #E6E7EB;
-}
-.quanxian-source{
-  flex:0.5;
-}
-.quanxian-field{
-  flex:0.5;
-}
-.quanxian-type{
-   flex: 0 0 150px;
-   width: 150px;
-  box-sizing: border-box;
-}
-.quanxian-list-item .el-form-item {
-  margin-bottom: 0;
-}
-.quanxian-list-item .el-form-item__content{
-    line-height: 30px;
-}
-.quanxian-list-item .el-select{
-    width: 100%;
-}
-.quanxian-list-item .el-input{
-    font-size: 12px;
-}
-.quanxian-list-item .el-input__inner{
-    height: 32px;
-    line-height: 32px;
-    border: none;
-    padding-left: 5px;
-    padding-right: 14px;
-}
-.quanxian-list-item .el-input__suffix{
-    right: 2px;
-}
-.quanxian-list-item .el-select .el-input .el-select__caret{
-    font-size: 12px;
-    width: 14px;
-    opacity: 0;
-}
-.quanxian-list-item .el-select .el-input .el-select__caret.is-show-close{
-    opacity: 1;
-}
-.quanxian-list-item .el-select .el-input .el-select__caret.is-reverse {
-    opacity: 1;
-}
-.assoc-config-wrapper{
-    position: fixed;
-    width: 900px;
-    height: 500px;
-    left:calc(50% - 450px);
-    top: 50px;
-    z-index: 3020;
-    box-shadow:gray 0 0 30px;
-    background: #fff;
-}
-
 .merge-config-menu{
   height: 40px;
   line-height: 40px;

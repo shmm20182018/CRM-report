@@ -18,6 +18,7 @@
               column-width-drag
               :style="resizeWidth"
               :error-content-height = '200'
+              :height='auto'
               :multiple-sort = "false"
               :title-rows="interTableInfo.titleRows"
               :columns="interTableInfo.columns"

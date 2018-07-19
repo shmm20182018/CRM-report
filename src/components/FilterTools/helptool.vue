@@ -596,7 +596,7 @@ body .el-tooltip__popper.is-dark {
 .pc-style-class .help-wrapper .v-table-empty-scroll{
     height: 310px !important;
 }
-.pc-style-class .v-table-body{
+.pc-style-class .help-wrapper .v-table-body{
     height: 275px !important;
 }
 .phone-style-class  .help-slide-enter-active {

@@ -271,6 +271,7 @@
 import draggable from 'vuedraggable'
 import PropertyConfig from '../components/Define/PropertyConfig.vue'
 import FilterConfig from '../components/Define/FilterConfig.vue'
+import DataSource from '../viewModel/dataSource.js'
 
 export default {
     data() {
@@ -341,22 +342,9 @@ export default {
       }
     },
     methods: {
-        createDataSourceDefaultObj(senma){
-            return {
-                id:this.guid(),
-                name:senma[1],
-                senmaId:senma[0],
-                senmaName:senma[1],
-                senmaTableName:senma[2],
-                filter:'',
-                type:0,
-                fields:{}
-            }          
-        },
         save(){
             this.$refs['defineRuleForm'].validate((valid) => {
                 if (valid) {       
-                    console.log(this.reportInfo);
                     this.$Http('post','api/reportDefine/save',this.reportInfo)
                     .then(()=>{
                         this.$message({
@@ -461,17 +449,19 @@ export default {
             var data = event.dataTransfer.getData("Text").split(',');
             if(data[3] !=='objType'){
                 if(data[1] =='resType'){
-                    this.reportInfo.steps[index].dataSource.push(this.reportInfo.steps[data[0]]['result']);
+                    //结果属性拖拽到数据源
+                    var result = this.reportInfo.steps[data[0]].result;
+                    var dataSource= DataSource(result,'resType');       
+                    this.reportInfo.steps[index].dataSource.push(dataSource);
                 }
                 return false;
             } 
 
-            var dataSource= this.createDataSourceDefaultObj(data);       
+            var dataSource= DataSource(data,'objType');       
             const treeDataUrl = 'api/reportDefine/getDataSourceDataFromSenma?id='+dataSource.senmaId
             this.$Http('get',treeDataUrl).then((res)=>{
                 dataSource.fields = res.data     
                 this.reportInfo.steps[index].dataSource.push(dataSource);
-                console.log(this.reportInfo.steps[index].dataSource)
              })
         },
         handleDragStart(node, ev) {

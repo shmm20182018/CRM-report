@@ -141,30 +141,30 @@
                                 </el-form-item>
                                 <div class="duibi-checkedcol-list">
                                     <div class="duibi-keyCol">
-                                        <div class="duibi-col-title" :class="mainAndDataColList.length?'':'last-col-item'">已选主列列表</div>
-                                        <div class="duibi-col-item" :class="(index == mainAndDataColList.length-1)?'last-col-item':''"  v-if="col.isKeyCol=='1'"  v-for="(col,index) in mainAndDataColList" :key="index" >{{ col.label}}</div>
+                                        <div class="duibi-col-title" :class="checkedFieldList[0].length?'':'last-col-item'">已选主列列表</div>
+                                        <div class="duibi-col-item" :class="(index == checkedFieldList[0].length-1)?'last-col-item':''"  v-if="col.isKeyCol=='1'"  v-for="(col,index) in checkedFieldList[0]" :key="index" >{{ col.label}}</div>
                                     </div>
                                     <div class="duibi-UnoCol">
-                                        <div class="duibi-col-title" :class="mainAndDataColList.length?'':'last-col-item'">已选数据列列表</div>
-                                        <div class="duibi-col-item"  :class="(index == mainAndDataColList.length-1)?'last-col-item':''"  v-if="col.isUnoCol=='1'"  v-for="(col,index) in mainAndDataColList" :key="index">{{ col.label}}</div>
+                                        <div class="duibi-col-title" :class="checkedFieldList[0].length?'':'last-col-item'">已选数据列列表</div>
+                                        <div class="duibi-col-item"  :class="(index == checkedFieldList[0].length-1)?'last-col-item':''"  v-if="col.isUnoCol=='1'"  v-for="(col,index) in checkedFieldList[0]" :key="index">{{ col.label}}</div>
                                     </div>
                                 </div>  
                             </div>
                             <div class="duibi-form-right">
                                 <el-form-item label="同期">
-                                    <el-switch v-model="operation.compType[0]" active-value="TQ" inactive-value=""></el-switch>
+                                    <el-switch v-model="operation.compType[0]" active-value="TQ" inactive-value=" "></el-switch>
                                 </el-form-item>
                                 <el-form-item label="上期">
-                                    <el-switch v-model="operation.compType[1]" active-value="SY" inactive-value=""></el-switch>
+                                    <el-switch v-model="operation.compType[1]" active-value="SY" inactive-value=" "></el-switch>
                                 </el-form-item>
                                 <el-form-item label="本年累计">
-                                    <el-switch v-model="operation.compType[2]" active-value="BNLJ" inactive-value=""></el-switch>
+                                    <el-switch v-model="operation.compType[2]" active-value="BNLJ" inactive-value=" "></el-switch>
                                 </el-form-item>
                                 <el-form-item label="同期累计">
-                                    <el-switch v-model="operation.compType[3]" active-value="TQLJ" inactive-value=""></el-switch>
+                                    <el-switch v-model="operation.compType[3]" active-value="TQLJ" inactive-value=" "></el-switch>
                                 </el-form-item>
                                 <el-form-item label="区间环比">
-                                    <el-switch v-model="operation.compType[4]" active-value="QJLJ" inactive-value=""></el-switch>
+                                    <el-switch v-model="operation.compType[4]" active-value="QJLJ" inactive-value=" "></el-switch>
                                 </el-form-item>
                             </div>       
                         </el-form>
@@ -175,7 +175,8 @@
                 <div class="res-config-wrapper">
                     <div class="result-config-menu">
                         <ul>
-                            <li >字段公式操作</li>
+                            <li @click="createResultOnceAgain" >重新生成分录</li>
+                            <li>字段公式操作</li>
                             <li @click="deleteResult">删除分录</li>
                             <li @click="createFinallyResult">设置最终结果</li>
                         </ul>
@@ -215,7 +216,7 @@
                                 </div>
                                 <div class="result-field result-data-item">
                                     <el-form-item>
-                                        <el-input  v-model="row.aliasCol"></el-input>  
+                                        <el-input  v-model="row.aliasCol"  :disabled="row.extraCol!=''"></el-input>  
                                     </el-form-item>
                                 </div>
                                 <div class="result-colTitle1 result-data-item">
@@ -270,7 +271,7 @@
                                 </div>
                                  <div class="result-showArea result-data-item" v-show="resultFinallyShowFlag">
                                     <el-form-item >
-                                        <el-select v-model="row.showArea"  placeholder="" @focus="changeResultRowIndex(index)">
+                                        <el-select v-model="row.showArea"  placeholder="" @focus="changeResultRowIndex(index)" :disabled="row.extraCol!=''">
                                             <el-option label="行标题区" value="0"></el-option>
                                             <el-option label="列标题区" value="1"></el-option>
                                             <el-option label="数据区" value="2"></el-option>
@@ -446,6 +447,8 @@
 import draggable from 'vuedraggable'
 import FormulaConfig from './FormulaConfig.vue'
 import AssocOperation from './AssocOperation.vue'
+import ResultRow from '../../viewModel/resultRow.js'
+
 export default {
   props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','rightMatchArray',
   'paramMatchArray','fullscreen'],
@@ -513,7 +516,6 @@ export default {
   watch:{
     filterParams:{
         handler: function (newVal) { 
-            console.log(newVal)
         },
         deep:true      
     },
@@ -560,48 +562,28 @@ export default {
         findCheckdKeys(fields);
         return checkedKeys;
     },
-    //对比操作使用-已选主列列表、已选数据列列表
-    mainAndDataColList(){
-        var firstDs = this.step.dataSource[0];
-        var fields = firstDs.fields;
-        var list = [];
-
-        var findKeys = function(fields){
+    //已经勾选的节点
+    checkedFieldList(){
+        var list = new Array(this.step.dataSource.length);        
+        var findKeys = function(fields,index,level){
             fields.forEach(function(field){
-                if(field.useFlag=='1' && (field.isKeyCol=='1' || field.isUnoCol=='1')){
-                   list.push({
-                       id:field.id,
-                       label:field.label,
-                       isKeyCol:field.isKeyCol,
-                       isUnoCol:field.isUnoCol
-                    });
+                if(field.useFlag=='1'){
+                   if(level)
+                        field.level=level;
+                   list[index].push(field);
                 }
                 if(field.hasChild){
-                    findKeys(field.children);
+                    findKeys(field.children,index);
                 }
             });          
         }
-        findKeys(fields);
-        return list;
-    },
-    checkedFieldList(){//选中的字段，语义对象设置使用
-        var list = [];
+
         for(let i in  this.step.dataSource){
-            list.push([])
+            list[i] = [];
             var fields = this.step.dataSource[i].fields;
-            var findKeys = function(fields){
-                fields.forEach(function(field){
-                    if(field.useFlag=='1'){
-                        list[i].push({
-                            id:field.id,
-                            label:field.label,
-                            field:field.field,
-                        });
-                    }
-                });
-            }    
-            findKeys(fields);          
+            findKeys(fields,i,1);   
         }
+
         return list;
     }
   },
@@ -610,25 +592,12 @@ export default {
         this.currentDataSourceTreeNode=currentNode
     },
     checkChange(currentNode,isChecked,isHasChecked){
-        this.currentDataSourceTreeNode=currentNode
+        this.$refs.conTree.setCurrentNode(currentNode);
+        this.nodeClick(currentNode);
         currentNode.useFlag = isChecked == true ? '1':'0';
 
         if(isChecked && !currentNode.tableName){
-            this.step.result.rows.push({
-                id:this.guid(),
-                srcId:this.selectDsTreeData[0].id,
-                fieldId:currentNode.fieldId,
-                fieldName:currentNode.label,
-                field:currentNode.field,
-                fieldFormula:currentNode.field,
-                aliasCol:currentNode.field,                
-                colTitle:currentNode.label,
-                fieldType:currentNode.fieldType,
-                fieldWidth:currentNode.fieldLength,
-                colWidth:'150',
-                alignType:'C',
-                showArea:'0'
-            })
+            this.step.result.rows.push(ResultRow(this.guid(),this.selectDsTreeData[0].id,currentNode))
         }else if(!isChecked && !currentNode.tableName){
            var currentIndex = this.step.result.rows.findIndex(function(value, index, arr) {
                                     return value.fieldId == currentNode.fieldId;
@@ -798,12 +767,80 @@ export default {
     changeResultRowIndex(index){
         this.resultRowIndex = index;
     },
+    createResultOnceAgain(){
+        /**重新生成结果待优化的问题：当发生数据源删除后，结果明细里的记录不会被删除，目前只能手动删除
+         * 可以根据数据源id，自动删除结果明细
+         */
+        var self = this;
+        var dataColList = [];
+        this.checkedFieldList.forEach(function(nodeList,index){
+            var srcId = self.step.dataSource[index].id;
+            nodeList.forEach(function(node){
+                if(!node.tableName){
+                    var find = self.step.result.rows.find(function(row){
+                        return row.fieldId==node.fieldId;
+                    })
+
+                    if(!find){
+                        find =  ResultRow(self.guid(),srcId,node);
+                        self.step.result.rows.push(find);
+                    }
+
+                    if(self.operation.type=='3' && node.isUnoCol=='1')
+                        dataColList.push(find);
+                }
+            })
+        })
+
+        //对比操作需要处理对比列
+        if(this.operation.type=='3'){
+            this.step.result.rows = this.step.result.rows.filter(function(row){
+                return !row.extraCol;
+            })
+
+            this.operation.compType.forEach(function(item,index){
+                if(item!=' '){
+                    var itemName;
+                    switch(item)
+                    {
+                        case 'TQ':
+                            itemName="同期"
+                            break;
+                        case 'SY':
+                            itemName="上期"
+                            break;
+                        case 'BNLJ':
+                            itemName="本年累计"
+                            break;
+                        case 'TQLJ':
+                            itemName="同期累计"
+                            break;
+                        case 'QJLJ':
+                            itemName="区间累计"
+                            break;
+                    }
+             
+                    dataColList.forEach(function(dataCol){
+                        var field = item+dataCol.field;
+                        var row =  ResultRow(self.guid(),'','',dataCol);
+                        row.field = field;
+                        row.fieldName = itemName+row.fieldName;
+                        row.aliasCol = field;
+                        row.colTitle = itemName+row.colTitle;
+                        row.extraCol = item;
+                        self.step.result.rows.push(row);
+                    })
+
+                }
+            })
+        }
+    },
     createFinallyResult(){
         this.resultFinallyShowFlag = !this.resultFinallyShowFlag
     },
     deleteResult(){
         this.step.result.rows.splice(this.resultRowIndex,1)
-    }
+    },
   },
   created(){    
      this.currentDataSourceTreeNode = this.selectDsTreeData[0];
@@ -813,9 +850,7 @@ export default {
       FormulaConfig:FormulaConfig,
       AssocOperation:AssocOperation
   }
-  
 }
-
 </script>
 <style>
 .right-propterty-config .config-title{

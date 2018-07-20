@@ -4,8 +4,7 @@
       <el-form-item :label="param.title" :prop="param.id" class="filtertool-text">
         <el-input v-model.lazy="internalValue" 
                   @change="$emit('rule-form-change',param.id,internalValue)"
-                  :disabled="param.readonly"
-                  placeholder="请输入"></el-input>
+                  :disabled="param.readonly"></el-input>
       </el-form-item>
     </div>
   </el-col>    

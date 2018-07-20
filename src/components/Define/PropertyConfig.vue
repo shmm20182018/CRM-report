@@ -45,13 +45,13 @@
                             </el-collapse-item>
                             <el-collapse-item title="参数配置" name="2" v-show="currentDataSourceTreeNode.tableName">
                                 <el-form-item label="对应参数"  class="obj-config-can">
-                                    <el-input ></el-input>
+                                    <el-input type="textarea" :disabled="true"></el-input>
                                     <i class="el-icon-setting" @click="openCan"></i>
                                 </el-form-item> 
                             </el-collapse-item>
                             <el-collapse-item title="权限配置" name="3" v-show="currentDataSourceTreeNode.tableName" class="obj-config-quan">
                                 <el-form-item label="对应权限">
-                                    <el-input ></el-input>
+                                    <el-input type="textarea" :disabled="true"></el-input>
                                     <i class="el-icon-setting" @click="openQuan"></i>
                                 </el-form-item> 
                             </el-collapse-item>
@@ -694,6 +694,12 @@ export default {
 }
 .obj-config-quan,.obj-config-can{
     position: relative;
+}
+.obj-config-quan .el-textarea__inner,.obj-config-can .el-textarea__inner{
+    height: 87px;
+    min-height: 87px;
+    max-height: 87px;
+    padding-right: 25px;
 }
 .obj-config-quan .el-icon-setting,.obj-config-can .el-icon-setting{
     position: absolute;

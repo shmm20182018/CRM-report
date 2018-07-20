@@ -141,8 +141,7 @@ export default {
       this.$message({
         showClose: true,
         message: msg,
-        type: type,
-        duration:'1000'
+        type: type
       })
     },
     closeAssoc(){
@@ -259,7 +258,8 @@ export default {
     border:1px solid #E6E7EB;
     font-size: 12px;
     height: 380px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .assoc-list-title,.assoc-list-item{
     height: 32px;

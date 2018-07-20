@@ -1,6 +1,6 @@
 <template>
   <div class="filterForm" :class="isLineFeed?'':'filter-last-search-filterForm'">
-    <el-form class="wathet-filter-style demo-ruleForm" 
+    <el-form class="wathet-filter-style demo-ruleForm" v-if="resetFormFlag" 
       :show-message="false" 
       label-position='left'
       label-width="80px" 
@@ -45,7 +45,9 @@ export default {
   data() {
     return {
       isLineFeed:true,//查询按钮布局
+      resetFormFlag:true,//重置后刷新
       ruleForm: {},
+      initRuleForm:{},
       rules: {},
     };
   },
@@ -104,8 +106,23 @@ export default {
       });
     },
     resetForm(formName) {
-      console.log(1111)
-      this.$refs[formName].resetFields();
+      this.$refs[formName].clearValidate();
+      this.resetFormFlag = false;
+      this.ruleForm = Object.assign({},this.ruleForm,this.initRuleForm)
+      this.$nextTick(()=>{
+        this.resetFormFlag = true;
+      })
+    }
+  },
+  created(){
+    if(this.paramsInfo){
+      this.paramsInfo.forEach(item => {
+          if(item.helpMultiSelect)
+            this.$set(this.initRuleForm,item.id,"('')");
+          else
+            this.$set(this.initRuleForm,item.id,item.defaultValue);
+          this.$set(this.rules,item.id,[{required: item.mandatory, trigger: '' }]);
+      });
     }
   },
   components: {
@@ -121,6 +138,7 @@ export default {
     border-radius: 0px; 
     border: 1px solid #D4DEEE;
     color: #606266;
+    padding-right: 19px;
   }
   .filterForm .el-input__prefix,.filterForm .el-input__suffix,
   .filterForm .el-select .el-input .el-select__caret{
@@ -306,6 +324,6 @@ export default {
 }
 .phone-filter-btn-right{
   margin-left: 10px;
-  margin-right: 15px;
+  margin-right: 10px;
 }
 </style>

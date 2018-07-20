@@ -74,6 +74,14 @@ export default {
     },
   },
   methods: {
+    openMessage(msg,type){
+      this.$message({
+        showClose: true,
+        message: msg,
+        type: type,
+        duration:'1000'
+      })
+    },
     closeFormula(){
       this.$emit('on-close-formula')
     },

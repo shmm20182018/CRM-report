@@ -76,7 +76,7 @@
                             </div>
                         </div>                      
                     </div>
-                    <div v-if="!phoneFlag" :inline="true"  class="search-form-bottom" size="mini">
+                    <div :inline="true"  class="search-form-bottom" size="mini">
                         <div class="search-form-inner">
                             <span class="search-bottom-btn" @click="closeHelp">取消</span>
                             <span class="search-bottom-btn bottom-btn-last" @click="onDetermine">确定</span>
@@ -286,9 +286,9 @@ export default {
             if(!this.phoneFlag){
                 return ;
             }
-            this.setHelpValue(rowData['F_NM'],rowData['F_BH'],rowData['F_MC']);
+            /*this.setHelpValue(rowData['F_NM'],rowData['F_BH'],rowData['F_MC']);
             this.helpShowFlag = false;
-            this.inputShowText =  this.helpMcValue;
+            this.inputShowText =  this.helpMcValue;*/
         },
         pageChange(pageIndex){ 
             this.pageIndex = pageIndex;
@@ -596,7 +596,7 @@ body .el-tooltip__popper.is-dark {
 .pc-style-class .help-wrapper .v-table-empty-scroll{
     height: 310px !important;
 }
-.pc-style-class .v-table-body{
+.pc-style-class .help-wrapper .v-table-body{
     height: 275px !important;
 }
 .phone-style-class  .help-slide-enter-active {
@@ -665,7 +665,7 @@ body .el-tooltip__popper.is-dark {
     height: 100%;
 }
 .phone-style-class    .help-wrapper .content-wrapper{
-    height: 100%;
+    height: calc(100% - 42px);
 }
 .phone-style-class .help-wrapper .icon-back{
     font-size: 14px;
@@ -679,5 +679,11 @@ body .el-tooltip__popper.is-dark {
 .phone-style-class    .help-wrapper .v-table-views {
     height: calc(100% - 40px) !important;
     overflow: auto;
+}
+.phone-style-class .page-wrapper{
+    height: 38px;
+}
+.phone-style-class .help-wrapper .v-page-ul {
+    margin: 4px 0 5px 0;
 }
 </style>

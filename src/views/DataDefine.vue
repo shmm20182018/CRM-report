@@ -68,7 +68,7 @@
                     <div class="right-middle-data">
                         <div class="right-middle-data-item" v-for="(data,index) in reportInfo.steps" :index="index" :key="data.index">
                             <div class="right-object-property"  @drop='dropDataSource($event,index)'  @dragover.prevent>
-                                <draggable v-model="data.dataSource" :options="{group:'people'}" @start="drag=true" @end="drag=false">
+                                <draggable class="right-object-property-inner" v-model="data.dataSource" :options="{group:'people'}" @start="drag=true" @end="drag=false">
                                 <el-tag type="info" class="objectTag"
                                     v-for="(tag,index2) in data.dataSource"
                                     :key="index2"
@@ -589,10 +589,13 @@ export default {
 .left-search-form .el-select {
     width: 100%;
 }
-.el-select-dropdown__item{
+body .el-select-dropdown__item{
     height: 28px;
     line-height: 28px;
     font-size: 12px;
+}
+body .el-select-dropdown__item span {
+    line-height: 28px !important;
 }
 .left-wrapper .el-tree{
     overflow: auto;
@@ -665,11 +668,13 @@ export default {
 .right-middle-data-item span.default-text{
     display: inline-block;
     position:absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
+    left:50%;
+    top:50%;
+    transform: translate(-50%,-50%); 
+    -ms-transform: translate(-50%,-50%);  /* IE9及以上支持 */
+    -webkit-transform: translate(-50%,-50%);    /* Safari and Chrome */
+    -o-transform: translate(-50%,-50%);     /* Opera */
+    -moz-transform: translate(-50%,-50%); 
     width: 120px;
     height: 20px;
     line-height: 20px;
@@ -682,6 +687,11 @@ export default {
 }
 .right-object-property{
     position: relative;
+    min-height:48px;
+}
+.right-object-property-inner{
+    padding-top: 5px;
+    padding-bottom: 10px;
 }
 .object-title,.right-object-property{
     flex: 1;
@@ -794,10 +804,6 @@ body .el-select-dropdown__item.selected {
     margin-left: 5px;
     margin-top: 5px;
     
-}
-.right-object-property{
-    padding-top: 5px;
-    padding-bottom: 10px;
 }
 .right-middle-data-item .tag-text{
     padding-right: 20px;

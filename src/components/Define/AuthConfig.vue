@@ -70,8 +70,7 @@ export default {
         dataSource:[{required:true,trigger: 'blur'}],
         field:[{required:true,trigger: 'blur'}],
         type:[{required:true,trigger: 'blur'}]
-        },
-      authValid:true,
+        }
     };
   },
   methods: {
@@ -126,8 +125,8 @@ export default {
     },
     authCompelete(){
         if(this.rightMatchArray.length){
-            this.validateAuth().then(()=>{
-                if(this.authValid){   
+            this.validateAuth().then((authValid)=>{
+                if(authValid){   
                     this.openMessage('保存成功!','success');
                     this.$emit('on-close-auth')
                 }else{ 
@@ -138,15 +137,17 @@ export default {
         }
     },
     validateAuth(){
-      this.authValid = true;
-      for(let i in this.rightMatchArray){
-        this.$refs.authConForm[i].validate((valid)=>{
-            if(!valid){  
-                this.authValid = false;      
+        var authValid = true;
+        for(let i in this.rightMatchArray){
+            if(authValid){
+                this.$refs.authConForm[i].validate((valid)=>{
+                    if(!valid){  
+                        authValid = false;      
+                    }
+                })
             }
-        })
-      }
-      return  Promise.resolve()   
+        }
+        return  Promise.resolve(authValid)   
     },
     closeQuan(){
         this.$emit('on-close-auth');

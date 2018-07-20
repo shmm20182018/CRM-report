@@ -138,6 +138,7 @@ export default {
     border-radius: 0px; 
     border: 1px solid #D4DEEE;
     color: #606266;
+    padding-right: 19px;
   }
   .filterForm .el-input__prefix,.filterForm .el-input__suffix,
   .filterForm .el-select .el-input .el-select__caret{

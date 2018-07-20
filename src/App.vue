@@ -74,6 +74,7 @@ body .el-tooltip__popper.is-light {
     color: #909399;
     background-color: rgba(144,147,153,.1);
     border-color: rgba(144,147,153,.2);
+    overflow: hidden;
 }
 body .el-tooltip__popper[x-placement^=bottom] .popper__arrow {
     top: -5px;

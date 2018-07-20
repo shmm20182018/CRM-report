@@ -121,7 +121,7 @@ export default {
           {name:'小于等于',value:'6'},
           {name:'包含',value:'7'},
           {name:'被包含',value:'8'}
-      ],
+      ]
     };
   },
   methods: {
@@ -158,7 +158,30 @@ export default {
         }  
     },
     saveParam(){
-
+        if(this.paramMatchArray.length){
+            this.validateParam().then((paramValid)=>{
+                if(paramValid){   
+                    this.openMessage('保存成功!','success');
+                    this.$emit('on-close-auth')
+                }else{ 
+                    this.openMessage('选项不能为空!，若放弃请删除该行!','warning');
+                    return false;
+                }
+            })
+        }
+    },
+    validateParam(){
+        var paramValid = true
+        for(let i in this.paramMatchArray){
+            if(paramValid){
+                this.$refs.paramConForm[i].validate((valid)=>{
+                    if(!valid){  
+                        paramValid = false;   
+                    }
+                })
+            }
+        }
+        return  Promise.resolve(paramValid)   
     },
     changeParamIndex(index){
       if(this.paramMatchIndex == index){

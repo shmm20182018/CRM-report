@@ -168,7 +168,8 @@ export default {
     box-sizing: border-box;
     border: 1px solid #E6E7EB;
     height: 380px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .quanxian-list-title,.quanxian-list-item{
     height: 32px;

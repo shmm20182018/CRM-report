@@ -224,7 +224,7 @@ export default {
     },
     saveParamFormula(formulaString){//参数公式保存
         this.paramMatchArray[this.paramMatchIndex]['formula'] = formulaString
-        this.openMessage('保存成功！','success');
+        this.openMessage('公式设置成功！','success');
         this.paramFormulaShowFlag = false;
     }
   },
@@ -266,7 +266,8 @@ export default {
     border:1px solid #E6E7EB;
     font-size: 12px;
     height: 380px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .canshu-list-title,.canshu-list-item{
     height: 32px;

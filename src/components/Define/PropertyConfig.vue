@@ -838,7 +838,8 @@ export default {
     border:1px solid #E6E7EB;
     font-size: 12px;
     height: 380px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .merge-list-title,.merge-list-item{
     display: flex;
@@ -946,7 +947,8 @@ export default {
     border:1px solid #E6E7EB;
     font-size: 12px;
     height: 460px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .result-list-title,.result-list-item{
     display: flex;

@@ -184,7 +184,7 @@ export default {
                     //console.log(this.step.dataSource[this.selectDSIndex].paramMatchCode)
                   
                     this.openMessage('保存成功!','success');
-                    this.$emit('on-close-auth')
+                    this.$emit('on-close-param')
                 }else{ 
                     this.openMessage('选项不能为空!，若放弃请删除该行!','warning');
                     return false;

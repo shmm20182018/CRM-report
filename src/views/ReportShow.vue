@@ -93,14 +93,14 @@ export default {
       }else if(this.reportInfo.tableInfo.title){
         return this.reportInfo.tableInfo.title
       }else{
-        return "图表展示区域"
+        return ""
       }
     },
     reportTableTitle(){
       if(this.reportInfo.tableInfo.title){
         return this.reportInfo.tableInfo.title
       }else{
-        return "表格展示区域"
+        return ""
       }
     },
     initApiUrl:function(){

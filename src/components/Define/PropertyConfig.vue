@@ -65,12 +65,12 @@
                                     <el-form-item label="是否日期列">
                                         <el-switch v-model="currentDataSourceTreeNode.isDateCol" active-value="1" inactive-value="0"></el-switch>
                                     </el-form-item>
-                                    <el-form-item label="日期类型列">
+                                    <!-- <el-form-item label="日期类型列">
                                         <el-radio-group v-model="currentDataSourceTreeNode.dataColType">
                                             <el-radio label="日期"></el-radio>
                                             <el-radio label="月份"></el-radio>
                                         </el-radio-group>
-                                    </el-form-item>
+                                    </el-form-item> -->
                             </el-collapse-item>
                             </el-form>  
                         </el-collapse>
@@ -150,7 +150,7 @@
                                 <el-form-item label="上期">
                                     <el-switch v-model="operation.compType[1]" active-value="SY" inactive-value=" "></el-switch>
                                 </el-form-item>
-                                <el-form-item label="本年累计">
+                                <!-- <el-form-item label="本年累计">
                                     <el-switch v-model="operation.compType[2]" active-value="BNLJ" inactive-value=" "></el-switch>
                                 </el-form-item>
                                 <el-form-item label="同期累计">
@@ -158,7 +158,7 @@
                                 </el-form-item>
                                 <el-form-item label="区间环比">
                                     <el-switch v-model="operation.compType[4]" active-value="QJLJ" inactive-value=" "></el-switch>
-                                </el-form-item>
+                                </el-form-item> -->
                             </div>       
                         </el-form>
                     </div>
@@ -472,10 +472,10 @@ export default {
         currentNode.useFlag = isChecked == true ? '1':'0';
 
         if(isChecked && !currentNode.tableName){
-            this.step.result.rows.push(ResultRow(this.guid(),this.selectDsTreeData[0].id,currentNode))
+            this.step.result.rows.push(ResultRow(currentNode.id,this.selectDsTreeData[0].id,currentNode))
         }else if(!isChecked && !currentNode.tableName){
            var currentIndex = this.step.result.rows.findIndex(function(value, index, arr) {
-                                    return value.fieldId == currentNode.fieldId;
+                                    return value.id == currentNode.id;
                                 })
             this.step.result.rows.splice(currentIndex,1)
         }
@@ -598,7 +598,7 @@ export default {
             })
 
             this.operation.compType.forEach(function(item,index){
-                if(item!=' '){
+                if(item.trim()!=''){
                     var itemName;
                     switch(item)
                     {

@@ -149,7 +149,7 @@ export default {
     },
     addAssoc(){
         if(this.assocFormulaArray.length){
-            this.assocFormulaIndex++;
+            this.assocFormulaIndex = this.assocFormulaArray.length;
         }
         this.assocFormulaArray.push({
             dsFirst:'',

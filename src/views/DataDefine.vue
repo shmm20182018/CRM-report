@@ -87,7 +87,7 @@
                             <div class="right-operate-property">
                                 <el-form class="operate-select" size="small" >     
                                     <el-form-item>
-                                        <el-select v-model="data.operation.type">
+                                        <el-select v-model="data.operation.type" @change="operaTypeChange(index)">
                                             <el-option v-for="(ope,index) in operation" :key="ope.id" :index="index" :label="ope.name" :value="ope.type"></el-option>
                                         </el-select>
                                         <i class="el-icon-setting" @click.prevent.stop="openConfig(index,0,'operation')"></i>
@@ -122,8 +122,6 @@
                                         :dataSourceIndex="openDataSourceIndex"
                                         :activeNameCon="activeNameCon"
                                         :filterParams="reportInfo.params"
-                                        :rightMatchArray="rightMatchArray[index]"
-                                        :paramMatchArray="paramMatchArray[index]"
                                         :fullscreen="fullscreen">
                                     </property-config>
                                 </div>
@@ -300,8 +298,8 @@ export default {
         },
         operation:[
             {type:'1',name:'合并操作'},
-            {type:'2',name:'关联操作',mapColText:'',mapColFormula:''},
-            {type:'3',name:'对比操作',mainColList:{},dataColList:{}}
+            {type:'2',name:'关联操作'},
+            {type:'3',name:'对比操作'}
         ],
         configData:{},//每一步对象
         filterText:'',
@@ -310,8 +308,6 @@ export default {
         showIndex:-1,//属性配置显示第几步
         filterConfigShow:false,//报表参数配置显示
         configShowFlag:false,//属性配置显示
-        rightMatchArray:[],
-        paramMatchArray:[],
         reportRules:{
             code:[{required:true,trigger: 'blur'}],
             name:[{required:true,trigger: 'blur'}]
@@ -483,6 +479,7 @@ export default {
                     type:'1',
                     name:"合并操作",
                     mapColText:'',
+                    mapColCode:'',
                     mapColFormula:'',
                     mainColList:{},
                     dataColList:{},
@@ -495,28 +492,9 @@ export default {
                     rows:[]
                 }   
             });
-            this.paramMatchArray.push([{
-                lbracket:'', 
-                dataSource:'',
-                field:'',
-                formula:'',
-                paramType:'',
-                param:'',
-                rbracket:'',
-                relation:'',
-                sourceIndex:0
-            }])
-            this.rightMatchArray.push([{
-                dataSource:'',
-                field:'',
-                type:'',
-                sourceIndex:'0',
-            }])
         },
         deleteStep(index){
             this.reportInfo.steps.splice(index,1)
-            this.paramMatchArray.splice(index,1)
-            this.rightMatchArray.splice(index,1)
         },
         fullScreenToggle () {
             if(!this.fullscreen){
@@ -539,7 +517,11 @@ export default {
                 })    
             }
             this.fullscreen = !this.fullscreen
-        },   
+        },  
+        operaTypeChange(stepIndex){
+            this.$set(this.reportInfo.steps[stepIndex].operation,'mapColText','')//关系操作、合并操作共用一个mapColText，下拉变化后解析会出错
+            this.$set(this.reportInfo.steps[stepIndex].operation,'mapColFormula', '')
+        } 
     },
     created(){
         this.getTreeData();

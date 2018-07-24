@@ -18,7 +18,7 @@
             <div class="canshu-list-title">
                 <div class="canshu-select canshu-title-item"></div>
                 <div class="canshu-lbracket canshu-title-item">括号</div>
-                <div class="canshu-source canshu-title-item">操作对象</div>
+                <div class="canshu-source canshu-title-item">数据源</div>
                 <div class="canshu-field canshu-title-item">对象字段</div>
                 <div class="canshu-formula canshu-title-item">公式处理结果</div>
                 <div class="canshu-paramType canshu-title-item">对应参数方式</div>
@@ -33,22 +33,22 @@
                 </div>  
                 <div class="canshu-lbracket canshu-data-item">
                     <el-form-item >
-                        <el-select v-model="paramMatch.lbracket" clearable @focus="changeParamIndex(index)" placeholder="">
-                            <el-option label="(" value="0"></el-option>
+                        <el-select v-model="paramMatch.lbracket" clearable placeholder="" @focus="changeParamIndex(index)">
+                            <el-option label="(" value="("></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
                 <div class="canshu-source canshu-data-item">
                     <el-form-item prop="dataSource">
-                        <el-select v-model="paramMatch.dataSource" clearable @focus="changeParamIndex(index)" @change="changeParamSourceIndex(paramMatch.dataSource,index)" placeholder="">
-                            <el-option v-for="(obj,index) in step.dataSource" :key="index" :label="obj.name" :value="obj.id"></el-option>
+                        <el-select v-model="paramMatch.dataSource" clearable @focus="changeParamIndex(index)" :disabled="true" placeholder="">
+                            <el-option v-for="(obj,index) in step.dataSource" :key="index" :label="obj.name" :value="obj.id+','+obj.name"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
                 <div class="canshu-field canshu-data-item">
                     <el-form-item prop="field">
                         <el-select v-model="paramMatch.field" filterable clearable placeholder=""  @change="changeParamField(index)" @focus="changeParamIndex(index)">
-                            <el-option  v-for="(obj,index) in checkedFieldList[paramMatch.sourceIndex]" :key="index" :label="obj.label" :value="obj.id+','+obj.label"></el-option>
+                            <el-option  v-for="(obj,index) in checkedFieldList[selectDSIndex]" :key="index" :label="obj.label" :value="obj.field+','+obj.label"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
@@ -58,31 +58,31 @@
                     </el-form-item>
                 </div>
                 <div class="canshu-paramType canshu-data-item">
-                    <el-form-item>
+                    <el-form-item prop="paramType">
                         <el-select v-model="paramMatch.paramType" clearable placeholder="" @focus="changeParamIndex(index)">
-                            <el-option v-for="(obj,index) in paramTypes" :key="index" :label="obj.name" :value="obj.value"></el-option>
+                            <el-option v-for="(obj,index) in paramTypes" :key="index" :label="obj.name" :value="obj.value+','+obj.name"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
                 <div class="canshu-param canshu-data-item">
-                    <el-form-item>
+                    <el-form-item prop="param">
                         <el-select v-model="paramMatch.param" clearable placeholder="" @focus="changeParamIndex(index)">
-                            <el-option  v-for="(filterParam,index) in filterParams" :key="index" :label="filterParam.code" :value="filterParam.id"></el-option>
+                            <el-option  v-for="(filterParam,index) in filterParams" :key="index" :label="filterParam.name" :value="filterParam.code+','+filterParam.name"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
                 <div class="canshu-rbracket canshu-data-item">
                     <el-form-item >
-                        <el-select v-model="paramMatch.lbracket" clearable placeholder="" @focus="changeParamIndex(index)">
-                            <el-option label=")" value="0"></el-option>
+                        <el-select v-model="paramMatch.rbracket" clearable placeholder="" @focus="changeParamIndex(index)">
+                            <el-option label=")" value=")"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
                 <div class="canshu-relation canshu-data-item">
-                    <el-form-item prop="relation">
+                    <el-form-item>
                         <el-select v-model="paramMatch.relation" clearable placeholder="" @focus="changeParamIndex(index)">
-                            <el-option label="并且" value="0"></el-option>
-                            <el-option label="或者" value="1"></el-option>
+                            <el-option label="并且" value="and,并且"></el-option>
+                            <el-option label="或者" value="or,或者"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
@@ -101,26 +101,29 @@
 <script>
 import FormulaConfig from './FormulaConfig.vue'//公式设置
 export default {
-  props:['step','paramMatchArray','checkedFieldList','filterParams'],
+  props:['step','selectDSIndex','checkedFieldList','filterParams'],
   data () {
     return {
       dragFormulaDOM:'',
       paramFormulaShowFlag:false,//公式配置
+      filterParamIndex:-1,
+      paramMatchArray:[],
       paramMatchIndex:0,
       paramRules:{
         dataSource:[{required:true,trigger: 'blur'}],
         field:[{required:true,trigger: 'blur'}],
-        relation:[{required:true,trigger: 'blur'}]
+        paramType:[{required:true,trigger: 'blur'}],
+        param:[{required:true,trigger: 'blur'}]
       },
       paramTypes:[
-          {name:'等于',value:'1'},
-          {name:'不等于',value:'2'},
-          {name:'大于',value:'3'},
-          {name:'大于等于',value:'4'},
-          {name:'小于',value:'5'},
-          {name:'小于等于',value:'6'},
-          {name:'包含',value:'7'},
-          {name:'被包含',value:'8'}
+          {name:'等于',value:'='},
+          {name:'不等于',value:'!='},
+          {name:'大于',value:'>'},
+          {name:'大于等于',value:'>='},
+          {name:'小于',value:'<'},
+          {name:'小于等于',value:'<='},
+          {name:'包含',value:'like'},
+          {name:'被包含',value:'in'}
       ]
     };
   },
@@ -135,18 +138,18 @@ export default {
     },
     addParam(){
       if(this.paramMatchArray.length){
-          this.paramMatchIndex++;
+          this.paramMatchIndex = this.paramMatchArray.length;
       }
+      var ds = this.step.dataSource[this.selectDSIndex]
       this.paramMatchArray.push({
           lbracket:'', 
-          dataSource:'',
+          dataSource:ds.id+','+ds.name,
           field:'',
           formula:'',
           paramType:'',
           param:'',
           rbracket:'',
           relation:'',
-          sourceIndex:0
       });
     },
     delParam(){
@@ -160,7 +163,26 @@ export default {
     saveParam(){
         if(this.paramMatchArray.length){
             this.validateParam().then((paramValid)=>{
-                if(paramValid){   
+                if(paramValid){
+                    this.step.dataSource[this.selectDSIndex].paramMatchText = '' 
+                     this.step.dataSource[this.selectDSIndex].paramMatchCode = ''  
+                    for(let i in this.paramMatchArray){
+                        var paramMatch = this.paramMatchArray[i]
+                        var dataSource = paramMatch.dataSource.split(',')
+                        var field = paramMatch.field.split(',');
+                        var paramType = paramMatch.paramType.split(',')
+                        var param = paramMatch.param.split(',')
+                        var relation = paramMatch.relation?paramMatch.relation.split(','):[[],[]]
+                        this.step.dataSource[this.selectDSIndex].paramMatchText += paramMatch.lbracket+'@'+dataSource[1]+'@'+
+                            field[1]+'@'+paramType[1]+'@'+param[1]+'@'+paramMatch.rbracket+'@'+relation[1]+';'
+
+                        this.step.dataSource[this.selectDSIndex].paramMatchCode += paramMatch.lbracket+field[0]+
+                            paramType[0]+':'+param[0]+ paramMatch.rbracket+' '+relation[0]+' '
+                    }
+                    this.step.dataSource[this.selectDSIndex].paramMatchText = 
+                        this.step.dataSource[this.selectDSIndex].paramMatchText.substring(0,this.step.dataSource[this.selectDSIndex].paramMatchText.length-1)
+                    //console.log(this.step.dataSource[this.selectDSIndex].paramMatchCode)
+                  
                     this.openMessage('保存成功!','success');
                     this.$emit('on-close-auth')
                 }else{ 
@@ -193,21 +215,6 @@ export default {
     changeParamField(index){
       this.paramMatchArray[index]['formula'] = ''
     },
-    changeParamSourceIndex(id,index){
-      this.$set(this.paramMatchArray[index],'field','')
-      var source = this.step['dataSource']
-      for(var i in source){
-          if(id == source[i]['id']){
-              this.paramMatchArray[index]['sourceIndex'] = i;
-              break;
-          }
-      }
-      if(this.paramMatchIndex == index){
-          return false;
-      }else{
-          this.paramMatchIndex = index;
-      }
-    },
     closeCan(){
         this.$emit('on-close-param');
     },
@@ -227,6 +234,38 @@ export default {
         this.openMessage('公式设置成功！','success');
         this.paramFormulaShowFlag = false;
     }
+  },
+  created(){
+      var ds = this.step.dataSource[this.selectDSIndex]
+        if(ds.paramMatchText){
+            var codeFieldArr = ds.paramMatchCode.match(/[A-Z]*_{1}[A-Z]*/g)//字段
+
+            var codeTypeArr = ds.paramMatchCode.match(/_{1}[A-Z]*(.*?):/g)
+            codeTypeArr = codeTypeArr.map(type => {//参数方式
+                return  type.match(/_{1}[A-Z]*(\S*):/)[1]
+    
+            });
+            var codeParamArr = ds.paramMatchCode.match(/:(.*?)(\)| )/g)
+            codeParamArr = codeParamArr.map(param => {//参数编号
+               return  param.match(/:(\S*)(\)| )/)[1]
+     
+            });
+            //console.log(codeParamArr,codeTypeArr,codeRelationArr)
+            var paramMatchTextArr = ds.paramMatchText.split(';')
+            for(let i in paramMatchTextArr){
+                var textStr = paramMatchTextArr[i].split('@')
+                this.paramMatchArray.push({
+                    lbracket:textStr[0], 
+                    dataSource:ds.id+','+ds.name,
+                    field:codeFieldArr[i]+','+textStr[2],
+                    formula:'',
+                    paramType:codeTypeArr[i]+','+textStr[3],
+                    param:codeParamArr[i]+','+textStr[4],
+                    rbracket:textStr[5],
+                    relation:textStr[6]?(textStr[6]=='并且'?('and,'+textStr[6]):('or,'+textStr[6])):'',
+                })
+            }
+        }
   },
   components:{
     FormulaConfig:FormulaConfig

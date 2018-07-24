@@ -16,7 +16,7 @@
         <div class="quanxian-list-table">
             <div class="quanxian-list-title">
                 <div class="quanxian-select"></div>
-                <div class="quanxian-source">操作对象</div>
+                <div class="quanxian-source">数据源</div>
                 <div class="quanxian-field">操作字段</div>
                 <div class="quanxian-type">权限类型</div>
             </div>
@@ -27,22 +27,22 @@
                 </div>  
                 <div class="quanxian-source">
                     <el-form-item prop="dataSource">
-                        <el-select v-model="rightMatch.dataSource" clearable @focus="changeRightIndex(index)" @change="changeRightSourceIndex(rightMatch.dataSource,index)" placeholder="请选择">
-                            <el-option v-for="(obj,index) in step.dataSource" :key="index" :label="obj.name" :value="obj.id"></el-option>
+                        <el-select v-model="rightMatch.dataSource" :disabled="true"  placeholder="请选择">
+                            <el-option v-for="(obj,index) in step.dataSource" :key="index" :label="obj.name" :value="obj.id+','+obj.name"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
                 <div class="quanxian-field">
                     <el-form-item prop="field">
                         <el-select v-model="rightMatch.field" filterable clearable placeholder="请选择" @focus="changeRightIndex(index)">
-                            <el-option v-for="(obj,index) in checkedFieldList[rightMatch.sourceIndex]" :key="index" :label="obj.label" :value="obj.id"></el-option>
+                            <el-option v-for="(obj,index) in checkedFieldList[selectDSIndex]" :key="index" :label="obj.label" :value="obj.field+','+obj.label"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
                 <div class="quanxian-type">
                     <el-form-item prop="type">
                         <el-select v-model="rightMatch.type" clearable placeholder="请选择" @focus="changeRightIndex(index)">
-                            <el-option v-for="(authItem,index) in  authList" :key="index" :label="authItem.name" :value="authItem.value"></el-option>
+                            <el-option v-for="(authItem,index) in  authList" :key="index" :label="authItem.name" :value="authItem.value+','+authItem.name"></el-option>
                         </el-select>
                     </el-form-item>
                 </div>
@@ -55,104 +55,132 @@
 
 <script>
 export default {
-  props:['step','rightMatchArray','checkedFieldList'],
-  data () {
-    return {
-      rightMatchIndex:0,
-      authList:[
-        {name:'部门权限',value:'1'},
-        {name:'地区权限',value:'2'},
-        {name:'事业部权限',value:'3'},
-        {name:'大区权限',value:'4'},
-        {name:'人员权限',value:'5'}
-        ],
-      authRules:{
-        dataSource:[{required:true,trigger: 'blur'}],
-        field:[{required:true,trigger: 'blur'}],
-        type:[{required:true,trigger: 'blur'}]
-        }
-    };
-  },
-  methods: {
-    openMessage(msg,type){
-      this.$message({
-        showClose: true,
-        message: msg,
-        type: type,
-        duration:'1000'
-      })
-    },
-    addAuth(){
-        if(this.rightMatchArray.length){
-            this.rightMatchIndex++;
-        }
-        this.rightMatchArray.push({
-            dataSource:'',
-            field:'',
-            type:'',
-            sourceIndex:'0'
-        });
-    },
-    delAuth(){
-        if(this.rightMatchArray.length){
-            this.rightMatchArray.splice(this.rightMatchIndex,1);
-        }
-        if(this.rightMatchIndex){
-            this.rightMatchIndex--;
-        }  
-    },
-    changeRightIndex(index){
-        if(this.rightMatchIndex == index){
-            return false;
-        }else{
-            this.rightMatchIndex = index;
-        }
-    },
-    changeRightSourceIndex(id,index){
-        this.$set(this.rightMatchArray[index],'field','')
-        var source = this.step['dataSource']
-        for(var i in source){
-            if(id == source[i]['id']){
-                this.rightMatchArray[index]['sourceIndex'] = i;
-                break;
+    props:['step','selectDSIndex','checkedFieldList'],
+    data () {
+        return {
+        rightMatchArray:[],
+        rightMatchIndex:0,
+        authList:[
+            {name:'部门权限',value:'YXSJBMQX'},
+            {name:'地区权限',value:'YXSJDQQX'},
+            {name:'事业部权限',value:'YXSJSYBQX'},
+            {name:'大区权限',value:'YXSJPQQX'},
+            {name:'人员权限',value:'YXSJRYQX'}
+            ],
+        authRules:{
+            dataSource:[{required:true,trigger: 'blur'}],
+            field:[{required:true,trigger: 'blur'}],
+            type:[{required:true,trigger: 'blur'}]
             }
-        }
-        if(this.rightMatchIndex == index){
-            return false;
-        }else{
-            this.rightMatchIndex = index;
-        }
+        };
     },
-    authCompelete(){
-        if(this.rightMatchArray.length){
-            this.validateAuth().then((authValid)=>{
-                if(authValid){   
-                    this.openMessage('保存成功!','success');
-                    this.$emit('on-close-auth')
-                }else{ 
-                    this.openMessage('选项不能为空!，若放弃请删除该行!','warning');
-                    return false;
-                }
+    methods: {
+        openMessage(msg,type){
+            this.$message({
+                showClose: true,
+                message: msg,
+                type: type,
+                duration:'1000'
             })
-        }
-    },
-    validateAuth(){
-        var authValid = true;
-        for(let i in this.rightMatchArray){
-            if(authValid){
-                this.$refs.authConForm[i].validate((valid)=>{
-                    if(!valid){  
-                        authValid = false;      
+        },
+        addAuth(){
+            if(this.rightMatchArray.length){
+                this.rightMatchIndex = this.rightMatchArray.length;
+            }
+            var ds = this.step.dataSource[this.selectDSIndex]
+            this.rightMatchArray.push({
+                dataSource:ds.id+','+ds.name,
+                field:'',
+                type:''
+            });
+        },
+        delAuth(){
+            if(this.rightMatchArray.length){
+                this.rightMatchArray.splice(this.rightMatchIndex,1);
+            }
+            if(this.rightMatchIndex){
+                this.rightMatchIndex--;
+            }  
+        },
+        changeRightIndex(index){
+            if(this.rightMatchIndex == index){
+                return false;
+            }else{
+                this.rightMatchIndex = index;
+            }
+        },
+        authCompelete(){
+            if(this.rightMatchArray.length){
+                this.validateAuth().then((authValid)=>{
+                    if(authValid){ 
+                        this.step.dataSource[this.selectDSIndex].rightMatchText = ''
+                        this.step.dataSource[this.selectDSIndex].rightMatchCode = ''
+                        for(let rightMatch of  this.rightMatchArray){
+                            var ds = rightMatch.dataSource.split(',')
+                            var field = rightMatch.field.split(',')
+                            var type = rightMatch.type.split(',')
+                            this.step.dataSource[this.selectDSIndex].rightMatchText += 
+                                ds[1]+'@'+field[1]+'@'+type[1]+';'
+                            this.step.dataSource[this.selectDSIndex].rightMatchCode +=
+                                '[GSSJQX] and '+field[0]+',YX_SJQX,YX_SJQXZD,'+type[0]+'[/GSSJQX]'  
+                        }
+                        this.step.dataSource[this.selectDSIndex].rightMatchText = 
+                            this.step.dataSource[this.selectDSIndex].rightMatchText.substring(0,this.step.dataSource[this.selectDSIndex].rightMatchText.length-1)
+                        //console.log(this.step.dataSource[this.selectDSIndex].rightMatchCode)
+                        this.openMessage('保存成功!','success');
+                        this.$emit('on-close-auth')
+                    }else{ 
+                        this.openMessage('选项不能为空!，若放弃请删除该行!','warning');
+                        return false;
                     }
                 })
             }
+        },
+        validateAuth(){
+            var authValid = true;
+            for(let i in this.rightMatchArray){
+                if(authValid){
+                    this.$refs.authConForm[i].validate((valid)=>{
+                        if(!valid){  
+                            authValid = false;      
+                        }
+                    })
+                }
+            }
+            return  Promise.resolve(authValid)   
+        },
+        closeQuan(){
+            this.$emit('on-close-auth');
         }
-        return  Promise.resolve(authValid)   
     },
-    closeQuan(){
-        this.$emit('on-close-auth');
-    }
-  }
+    created(){
+        var ds = this.step.dataSource[this.selectDSIndex]
+        if(ds.rightMatchText){
+
+            var codeFieldArr = ds.rightMatchCode.replace(/\s+/g,"").match(/and(.*?),/g)
+            codeFieldArr = codeFieldArr.map(field => {//字段
+                return  field.match(/and(\S*),/)[1]
+    
+            });
+            var codeTypeArr = ds.rightMatchCode.replace(/\s+/g,"").match(/YX_SJQXZD,(.*?)\[/g)
+            codeTypeArr = codeTypeArr.map(type => {//权限类型
+                return  type.match(/YX_SJQXZD,(\S*)\[/)[1]
+    
+            });
+
+         
+
+            var rightMatchTextArr = ds.rightMatchText.split(';')
+            for(let i in rightMatchTextArr){
+                var textStr = rightMatchTextArr[i].split('@')
+                this.rightMatchArray.push({
+                    dataSource:ds.id+','+ds.name,
+                    field: codeFieldArr[i]+','+textStr[1],
+                    type:codeTypeArr[i]+','+textStr[2]
+                })
+            }
+        }
+    }    
 }
 
 </script>

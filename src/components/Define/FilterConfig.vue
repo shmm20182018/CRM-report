@@ -83,11 +83,23 @@
 export default {
   props:['filterParams'],
   data () {
+    var codeUniqueValidate =(rule, value, callback) => {
+      var filterParamCodes = []
+      for(let i in this.filterParams){
+        filterParamCodes.push(this.filterParams[i].code)
+      }
+      if((new Set(filterParamCodes)).size != this.filterParams.length){
+        this.openMessage('编码不能重复')
+        callback(new Error('编码有重复值'));
+      }else {
+        callback();
+      }
+    };
     return {
       filterIndex:0,
       activeNameFilter:['filter','help'],
       filterRules:{
-        code:[{required:true,trigger: 'blur'}],
+        code:[{validator:codeUniqueValidate,required:true,trigger: 'blur'}],
         name:[{required:true,trigger: 'blur'}],
         sort:[{required:true,trigger: 'blur'}],
         paramType:[{required:true,trigger: 'change'}],
@@ -102,7 +114,7 @@ export default {
         showClose: true,
         message: msg,
         type: 'warning',
-        duration:'1000'
+        duration:'1500'
       })
     },
     addFilter(){
@@ -128,7 +140,7 @@ export default {
             this.filterParams.push(filterParams)
             this.$refs.filterConForm.clearValidate()      
           } else {
-            that.openMessage('*必填项不能为空!，若放弃保存请点击删除!');
+            that.openMessage('填写有误!，若放弃保存请点击删除!');
             return false;
           }
         })
@@ -153,12 +165,12 @@ export default {
           if (valid) {  
             that.$emit('on-filter-Close-Valid',true)         
           } else {
-              this.$confirm('是否放弃保存最后一项?', '提示', {
+              this.$confirm('是否放弃保存该项?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
               }).then(() => {
-                  this.filterParams.splice(-1,1)
+                  this.filterParams.splice(this.filterIndex,1)
                   that.$emit('on-filter-Close-Valid',true) 
               }).catch(() => {
                 that.$emit('on-filter-Close-Valid',false)     

@@ -45,13 +45,13 @@
                             </el-collapse-item>
                             <el-collapse-item title="参数配置" name="2" v-show="currentDataSourceTreeNode.tableName">
                                 <el-form-item label="对应参数"  class="obj-config-can">
-                                    <el-input type="textarea" :disabled="true"></el-input>
+                                    <el-input type="textarea" v-model="selectDataSource.paramMatchText"  :disabled="true"></el-input>
                                     <i class="el-icon-setting" @click="openCan"></i>
                                 </el-form-item> 
                             </el-collapse-item>
                             <el-collapse-item title="权限配置" name="3" v-show="currentDataSourceTreeNode.tableName" class="obj-config-quan">
                                 <el-form-item label="对应权限">
-                                    <el-input type="textarea" :disabled="true"></el-input>
+                                    <el-input type="textarea" v-model="selectDataSource.rightMatchText" :disabled="true"></el-input>
                                     <i class="el-icon-setting" @click="openQuan"></i>
                                 </el-form-item> 
                             </el-collapse-item>
@@ -84,36 +84,29 @@
                             <ul>
                                 <li @click="addMerge">增加关系</li>
                                 <li @click="delMerge">删除关系</li>
-                                <li @click="saveMerge">保存</li>
                             </ul>
                         </div>
                         <div class="merge-config-content"> 
                             <div class="merge-config-table">
                                 <div class="merge-list-title">
                                     <div class="merge-select merge-title-item"></div>
-                                    <div class="merge-ds-first merge-title-item">主列匹配维度</div>
                                     <div class="merge-field-first merge-title-item">对应列</div>
                                 </div>
                                 <el-form>
-                                <div v-for="(mergeAssoc,index) in mergeAssocArray" :key="index" class="merge-list-item">
-                                    <div class="merge-select merge-data-item" @click="changeMergeIndex(index)">
-                                        <i v-show="mergeAssocIndex==index" class="el-icon-check"></i>
+                                <div v-for="(mergeAssoc,index) in mergeOperaArray" :key="index" @click="changeMergeIndex(index)" class="merge-list-item">
+                                    <div class="merge-select merge-data-item">
+                                        <i v-show="mergeOperaIndex==index" class="el-icon-check"></i>
                                     </div>  
-                                    <div class="merge-ds-first merge-data-item">
-                                        <el-form-item >
-                                            <el-select v-model="mergeFormula.dsFirst" clearable @change="changeMergeSourceIndex(mergeFormula.dsFirst,index,'sourceIndex1','fieldFirst')" placeholder="请选择">
-                                                <el-option v-for="(ds,index) in step.dataSource" :key="index" :label="ds.name" :value="ds.id+','+ds.name"></el-option>
-                                            </el-select>
-                                        </el-form-item>
-                                    </div>
                                     <div class="merge-field-first merge-data-item">
                                         <el-form-item class="obj-config-can">
-                                            <el-input ></el-input>
+                                            <el-input type="textarea" v-model="mergeAssoc.mapColText" :disabled="true"></el-input>
                                             <i class="el-icon-setting" @click="openMergeField"></i>
                                         </el-form-item>
                                     </div>
                                 </div>
                                 </el-form>
+                                <input type="hidden" :value="mapColList[0]">
+                                <input type="hidden" :value="mapColList[1]">
                             </div>
                         </div>
                     </div>
@@ -288,17 +281,24 @@
         </el-tabs>
         <param-config v-if="paramShowFlag" v-drag="dragParamDOM" :style="canStyle" class="canshu-config-wrapper"
             :step=step
-            :paramMatchArray="paramMatchArray"
+            :selectDSIndex="selectDataSourceIndex"
             :checkedFieldList="checkedFieldList"
             :filterParams="filterParams"
             @on-close-param="closeCan"
         ></param-config>
         <auth-conifg v-if="authShowFlag" v-drag="dragAuthDOM" :style="quanStyle" class="quanxian-config-wrapper"       
             :step=step
-            :rightMatchArray="rightMatchArray"
+            :selectDSIndex="selectDataSourceIndex"
             :checkedFieldList="checkedFieldList"
             @on-close-auth="closeQuan"
         ></auth-conifg>
+         <merge-field v-if="mergeFieldShowFlag" v-drag="dragMergeDOM" :style="mergeStyle" class="quanxian-config-wrapper"       
+            :step=step
+            :checkedFieldList="checkedFieldList"
+            :mergeOperaArray="mergeOperaArray"
+            :mergeOperaIndex="mergeOperaIndex"
+            @on-close-auth="closeMergeField"
+        ></merge-field>
         <assoc-operation  v-if="assocShowFlag" v-drag="dragAssocDOM" class="assoc-config-wrapper"
             :step=step
             @on-close-assoc="closeAssoc"
@@ -308,23 +308,27 @@
 
 <script>
 import draggable from 'vuedraggable'
-import AssocOperation from './AssocOperation.vue'
+import AssocOperation from './AssocOperation.vue'//关系操作
+import mergeFieldConfig from './mergeFieldConfig.vue'//合并操作
 import ResultRow from '../../viewModel/resultRow.js'
 import AuthConifg from './AuthConfig.vue'//语义对象权限配置
 import ParamConfig from './ParamConfig.vue'//语义对象参数配置
 export default {
-  props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','rightMatchArray',
-  'paramMatchArray','fullscreen'],
+  props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','fullscreen'],
   data () {
     return {
         operation: this.step.operation,   //操作对象
         dragParamDOM:'',
         dragAuthDOM:'',
         dragAssocDOM:'',
+        dragMergeDOM:'',
         selectDataSourceIndex:this.dataSourceIndex, //当前选择的数据源索引
         currentDataSourceTreeNode:{},             //当前选中的数据源树节点,在created时需要根据计算属性selectDsTreeData初始
         resultFinallyShowFlag:false,//用于result
         resultRowIndex:0,
+        mergeOperaArray:[],//合并操作
+        mergeOperaIndex:0,//合并操作
+        mergeFieldShowFlag:false,//合并操作
         compSelIndex:0,
         paramShowFlag:false,//参数配置
         authShowFlag:false,//权限配置
@@ -342,6 +346,15 @@ export default {
             background: '#fff',
         },
         quanStyle:{
+            position:'fixed',
+            left: 'calc(50% - 350px)',
+            top: '50px',
+            width:'700px',
+            height: '500px',
+            border: '1px solid #ccc',
+            background: '#fff',
+        },
+        mergeStyle:{
             position:'fixed',
             left: 'calc(50% - 350px)',
             top: '50px',
@@ -422,6 +435,23 @@ export default {
         }
 
         return list;
+    },
+    mapColList:{
+        get(){
+            var mergeCols = [[],[]]
+            this.mergeOperaArray.forEach((mapCol,index)=>{
+                if(index<this.mergeOperaArray.length-1){
+                    mergeCols[0] += mapCol.mapColText+';'
+                    mergeCols[1] += mapCol.mapColCode+';'
+                }else{
+                    mergeCols[0] += mapCol.mapColText
+                    mergeCols[1] += mapCol.mapColCode
+                }    
+            })
+            this.step.operation.mapColText = mergeCols[0]
+            this.step.operation.mapColCode = mergeCols[1]
+            return mergeCols
+        }
     }
   },
   methods: {
@@ -487,17 +517,51 @@ export default {
     closeAssoc(){
         this.assocShowFlag = false;
     },
+    openMergeField(){
+        this.mergeFieldShowFlag = true;
+    },
+    closeMergeField (){
+        this.mergeFieldShowFlag = false;
+    },
     addMerge(){
-        
+        if(this.mergeOperaArray.length){
+            this.mergeOperaIndex = this.mergeOperaArray.length;
+        }
+        this.mergeOperaArray.push({
+            mapColText:'',
+            mapColCode:''
+        });
     },
     delMerge(){
-     
+        if(this.mergeOperaArray.length){
+            this.mergeOperaArray.splice(this.mergeOperaIndex,1);
+        }
+        if(this.mergeOperaIndex){
+            this.mergeOperaIndex--;
+        }  
     },
     saveMerge(){
+     /*   this.step.operation.mapColText=''
+        this.step.operation.mapColCode=''
+        this.mergeOperaArray.forEach((mapCol,index)=>{
+            if(index<this.mergeOperaArray.length-1){
+                this.step.operation.mapColText += mapCol.mapColText+';'
+                this.step.operation.mapColCode += mapCol.mapColCode+';'
+            }else{
+                this.step.operation.mapColText += mapCol.mapColText
+                this.step.operation.mapColCode += mapCol.mapColCode
+            }    
+        })
+        console.log(this.step.operation.mapColText,this.step.operation.mapColCode)
+        this.openMessage('保存成功！','success')*/
 
     },
-    mergeAssocArray(){
-
+    changeMergeIndex(index){
+        if(this.mergeOperaIndex == index){
+            return false;
+        }else{
+            this.mergeOperaIndex = index;
+        }
     },
     changeResultRowIndex(index){
         this.resultRowIndex = index;
@@ -578,11 +642,22 @@ export default {
     },
   },
   created(){    
-     this.currentDataSourceTreeNode = this.selectDsTreeData[0];
+    this.currentDataSourceTreeNode = this.selectDsTreeData[0];
+    if(this.step.operation.type==1&&this.step.operation.mapColText){
+        var mapColTextArr = this.step.operation.mapColText.split(';')
+        var mapColCodeArr = this.step.operation.mapColCode.split(';')
+        for(let i in mapColTextArr){
+            this.mergeOperaArray.push({
+                mapColText:mapColTextArr[i],
+                mapColCode:mapColCodeArr[i]
+            })
+        }
+    }
   },
   components:{
       draggable,
       AssocOperation:AssocOperation,
+      mergeField:mergeFieldConfig,
       AuthConifg:AuthConifg,
       ParamConfig:ParamConfig
   }
@@ -878,21 +953,19 @@ export default {
     width: 100%;
     border:1px solid #E6E7EB;
     font-size: 12px;
-    height: 380px;
+    height: 460px;
     overflow-y: auto;
     overflow-x: hidden;
-}
-.merge-list-title,.merge-list-item{
-    display: flex;
-    height: 32px;
-    line-height: 32px;
-    border-bottom: 1px solid #E6E7EB; 
 }
 .merge-list-title:hover,.merge-data-item:hover{
     background-color: #f5f7fa;
 }
 .merge-list-title{
     background-color:  #f5f7fa;
+    display: flex;
+    height: 32px;
+    line-height: 32px;
+    border-bottom: 1px solid #E6E7EB; 
 }
 .merge-title-item{
     font-size: 12px;
@@ -902,6 +975,10 @@ export default {
 .merge-list-item{
     font-size: 12px;
     font-weight: normal;
+    display: flex;
+    height: 60px;
+    line-height: 60px;
+    border-bottom: 1px solid #E6E7EB; 
 }
 .merge-list-item:hover .el-input__inner,.merge-list-item:hover .merge-symbol{
     border-radius: 0;
@@ -909,6 +986,12 @@ export default {
 }
 .merge-title-item,.merge-data-item{
     border-left: 1px solid #E6E7EB;
+}
+.merge-config-table .el-textarea.is-disabled .el-textarea__inner {
+    min-height: 60px;
+    max-height: 60px;
+    height: 60px;
+    border: none;   
 }
 .merge-select{
     border-left:none;
@@ -918,8 +1001,8 @@ export default {
     font-size: 14px;
     color: #109EFF
 }
-.merge-ds-first,.merge-field-first{
-    flex: 0.5;
+.merge-field-first{
+    flex: 1;
 }
 .merge-data-item .el-form-item {
   margin-bottom: 0;

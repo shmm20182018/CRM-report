@@ -18,6 +18,10 @@ class ReportDataSourceViewModel{
             this.senmaId = data[0];
             this.senmaName = data[1];
             this.senmaTableName = data[2];
+            this.paramMatchText = ''
+            this.paramMatchCode = ''
+            this.rightMatchText = ''
+            this.rightMatchCode = ''
             this.type ='0';
         }
         else{
@@ -25,6 +29,10 @@ class ReportDataSourceViewModel{
             this.senmaId = data.id;
             this.senmaName = data.name;
             this.senmaTableName = '';
+            this.paramMatchText = ''
+            this.paramMatchCode = ''
+            this.rightMatchText = ''
+            this.rightMatchCode = ''
             this.type ='1';           
             this.fields = [];
             var self =this;

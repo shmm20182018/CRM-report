@@ -526,6 +526,7 @@ export default {
     created(){
         this.getTreeData();
         this.getReportInfo();
+        console.log(111)
     },
     components:{
         draggable,

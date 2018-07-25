@@ -107,13 +107,13 @@ export default {
     }
   },
   created(){
-    if(this.step.operation.mapColFormula.length){
-        var mapColFormulaList = this.step.operation.mapColFormula.split(',')
+    if(this.step.operation.mapColCode.length){
+        var mapColCodeList = this.step.operation.mapColCode.split(',')
         var mapColTextList = this.step.operation.mapColText.split(',')
-        for(let i=0;i<mapColFormulaList.length;i++){
-            var mapColFormula= mapColFormulaList[i].split('=')
-            var leftMapFormula = mapColFormula[0].split('.');
-            var rightMapFormula = mapColFormula[1].split('.')
+        for(let i=0;i<mapColCodeList.length;i++){
+            var mapColCode= mapColCodeList[i].split('=')
+            var leftMapFormula = mapColCode[0].split('.');
+            var rightMapFormula = mapColCode[1].split('.')
 
             var mapColText = mapColTextList[i].split('=')
             var leftMapText = mapColText[0].split('.');
@@ -173,17 +173,17 @@ export default {
             this.validateAssoc().then(()=>{
                 if(this.assocValid){  
                     this.step.operation.mapColText = ''
-                    this.step.operation.mapColFormula = ''
+                    this.step.operation.mapColCode = ''
                     for(let assoc of  this.assocFormulaArray){
                         var dsFirst = assoc.dsFirst.split(',')
                         var fieldFirst = assoc.fieldFirst.split(',')
                         var fieldSecond = assoc.fieldSecond.split(',')
                         var dsSecond = assoc.dsSecond.split(',')
                         this.step.operation.mapColText += dsFirst[1] + '.[' + fieldFirst[1]+ ']=' + dsSecond[1] + '.[' + fieldSecond[1] + '],'
-                        this.step.operation.mapColFormula += dsFirst[0] + '.' + fieldFirst[0]+ '=' + dsSecond[0] + '.' + fieldSecond[0] + ','
+                        this.step.operation.mapColCode += dsFirst[0] + '.' + fieldFirst[0]+ '=' + dsSecond[0] + '.' + fieldSecond[0] + ','
                     }
                     this.step.operation.mapColText = this.step.operation.mapColText.substring(0,this.step.operation.mapColText.length-1)  
-                    this.step.operation.mapColFormula = this.step.operation.mapColFormula.substring(0,this.step.operation.mapColFormula.length-1)  
+                    this.step.operation.mapColCode = this.step.operation.mapColCode.substring(0,this.step.operation.mapColCode.length-1)  
                     this.openMessage('保存成功!','success');
                     this.$emit('on-close-assoc')
                 }else{ 

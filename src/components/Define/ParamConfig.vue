@@ -341,19 +341,19 @@ export default {
 }
 .canshu-select{
     border-left:none;
-    flex: 0 0 32px;
+    flex: 0 0 auto;
     width: 32px;
     text-align: center;
     font-size: 14px;
     color: #109EFF
 }
 .canshu-lbracket,.canshu-rbracket{
-    flex: 0 0 60px;
+    flex: 0 0 auto;
     width: 60px;
     box-sizing: border-box;
 }
 .canshu-paramType,.canshu-relation{
-    flex: 0 0 100px;
+    flex: 0 0 auto;
     width: 100px;
     box-sizing: border-box;
 }
@@ -378,6 +378,7 @@ export default {
     border: none;
     padding-left: 5px;
     padding-right: 14px;
+    border-radius: 0;
 }
 .canshu-formula .el-input__inner{
     padding-right: 5px;
@@ -395,5 +396,8 @@ export default {
 }
 .canshu-data-item .el-select .el-input .el-select__caret.is-reverse {
     opacity: 1;
+}
+.data-define .el-form-item.is-error .el-input__inner,.data-define .el-form-item.is-error .el-input__inner:focus {
+    border-bottom:1px solid  #f56c6c;
 }
 </style>

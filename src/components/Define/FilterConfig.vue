@@ -37,7 +37,7 @@
               </el-select> 
             </el-form-item >
             <el-form-item label="排序" prop="sort">
-              <el-input v-model="filterParams[filterIndex].sort"></el-input>
+              <el-input type="number" min="0"  v-model="filterParams[filterIndex].sort"></el-input>
             </el-form-item>       
           </el-collapse-item>
           <el-collapse-item title="帮助" name="help">

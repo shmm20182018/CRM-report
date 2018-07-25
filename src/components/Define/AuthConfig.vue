@@ -227,7 +227,7 @@ export default {
     display: flex;
 }
 .quanxian-select{
-    flex: 0 0 32px;
+    flex: 0 0 auto;
     width: 32px;
     text-align: center;
     font-size: 14px;
@@ -243,7 +243,7 @@ export default {
   flex:0.5;
 }
 .quanxian-type{
-   flex: 0 0 150px;
+   flex: 0 0 auto;
    width: 150px;
   box-sizing: border-box;
 }

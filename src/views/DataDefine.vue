@@ -481,6 +481,7 @@ export default {
                     mapColText:'',
                     mapColCode:'',
                     mapColFormula:'',
+                    linkType:'L',
                     mainColList:{},
                     dataColList:{},
                     compType:['','','','','']
@@ -526,7 +527,6 @@ export default {
     created(){
         this.getTreeData();
         this.getReportInfo();
-        console.log(666)
     },
     components:{
         draggable,

@@ -117,6 +117,12 @@
                                 <el-input type="textarea" v-model="operation.mapColText"></el-input>
                                 <el-button @click="openAssoc" class="guanlian-operate-btn">设置关系</el-button>
                             </el-form-item>
+                            <el-form-item  label="关联方式">
+                                <el-select v-model="operation.linkType" placeholder="">
+                                    <el-option label="左联接" value="L"></el-option>
+                                    <el-option label="等值联接" value="I"></el-option>
+                                </el-select> 
+                            </el-form-item>
                         </div>
                         </el-form>
                     </div>
@@ -778,13 +784,13 @@ export default {
 }
 .obj-config-quan .el-icon-setting,.obj-config-can .el-icon-setting{
     position: absolute;
-    right: 5px;
+    right: 12px;
     top: 0;
     font-size: 16px;
     color: #C3C5C8;
     height: 32px;
     line-height: 32px;
-    width: 24px;
+    width: 20px;
     text-align: center;
     cursor: pointer;
 }

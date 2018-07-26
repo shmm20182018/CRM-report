@@ -761,6 +761,7 @@ body .el-select-dropdown__item.selected {
     height: 28px;
     line-height: 28px;
     font-size: 12px;
+    cursor: pointer;
 }
 .operate-select .el-select .el-input .el-select__caret{
     width: 18px;

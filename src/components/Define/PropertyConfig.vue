@@ -84,29 +84,33 @@
                             <ul>
                                 <li @click="addMerge">增加关系</li>
                                 <li @click="delMerge">删除关系</li>
+                                <li @click="saveMerge">保存</li>
+                                <li >字段公式</li>
                             </ul>
                         </div>
                         <div class="merge-config-content"> 
                             <div class="merge-config-table">
                                 <div class="merge-list-title">
-                                    <div class="merge-select merge-title-item"></div>
-                                    <div class="merge-field-first merge-title-item">对应列</div>
+                                    <div class="merge-select merge-title-item">
+                                    </div>
+                                    <div class="merge-field-first merge-title-item" v-if="checkedField.length" v-for="(checkedField,index) in checkedFieldList" :key="index">
+                                       {{step.dataSource[index].name}}
+                                    </div>
                                 </div>
-                                <el-form>
-                                <div v-for="(mergeAssoc,index) in mergeOperaArray" :key="index" @click="changeMergeIndex(index)" class="merge-list-item">
+                                <div class="merge-list-item"  v-for="(mergeAssoc,index) in mergeOperaArray" :key="index" @click="changeMergeIndex(index)">
                                     <div class="merge-select merge-data-item">
                                         <i v-show="mergeOperaIndex==index" class="el-icon-check"></i>
                                     </div>  
-                                    <div class="merge-field-first merge-data-item">
-                                        <el-form-item class="obj-config-can">
-                                            <el-input type="textarea" v-model="mergeAssoc.mapColText" :disabled="true"></el-input>
-                                            <i class="el-icon-setting" @click="openMergeField"></i>
+                                    <div class="merge-field-first merge-data-item" v-if="field.length" v-for="(field,dsIndex) in mergeAssoc" :key="dsIndex">
+                                        <el-form  :show-message="false" > 
+                                        <el-form-item prop="field">
+                                            <el-select v-model="field.field" filterable clearable placeholder="请选择" @focus="changeMergeIndex(index)">
+                                                <el-option v-for="(obj,index) in checkedFieldList[dsIndex]" :key="index" :label="obj.label" :value="obj.field+','+obj.label"></el-option>
+                                            </el-select>
                                         </el-form-item>
+                                        </el-form>
                                     </div>
                                 </div>
-                                </el-form>
-                                <input type="hidden" :value="mapColList[0]">
-                                <input type="hidden" :value="mapColList[1]">
                             </div>
                         </div>
                     </div>
@@ -533,10 +537,18 @@ export default {
         if(this.mergeOperaArray.length){
             this.mergeOperaIndex = this.mergeOperaArray.length;
         }
-        this.mergeOperaArray.push({
-            mapColText:'',
-            mapColCode:''
-        });
+        var dsFields={}
+        this.mergeOperaArray.push([])
+
+        for (let field of this.checkedFieldList){
+            if(field.length){
+                this.mergeOperaArray[this.mergeOperaArray.length-1].push([{field:''}])
+            }else{
+                this.mergeOperaArray[this.mergeOperaArray.length-1].push([])
+            }
+           
+        } 
+      
     },
     delMerge(){
         if(this.mergeOperaArray.length){
@@ -647,8 +659,11 @@ export default {
         this.step.result.rows.splice(this.resultRowIndex,1)
     },
   },
-  created(){    
-    this.currentDataSourceTreeNode = this.selectDsTreeData[0];
+  created(){   
+       /*for(let i in this.length){
+           this.mergeOperaArray.push([])
+       } */
+    /*this.currentDataSourceTreeNode = this.selectDsTreeData[0];
     if(this.step.operation.type==1&&this.step.operation.mapColText){
         var mapColTextArr = this.step.operation.mapColText.split(';')
         var mapColCodeArr = this.step.operation.mapColCode.split(';')
@@ -658,7 +673,7 @@ export default {
                 mapColCode:mapColCodeArr[i]
             })
         }
-    }
+    }*/
   },
   components:{
       draggable,
@@ -716,7 +731,7 @@ export default {
     display:flex;
 }
 .obj-config-wrapper .left-obj-config{
-    flex: 0 0 500px;
+    flex: 0 0 auto;
     width: 500px;
     height: 520px;
     border-top: 1px solid #E6E7EB;
@@ -784,7 +799,7 @@ export default {
 }
 .obj-config-quan .el-icon-setting,.obj-config-can .el-icon-setting{
     position: absolute;
-    right: 12px;
+    right: 16px;
     top: 0;
     font-size: 16px;
     color: #C3C5C8;
@@ -855,7 +870,7 @@ export default {
     width: 100%;
 }
 .duibi-operate-wrapper .duibi-form-right{
-    flex: 0 0 300px;
+    flex: 0 0 auto;
     width: 300px;
     padding: 10px 20px;
     border-top: 1px solid #E6E7EB;
@@ -982,8 +997,8 @@ export default {
     font-size: 12px;
     font-weight: normal;
     display: flex;
-    height: 60px;
-    line-height: 60px;
+    height: 33px;
+    line-height: 33px;
     border-bottom: 1px solid #E6E7EB; 
 }
 .merge-list-item:hover .el-input__inner,.merge-list-item:hover .merge-symbol{
@@ -1001,7 +1016,7 @@ export default {
 }
 .merge-select{
     border-left:none;
-    flex: 0 0 32px;
+    flex: 0 0 auto;
     width: 32px;
     text-align: center;
     font-size: 14px;
@@ -1112,31 +1127,31 @@ export default {
 }
 .result-select{
     border-left:none;
-    flex: 0 0 20px;
+    flex: 0 0 auto;
     width: 20px;
     text-align: center;
     font-size: 14px;
     color: #109EFF;
 }
 .result-sort{
-    flex: 0 0 32px;
+    flex: 0 0 auto;
     width: 32px;
     text-align: center;
 }
 .result-fieldType1,.result-fieldType2{
-    flex: 0 0 60px;
+    flex: 0 0 auto;
     width: 60px;
 }
 .result-fieldWidth,.result-colWidth{
-    flex: 0 0 60px;
+    flex: 0 0 auto;
     width: 60px;
 }
 .result-alignType{
-    flex:0 0 60px;
+    flex:0 0 auto;
     width: 60px;
 }
 .result-showArea{
-    flex:0 0 80px;
+    flex:0 0 auto;
     width: 80px;
 }
 .result-field,.result-colTitle1,.result-colTitle2,.result-fieldName,
@@ -1144,11 +1159,11 @@ export default {
     flex: 0.2;
 }
 .result-finally-show .result-fieldType1{
-    flex: 0 0 60px;
+    flex: 0 0 auto;
     width: 60px;
 }
 .result-finally-show .result-fieldWidth{
-    flex: 0 0 60px;
+    flex: 0 0 auto;
     width: 60px;
 }
 .result-finally-show .result-field,
@@ -1193,4 +1208,5 @@ export default {
 .result-data-item .el-select .el-input .el-select__caret.is-reverse {
     opacity: 1;
 }
+
 </style>

@@ -482,8 +482,6 @@ export default {
                     mapColCode:'',
                     mapColFormula:'',
                     linkType:'L',
-                    mainColList:{},
-                    dataColList:{},
                     compType:['','','','','']
                 },
                 result:{

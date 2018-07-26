@@ -8,7 +8,7 @@
                         <el-form class="object-list" ref="form"  label-width="80px" size="small">
                             <el-form-item label="对象列表">
                                 <el-select v-model="selectDataSourceIndex" placeholder="">
-                                    <el-option v-for="(obj,index) in step.dataSource" :index="index" :key="index" :label="obj.senmaName" :value="index">
+                                    <el-option v-for="(obj,index) in step.dataSource" :index="index" :key="index" :label="obj.name" :value="index">
                                     </el-option>
                                 </el-select>
                             </el-form-item>    
@@ -65,12 +65,12 @@
                                     <el-form-item label="是否日期列">
                                         <el-switch v-model="currentDataSourceTreeNode.isDateCol" active-value="1" inactive-value="0"></el-switch>
                                     </el-form-item>
-                                    <!-- <el-form-item label="日期类型列">
+                                    <el-form-item label="日期类型列">
                                         <el-radio-group v-model="currentDataSourceTreeNode.dataColType">
                                             <el-radio label="日期"></el-radio>
                                             <el-radio label="月份"></el-radio>
                                         </el-radio-group>
-                                    </el-form-item> -->
+                                    </el-form-item>
                             </el-collapse-item>
                             </el-form>  
                         </el-collapse>
@@ -105,8 +105,8 @@
                                     </div>
                                 </div>
                                 </el-form>
-                                <input type="hidden" :value="mapColList[0]">
-                                <input type="hidden" :value="mapColList[1]">
+                                <!-- <input type="hidden" :value="mapColList[0]">
+                                <input type="hidden" :value="mapColList[1]"> -->
                             </div>
                         </div>
                     </div>
@@ -118,7 +118,7 @@
                                 <el-button @click="openAssoc" class="guanlian-operate-btn">设置关系</el-button>
                             </el-form-item>
                             <el-form-item  label="关联方式">
-                                <el-select v-model="operation.linkType" placeholder="">
+                                <el-select v-model="operation.mapELe" placeholder="">
                                     <el-option label="左联接" value="L"></el-option>
                                     <el-option label="等值联接" value="I"></el-option>
                                 </el-select> 
@@ -133,7 +133,7 @@
                                     <el-select v-model="step.dataSource[0].id" disabled   placeholder="">
                                         <el-option v-for="(ds) in step.dataSource" 
                                             :key="ds.id"
-                                            :label="ds.senmaName" 
+                                            :label="ds.name" 
                                             :value="ds.id">
                                         </el-option>
                                     </el-select>
@@ -156,15 +156,6 @@
                                 <el-form-item label="上期">
                                     <el-switch v-model="operation.compType[1]" active-value="SY" inactive-value=" "></el-switch>
                                 </el-form-item>
-                                <!-- <el-form-item label="本年累计">
-                                    <el-switch v-model="operation.compType[2]" active-value="BNLJ" inactive-value=" "></el-switch>
-                                </el-form-item>
-                                <el-form-item label="同期累计">
-                                    <el-switch v-model="operation.compType[3]" active-value="TQLJ" inactive-value=" "></el-switch>
-                                </el-form-item>
-                                <el-form-item label="区间环比">
-                                    <el-switch v-model="operation.compType[4]" active-value="QJLJ" inactive-value=" "></el-switch>
-                                </el-form-item> -->
                             </div>       
                         </el-form>
                     </div>
@@ -454,8 +445,8 @@ export default {
                     mergeCols[1] += mapCol.mapColCode
                 }    
             })
-            this.step.operation.mapColText = mergeCols[0]
-            this.step.operation.mapColCode = mergeCols[1]
+            //  this.step.operation.mapColText = mergeCols[0]
+            //  this.step.operation.mapColCode = mergeCols[1]
             return mergeCols
         }
     }

@@ -693,7 +693,7 @@ export default {
                 var dsIndex = this.step.dataSource.findIndex(function(value, index, arr){
                                         return value.id == dsIds[i];
                                     })
-                dsIndexs.push(dsIndex)
+                dsIndexs.push(dsIndex);
             }
             for(let i in dsfields){
                 this.mergeOperaArray.push([])

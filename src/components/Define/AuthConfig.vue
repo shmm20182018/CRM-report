@@ -200,8 +200,8 @@ export default {
     overflow-x: hidden;
 }
 .quanxian-list-title,.quanxian-list-item{
-    height: 33px;
-    line-height: 33px;
+    height: 32px;
+    line-height: 32px;
     border-bottom: 1px solid #E6E7EB; 
 }
 .quanxian-list-title{

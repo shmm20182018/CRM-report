@@ -696,7 +696,7 @@ export default {
                 dsIndexs.push(dsIndex)
             }
             for(let i in dsfields){
-                this.mergeOperaArray[i] =[]
+                this.mergeOperaArray.push([])
                 var fields = dsfields[i].split(';')             
                 var checkIndex =-1;
                 for(let j=0;j<this.checkedFieldList.length;j++){

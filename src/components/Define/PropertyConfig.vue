@@ -111,12 +111,6 @@
                                         </el-form>
                                     </div>
                                 </div>
-<<<<<<< HEAD
-                                </el-form>
-                                <!-- <input type="hidden" :value="mapColList[0]">
-                                <input type="hidden" :value="mapColList[1]"> -->
-=======
->>>>>>> 04364919e98c6589a4dc4d55204d8ab70f822ab5
                             </div>
                         </div>
                     </div>
@@ -446,23 +440,6 @@ export default {
 
         return list;
     },
-    mapColList:{
-        get(){
-            var mergeCols = []
-            this.mergeOperaArray.forEach((mapCol,index)=>{
-                if(index<this.mergeOperaArray.length-1){
-                    mergeCols[0] += mapCol.mapColText+';'
-                    mergeCols[1] += mapCol.mapColCode+';'
-                }else{
-                    mergeCols[0] += mapCol.mapColText
-                    mergeCols[1] += mapCol.mapColCode
-                }    
-            })
-            //  this.step.operation.mapColText = mergeCols[0]
-            //  this.step.operation.mapColCode = mergeCols[1]
-            return mergeCols
-        }
-    }
   },
   methods: {
     openMessage(msg,type){
@@ -550,8 +527,6 @@ export default {
             }
            
         } 
-        //console.log(this.mergeOperaArray)
-      
     },
     delMerge(){
         if(this.mergeOperaArray.length){
@@ -566,8 +541,7 @@ export default {
             this.validateMerge().then((mergeValid)=>{
                 if(mergeValid){
                     this.step.operation.mapEleCode = '' 
-                    this.step.operation.mapEle = '' 
-                    //console.log(this.mergeOperaArray)       
+                    this.step.operation.mapEle = ''     
                     this.mergeOperaArray.forEach((mapCol,index)=>{  
                         for(let i in mapCol){
                             if(mapCol[i].field){
@@ -585,8 +559,6 @@ export default {
                     })
                     this.step.operation.mapEleCode = this.step.operation.mapEleCode.substring(0,this.step.operation.mapEleCode.length-1)
                     this.step.operation.mapEle = this.step.operation.mapEle.substring(0,this.step.operation.mapEle.length-1)
-                    //console.log(this.step.operation.mapEleCode)
-                  
                     this.openMessage('保存成功!','success');
         
                 }else{ 
@@ -612,23 +584,25 @@ export default {
          */
         var self = this;
         var dataColList = [];
+        self.step.result.rows.length = 0;
         this.checkedFieldList.forEach(function(nodeList,index){
-            var srcId = self.step.dataSource[index].id;
-            nodeList.forEach(function(node){
-                if(!node.tableName){
-                    var find = self.step.result.rows.find(function(row){
-                        return row.fieldId==node.fieldId;
-                    })
+            if(!(self.operation.type=='1' && index>0))
+            {         
+                var srcId = self.step.dataSource[index].id;
+                nodeList.forEach(function(node){
+                    if(!node.tableName){
+                        // var find = self.step.result.rows.find(function(row){
+                        //     return row.fieldId==node.fieldId;
+                        // })
 
-                    if(!find){
-                        find =  ResultRow(self.guid(),srcId,node);
+                        var find =  ResultRow(self.guid(),srcId,node);
                         self.step.result.rows.push(find);
-                    }
 
-                    if(self.operation.type=='3' && node.isUnoCol=='1')
-                        dataColList.push(find);
-                }
-            })
+                        if(self.operation.type=='3' && node.isUnoCol=='1')
+                            dataColList.push(find);
+                    }
+                })
+            }
         })
 
         //对比操作需要处理对比列

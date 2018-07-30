@@ -6,7 +6,7 @@ import guid from '../utils/guid.js'
 function NewReportDataSourceViewModel(data,type){
     return new ReportDataSourceViewModel(data,type);
 }
-class ReportDataSourceViewModel{
+export default class ReportDataSourceViewModel {
     /**从语义对象构造数据源
      * 从结果构造数据源
      */
@@ -65,4 +65,5 @@ class ReportDataSourceFieldsViewModel{
         this.hasChild = false;
     }
 }
-export default NewReportDataSourceViewModel
+//export default NewReportDataSourceViewModel
+//export default ReportDataSourceViewModel

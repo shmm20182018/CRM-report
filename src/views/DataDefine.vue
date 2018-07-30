@@ -275,7 +275,7 @@ export default {
     data() {
       return {  
         reportTitle:'报表定义',
-        fullscreen: false,
+        fullscreen: true,
         dragPropertyDOM:'',
         dragFilterDOM:'',
         openDataSourceIndex:0,  //待打开数据源的索引
@@ -314,10 +314,12 @@ export default {
         },
         configStyle: {
             position:'fixed',
-            left: 'calc(50% - 450px)',
-            top: '20px',
-            width:'900px',
-            height: '600px',
+            left: '0',
+            top: '0',
+            right:'0',
+            bottom:'0',
+            width:'auto',
+            height: 'auto',
             border: '1px solid #ccc',
             background: '#fff',
         },
@@ -447,13 +449,13 @@ export default {
                 if(data[1] =='resType'){
                     //结果属性拖拽到数据源
                     var result = this.reportInfo.steps[data[0]].result;
-                    var dataSource= DataSource(result,'resType');       
+                    var dataSource= new DataSource(result,'resType');     
                     this.reportInfo.steps[index].dataSource.push(dataSource);
                 }
                 return false;
             } 
 
-            var dataSource= DataSource(data,'objType');       
+            var dataSource= new DataSource(data,'objType');       
             const treeDataUrl = 'api/reportDefine/getDataSourceDataFromSenma?id='+dataSource.senmaId
             this.$Http('get',treeDataUrl).then((res)=>{
                 dataSource.fields = res.data     
@@ -510,7 +512,7 @@ export default {
             }else{
                 this.configStyle = Object.assign(this.configStyle,{
                     left: 'calc(50% - 450px)',
-                    top: '20px',
+                    top: '5px',
                     right:'auto',
                     bottom:'auto',
                     width:'900px',

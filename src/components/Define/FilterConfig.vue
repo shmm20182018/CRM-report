@@ -36,7 +36,7 @@
                 <el-option label="年" value="5"></el-option>
               </el-select> 
             </el-form-item >
-            <el-form-item label="排序" prop="sort">
+            <el-form-item label="排序" prop="sort" class="filter-item-sort">
               <el-input type="number" min="0"  v-model="filterParams[filterIndex].sort"></el-input>
             </el-form-item>       
           </el-collapse-item>
@@ -298,5 +298,8 @@ export default {
 .filter-config-right .right-message{
   margin-top: 20px;
   margin-left: 20px;
+}
+.filter-item-sort .el-input__inner{
+  padding-right: 0;
 }
 </style>

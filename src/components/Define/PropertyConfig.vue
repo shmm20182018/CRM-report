@@ -1,6 +1,6 @@
 <template>
     <div class="config-content">
-        <el-tabs v-if="changeFullScreen" v-model="activeNameTag" @tab-click="handleTabClick">
+        <el-tabs v-model="activeNameTag" @tab-click="handleTabClick">
             <el-tab-pane label="数据源属性" name="dataSource">
                 <div class="obj-config-wrapper">
                     <div class="left-obj-config">
@@ -79,7 +79,7 @@
             </el-tab-pane>
             <el-tab-pane label="操作属性" name="operation">
                 <div class="ope-config-wrapper">
-                    <div v-if="step.operation.type == 1" class="hebing-operate-wrapper">
+                    <div v-if="operation.type == 1" class="hebing-operate-wrapper">
                         <div class="merge-config-menu">
                             <ul>
                                 <li @click="addMerge">增加关系</li>
@@ -97,6 +97,7 @@
                                        {{step.dataSource[index].name}}
                                     </div>
                                 </div>
+                                <div class="merge-prompt-text" v-if="!mergeOperaArray.length">{{'请点击“增加关系”按钮'}}</div>
                                 <div class="merge-list-item"  v-for="(mergeAssoc,index) in mergeOperaArray" :key="index" @click="changeMergeIndex(index)">
                                     <div class="merge-select merge-data-item">
                                         <i v-show="mergeOperaIndex==index" class="el-icon-check"></i>
@@ -114,7 +115,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="operation.type == 2&& activeNameTag=='operation'" class="guanlian-operate-wrapper">
+                    <div v-if="operation.type == 2" class="guanlian-operate-wrapper">
                         <el-form class="guanlian-operate-form" :model="form" label-width="100px" size="small" label-position="left" >
                         <div class="guanlian-operate-content">
                             <el-form-item class="guanlian-operate-textarea" label="对象关联关系">
@@ -144,12 +145,14 @@
                                 </el-form-item>
                                 <div class="duibi-checkedcol-list">
                                     <div class="duibi-keyCol">
-                                        <div class="duibi-col-title" :class="checkedFieldList[0].length?'':'last-col-item'">已选主列列表</div>
-                                        <div class="duibi-col-item" :class="(index == checkedFieldList[0].length-1)?'last-col-item':''"  v-if="col.isKeyCol=='1'"  v-for="(col,index) in checkedFieldList[0]" :key="index" >{{ col.label}}</div>
+                                        <div class="duibi-col-title">已选主列列表</div>
+                                        <div class="duibi-col-item"   v-if="col.isKeyCol=='1'"  v-for="(col,index) in checkedFieldList[0]" :key="index" >{{ col.label}}</div>
+                                        <div class="duibi-col-item"   v-if="!hasKeyCol"></div>
                                     </div>
                                     <div class="duibi-UnoCol">
-                                        <div class="duibi-col-title" :class="checkedFieldList[0].length?'':'last-col-item'">已选数据列列表</div>
-                                        <div class="duibi-col-item"  :class="(index == checkedFieldList[0].length-1)?'last-col-item':''"  v-if="col.isUnoCol=='1'"  v-for="(col,index) in checkedFieldList[0]" :key="index">{{ col.label}}</div>
+                                        <div class="duibi-col-title">已选数据列列表</div>
+                                        <div class="duibi-col-item" v-if="col.isUnoCol=='1'"  v-for="(col,index) in checkedFieldList[0]" :key="index">{{ col.label}}</div>
+                                        <div class="duibi-col-item"   v-if="!hasUnoCol"></div>
                                     </div>
                                 </div>  
                             </div>
@@ -208,9 +211,7 @@
                                     <i v-show="resultRowIndex==index" class="el-icon-check"></i>
                                 </div>  
                                 <div class="result-sort result-data-item">
-                                    <el-form-item >
-                                       <el-input :value="index" :disabled="true"></el-input> 
-                                    </el-form-item>
+                                    <i>{{index}}</i>
                                 </div>
                                 <div class="result-fieldName result-data-item">
                                     <el-form-item>
@@ -332,6 +333,8 @@ export default {
         dragAuthDOM:'',
         dragAssocDOM:'',
         dragMergeDOM:'',
+        hasUnoCol:false,
+        hasKeyCol:false,
         selectDataSourceIndex:this.dataSourceIndex, //当前选择的数据源索引
         currentDataSourceTreeNode:{},             //当前选中的数据源树节点,在created时需要根据计算属性selectDsTreeData初始
         resultFinallyShowFlag:false,//用于result
@@ -346,7 +349,6 @@ export default {
         paramShowFlag:false,//参数配置
         authShowFlag:false,//权限配置
         assocShowFlag:false,//关系操作公式配置
-        changeFullScreen:true, 
         activeNames:['1','2','3','4'],
         activeNameTag:this.activeNameCon,
         canStyle:{
@@ -382,11 +384,8 @@ export default {
     };
   },
   watch:{
-    fullscreen(){
-        this.changeFullScreen = false;
-        this.$nextTick(()=>{
-            this.changeFullScreen = true;
-        })
+    fullscreen(newvalue){
+        this.scrollToActiveTab();
     }
   },
   computed:{
@@ -427,13 +426,17 @@ export default {
     },
     //已经勾选的节点
     checkedFieldList(){
+        this.hasUnoCol = false;
+        this.hasKeyCol = false;
         var list = new Array(this.step.dataSource.length);        
-        var findKeys = function(fields,index,level){
-            fields.forEach(function(field){
+        var findKeys = (fields,index,level)=>{
+            fields.forEach((field)=>{
                 if(field.useFlag=='1'){
-                   if(level)
-                        field.level=level;
-                   list[index].push(field);
+                    if (field.isUnoCol =='1') this.hasUnoCol = true;
+                    if (field.isKeyCol =='1') this.hasKeyCol = true;
+                    if(level)
+                            field.level=level;
+                    list[index].push(field);
                 }
                 if(field.hasChild){
                     findKeys(field.children,index);
@@ -446,7 +449,6 @@ export default {
             var fields = this.step.dataSource[i].fields;
             findKeys(fields,i,1);   
         }
-
         return list;
     },
     mapColList:{
@@ -476,6 +478,46 @@ export default {
         duration:'1000'
       })
     },
+    scrollToActiveTab() {
+        const nav = this.$el.querySelector('.el-tabs__active-bar');
+        const activeTab = this.$el.querySelector('.is-active');
+        var index = 0;
+        var tabSize = 0;
+        var offset = 0;
+        var  tabs = this.$el.querySelectorAll('.el-tabs__item');
+        tabs = Array.from(tabs)
+        switch(this.activeNameTag)
+            {
+                case 'dataSource':
+                    index = 0
+                    break;
+                case 'operation':
+                    index = 1
+                    break;
+                case 'result':
+                    index = 2
+                    break;
+            
+            }
+        tabs.every((tab,i)=>{
+            if (i!=index) {
+              offset += activeTab.clientWidth;
+              return true;
+            } else {
+              tabSize = activeTab.clientWidth;
+              tabSize -= (index === 0 || index === 2) ? 20 : 40;
+               return false;
+            }  
+        })  
+        if (offset !== 0) {
+            offset += 20;
+        }
+        const transform = `translateX(${offset}px)`;
+        nav.style.width= tabSize + 'px';
+        nav.style.transform = transform;
+        nav.style.msTransform = transform;
+        nav.style.webkitTransform = transform;       
+    },
     nodeClick(currentNode){
         this.currentDataSourceTreeNode=currentNode
     },
@@ -487,10 +529,10 @@ export default {
         if(isChecked && !currentNode.tableName){
             this.step.result.rows.push(ResultRow(currentNode.id,this.selectDsTreeData[0].id,currentNode))
         }else if(!isChecked && !currentNode.tableName){
-           var currentIndex = this.step.result.rows.findIndex(function(value, index, arr) {
+            var currentIndex = this.step.result.rows.findIndex(function(value, index, arr) {
                                     return value.id == currentNode.id;
                                 })
-            this.step.result.rows.splice(currentIndex,1)
+            if(currentIndex>=0)this.step.result.rows.splice(currentIndex,1)
         }
     },
     openCan(){
@@ -544,17 +586,10 @@ export default {
         this.mergeOperaArray.push([])
 
         for (let i in this.checkedFieldList){
-            if(this.checkedFieldList[i].length){
-                this.mergeOperaArray[this.mergeOperaArray.length-1].push({
-                    field:'',dsIndex:i})
-            }else{
-                this.mergeOperaArray[this.mergeOperaArray.length-1].push({
-                    field:'',dsIndex:i})
-            }
-           
+            this.mergeOperaArray[this.mergeOperaArray.length-1].push({
+                field:'',dsIndex:i})
         } 
-        //console.log(this.mergeOperaArray)
-      
+        //console.log(this.mergeOperaArray) 
     },
     delMerge(){
         if(this.mergeOperaArray.length){
@@ -565,7 +600,7 @@ export default {
         }  
     },
     saveMerge(){
-         if(this.mergeOperaArray.length){
+        if(this.mergeOperaArray.length){
             this.validateMerge().then((mergeValid)=>{
                 if(mergeValid){
                     this.step.operation.mapEleCode = '' 
@@ -579,19 +614,15 @@ export default {
                                     this.step.operation.mapEle += this.step.dataSource[order].id+':'
                                 }         
                                 this.step.operation.mapEleCode += mapCol[i].field+';'
-                            
-                            }
-                        
+                            }                       
                         }
                         this.step.operation.mapEleCode = this.step.operation.mapEleCode.substring(0,this.step.operation.mapEleCode.length-1)
                         this.step.operation.mapEleCode += '^'
                     })
                     this.step.operation.mapEleCode = this.step.operation.mapEleCode.substring(0,this.step.operation.mapEleCode.length-1)
                     this.step.operation.mapEle = this.step.operation.mapEle.substring(0,this.step.operation.mapEle.length-1)
-                    //console.log(this.step.operation.mapEleCode)
-                  
-                    this.openMessage('保存成功!','success');
-        
+                    //console.log(this.step.operation.mapEleCode)                
+                    this.openMessage('保存成功!','success');      
                 }else{ 
                     this.openMessage('选项不能为空!，若放弃请删除该行!','warning');
                     return false;
@@ -615,19 +646,19 @@ export default {
          */
         var self = this;
         var dataColList = [];
+        var resultRow = this.step.result.rows
+        this.step.result.rows.length = 0
         this.checkedFieldList.forEach(function(nodeList,index){
             var srcId = self.step.dataSource[index].id;
             nodeList.forEach(function(node){
                 if(!node.tableName){
-                    var find = self.step.result.rows.find(function(row){
+                    var find = resultRow.find(function(row){
                         return row.fieldId==node.fieldId;
                     })
-
                     if(!find){
                         find =  ResultRow(self.guid(),srcId,node);
-                        self.step.result.rows.push(find);
                     }
-
+                    self.step.result.rows.push(find);
                     if(self.operation.type=='3' && node.isUnoCol=='1')
                         dataColList.push(find);
                 }
@@ -672,7 +703,6 @@ export default {
                         row.extraCol = item;
                         self.step.result.rows.push(row);
                     })
-
                 }
             })
         }
@@ -684,7 +714,7 @@ export default {
         this.step.result.rows.splice(this.resultRowIndex,1)
     },
     createMergeOperation(){
-        if(this.operation.mapEleCode&&this.operation.type == 1){
+        if(this.operation.mapEleCode && this.operation.type == 1){
             this.mergeOperaArray = []
             var dsfields = this.operation.mapEleCode.split('^')
             var dsIds = this.operation.mapEle.split(':')
@@ -693,14 +723,12 @@ export default {
                 var dsIndex = this.step.dataSource.findIndex(function(value, index, arr){
                                         return value.id == dsIds[i];
                                     })
-                dsIndexs.push(dsIndex);
+                dsIndexs.push(dsIndex)
             }
             for(let i in dsfields){
                 this.mergeOperaArray.push([])
                 var fields = dsfields[i].split(';')             
-                var checkIndex =-1;
                 for(let j=0;j<this.checkedFieldList.length;j++){
-                    checkIndex ++;
                     var oldIndex = dsIndexs.findIndex((value,index,arr)=>{
                         return j == value
                     })
@@ -709,8 +737,7 @@ export default {
                         this.mergeOperaArray[i].push({
                             field: fields[oldIndex],
                             dsIndex: dsIndexs[oldIndex]
-                        })
-                    
+                        }) 
                     }else{
                         this.mergeOperaArray[i].push({
                             field: '',
@@ -727,7 +754,7 @@ export default {
         }   
     },
     validateMerge(){
-       var mergeValid = true
+        var mergeValid = true
         for(let i=0; i<this.$refs.mergeConForm.length; i++){
             if(mergeValid){
                 this.$refs.mergeConForm[i].validate((valid)=>{
@@ -963,7 +990,6 @@ export default {
     border-left:1px solid #E6E7EB;
 }
 .duibi-col-title,.duibi-col-item{
-    border-bottom: 1px solid #E6E7EB;
     height: 40px;
     line-height: 40px;
     padding-left: 5px;
@@ -971,8 +997,8 @@ export default {
 .duibi-col-title{
     background-color: #f5f7fa;
 }
-.last-col-item{
-    border-bottom: none;
+.duibi-col-item{
+    border-top: 1px solid #E6E7EB;
 }
 .duibi-col-item:hover{
   background-color: #E0F4F7;
@@ -1076,6 +1102,11 @@ export default {
 .merge-title-item,.merge-data-item{
     border-left: 1px solid #E6E7EB;
 }
+.merge-prompt-text{
+    padding: 15px;
+    font-size: 16px;
+    color: #ccc;
+}
 .merge-config-table .el-textarea.is-disabled .el-textarea__inner {
     min-height: 60px;
     max-height: 60px;
@@ -1111,6 +1142,7 @@ export default {
     border: none;
     padding-left: 5px;
     padding-right: 14px;
+    border-radius: 0;
 }
 .merge-formula .el-input__inner{
     padding-right: 5px;
@@ -1208,6 +1240,7 @@ export default {
     flex: 0 0 auto;
     width: 32px;
     text-align: center;
+    cursor: pointer;
 }
 .result-fieldType1,.result-fieldType2{
     flex: 0 0 auto;

@@ -8,7 +8,7 @@
                         <el-form class="object-list" ref="form"  label-width="80px" size="small">
                             <el-form-item label="对象列表">
                                 <el-select v-model="selectDataSourceIndex" placeholder="">
-                                    <el-option v-for="(obj,index) in step.dataSource" :index="index" :key="index" :label="obj.senmaName" :value="index">
+                                    <el-option v-for="(obj,index) in step.dataSource" :index="index" :key="index" :label="obj.name" :value="index">
                                     </el-option>
                                 </el-select>
                             </el-form-item>    
@@ -65,12 +65,12 @@
                                     <el-form-item label="是否日期列">
                                         <el-switch v-model="currentDataSourceTreeNode.isDateCol" active-value="1" inactive-value="0"></el-switch>
                                     </el-form-item>
-                                    <!-- <el-form-item label="日期类型列">
+                                    <el-form-item label="日期类型列">
                                         <el-radio-group v-model="currentDataSourceTreeNode.dataColType">
                                             <el-radio label="日期"></el-radio>
                                             <el-radio label="月份"></el-radio>
                                         </el-radio-group>
-                                    </el-form-item> -->
+                                    </el-form-item>
                             </el-collapse-item>
                             </el-form>  
                         </el-collapse>
@@ -123,7 +123,7 @@
                                 <el-button @click="openAssoc" class="guanlian-operate-btn">设置关系</el-button>
                             </el-form-item>
                             <el-form-item  label="关联方式">
-                                <el-select v-model="operation.linkType" placeholder="">
+                                <el-select v-model="operation.mapELe" placeholder="">
                                     <el-option label="左联接" value="L"></el-option>
                                     <el-option label="等值联接" value="I"></el-option>
                                 </el-select> 
@@ -138,7 +138,7 @@
                                     <el-select v-model="step.dataSource[0].id" disabled   placeholder="">
                                         <el-option v-for="(ds) in step.dataSource" 
                                             :key="ds.id"
-                                            :label="ds.senmaName" 
+                                            :label="ds.name" 
                                             :value="ds.id">
                                         </el-option>
                                     </el-select>
@@ -163,15 +163,6 @@
                                 <el-form-item label="上期">
                                     <el-switch v-model="operation.compType[1]" active-value="SY" inactive-value=" "></el-switch>
                                 </el-form-item>
-                                <!-- <el-form-item label="本年累计">
-                                    <el-switch v-model="operation.compType[2]" active-value="BNLJ" inactive-value=" "></el-switch>
-                                </el-form-item>
-                                <el-form-item label="同期累计">
-                                    <el-switch v-model="operation.compType[3]" active-value="TQLJ" inactive-value=" "></el-switch>
-                                </el-form-item>
-                                <el-form-item label="区间环比">
-                                    <el-switch v-model="operation.compType[4]" active-value="QJLJ" inactive-value=" "></el-switch>
-                                </el-form-item> -->
                             </div>       
                         </el-form>
                     </div>
@@ -451,23 +442,6 @@ export default {
         }
         return list;
     },
-    mapColList:{
-        get(){
-            var mergeCols = []
-            this.mergeOperaArray.forEach((mapCol,index)=>{
-                if(index<this.mergeOperaArray.length-1){
-                    mergeCols[0] += mapCol.mapColText+';'
-                    mergeCols[1] += mapCol.mapColCode+';'
-                }else{
-                    mergeCols[0] += mapCol.mapColText
-                    mergeCols[1] += mapCol.mapColCode
-                }    
-            })
-            this.step.operation.mapColText = mergeCols[0]
-            this.step.operation.mapColCode = mergeCols[1]
-            return mergeCols
-        }
-    }
   },
   methods: {
     openMessage(msg,type){
@@ -589,7 +563,6 @@ export default {
             this.mergeOperaArray[this.mergeOperaArray.length-1].push({
                 field:'',dsIndex:i})
         } 
-        //console.log(this.mergeOperaArray) 
     },
     delMerge(){
         if(this.mergeOperaArray.length){
@@ -604,8 +577,7 @@ export default {
             this.validateMerge().then((mergeValid)=>{
                 if(mergeValid){
                     this.step.operation.mapEleCode = '' 
-                    this.step.operation.mapEle = '' 
-                    //console.log(this.mergeOperaArray)       
+                    this.step.operation.mapEle = ''     
                     this.mergeOperaArray.forEach((mapCol,index)=>{  
                         for(let i in mapCol){
                             if(mapCol[i].field){
@@ -621,8 +593,8 @@ export default {
                     })
                     this.step.operation.mapEleCode = this.step.operation.mapEleCode.substring(0,this.step.operation.mapEleCode.length-1)
                     this.step.operation.mapEle = this.step.operation.mapEle.substring(0,this.step.operation.mapEle.length-1)
-                    //console.log(this.step.operation.mapEleCode)                
-                    this.openMessage('保存成功!','success');      
+                    this.openMessage('保存成功!','success');
+        
                 }else{ 
                     this.openMessage('选项不能为空!，若放弃请删除该行!','warning');
                     return false;
@@ -646,23 +618,25 @@ export default {
          */
         var self = this;
         var dataColList = [];
-        var resultRow = this.step.result.rows
-        this.step.result.rows.length = 0
+        self.step.result.rows.length = 0;
         this.checkedFieldList.forEach(function(nodeList,index){
-            var srcId = self.step.dataSource[index].id;
-            nodeList.forEach(function(node){
-                if(!node.tableName){
-                    var find = resultRow.find(function(row){
-                        return row.fieldId==node.fieldId;
-                    })
-                    if(!find){
-                        find =  ResultRow(self.guid(),srcId,node);
+            if(!(self.operation.type=='1' && index>0))
+            {         
+                var srcId = self.step.dataSource[index].id;
+                nodeList.forEach(function(node){
+                    if(!node.tableName){
+                        // var find = self.step.result.rows.find(function(row){
+                        //     return row.fieldId==node.fieldId;
+                        // })
+
+                        var find =  ResultRow(self.guid(),srcId,node);
+                        self.step.result.rows.push(find);
+
+                        if(self.operation.type=='3' && node.isUnoCol=='1')
+                            dataColList.push(find);
                     }
-                    self.step.result.rows.push(find);
-                    if(self.operation.type=='3' && node.isUnoCol=='1')
-                        dataColList.push(find);
-                }
-            })
+                })
+            }
         })
 
         //对比操作需要处理对比列

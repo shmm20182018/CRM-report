@@ -24,10 +24,26 @@
             <div class="right-top-wrapper">
                 <ul class="clear">
                     <li>
-                        <i class="el-icon-document"></i>
-                        <span>定义导出</span>
-                    </li>
+                        <i></i>
+                        <span class="el-icon-tickets" @click="save">保存</span>
+                    </li>               
                     <li>
+                        <i class="el-icon-document"></i>
+                        <span @click="outSql">定义导出</span>
+                    </li>
+                    <li @click="openFilterConfig">
+                        <i class="el-icon-setting"></i>
+                        <span>参数设置</span>
+                    </li>
+                    <li @click="insertStep">
+                        <i class="el-icon-circle-plus"></i>
+                        <span>下一步</span>
+                    </li>
+                     <li>
+                        <i class="el-icon-view"></i>
+                        <span @click="preview">预览</span>
+                    </li>   
+                    <!-- <li>
                         <i class="el-icon-caret-left"></i>
                         <span>撤销</span>
                     </li>
@@ -38,23 +54,7 @@
                     <li>
                         <i class="el-icon-menu"></i>
                         <span>全局样式</span>
-                    </li>
-                    <li>
-                        <i class="el-icon-view"></i>
-                        <span>预览</span>
-                    </li> 
-                    <li @click="openFilterConfig">
-                        <i class="el-icon-setting"></i>
-                        <span>参数设置</span>
-                    </li>
-                    <li @click="insertStep">
-                        <i class="el-icon-circle-plus"></i>
-                        <span>下一步</span>
-                    </li>
-                    <li>
-                        <i></i>
-                        <span class="el-icon-tickets" @click="save">保存</span>
-                    </li>                  
+                    </li> -->     
                 </ul>       
             </div>
             <div class="right-middle-wrapper">
@@ -340,6 +340,40 @@ export default {
       }
     },
     methods: {
+        outSql(){
+            var Tmpurl="NetBill/OutSQL2.aspx?Type=report&ID="+this.reportInfo.id;
+            var scH=window.screen.height;
+            var scW=window.screen.width;
+            var posTop=(scH-600)/2;
+            var posLeft=(scW-800)/2;
+            var vsDlg="help=no,status=yes,top="+posTop+",left="+posLeft+",resizable=yes,Width=800px,Height=600px,Maximize=yes"; 
+
+            try
+            { 
+                parent.navTab.openTab("SDAYS0006ESQL",Tmpurl,"数据导出SQL"); 
+            }
+            catch(err)
+            {
+                window.open("../../"+Tmpurl,null,vsDlg);
+            } 
+        },
+        preview(){
+            var Tmpurl="WebReport/Index.html#/T/"+this.reportInfo.code;
+            var scH=window.screen.height;
+            var scW=window.screen.width;
+            var posTop=(scH-600)/2;
+            var posLeft=(scW-800)/2;
+            var vsDlg="help=no,status=yes,top="+posTop+",left="+posLeft+",resizable=yes,Width=800px,Height=600px,Maximize=yes"; 
+
+            try
+            { 
+                parent.navTab.openTab("SDAPT0010ESQL",Tmpurl,""); 
+            }
+            catch(err)
+            {
+                window.open("../../"+Tmpurl,null,vsDlg);
+            } 
+        },
         save(){
             this.$refs['defineRuleForm'].validate((valid) => {
                 if (valid) {       
@@ -484,8 +518,6 @@ export default {
                     mapColCode:'',
                     mapColFormula:'',
                     linkType:'L',
-                    mainColList:{},
-                    dataColList:{},
                     compType:['','','','','']
                 },
                 result:{

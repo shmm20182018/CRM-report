@@ -1,6 +1,6 @@
 <template>
     <div class="config-content">
-        <el-tabs v-if="changeFullScreen" v-model="activeNameTag">
+        <el-tabs v-if="changeFullScreen" v-model="activeNameTag" @tab-click="handleTabClick">
             <el-tab-pane label="数据源属性" name="dataSource">
                 <div class="obj-config-wrapper">
                     <div class="left-obj-config">
@@ -84,33 +84,43 @@
                             <ul>
                                 <li @click="addMerge">增加关系</li>
                                 <li @click="delMerge">删除关系</li>
+                                <li @click="saveMerge">保存</li>
+                                <li >字段公式</li>
                             </ul>
                         </div>
                         <div class="merge-config-content"> 
                             <div class="merge-config-table">
                                 <div class="merge-list-title">
-                                    <div class="merge-select merge-title-item"></div>
-                                    <div class="merge-field-first merge-title-item">对应列</div>
+                                    <div class="merge-select merge-title-item">
+                                    </div>
+                                    <div class="merge-field-first merge-title-item" v-if="checkedField.length" v-for="(checkedField,index) in checkedFieldList" :key="index">
+                                       {{step.dataSource[index].name}}
+                                    </div>
                                 </div>
-                                <el-form>
-                                <div v-for="(mergeAssoc,index) in mergeOperaArray" :key="index" @click="changeMergeIndex(index)" class="merge-list-item">
+                                <div class="merge-list-item"  v-for="(mergeAssoc,index) in mergeOperaArray" :key="index" @click="changeMergeIndex(index)">
                                     <div class="merge-select merge-data-item">
                                         <i v-show="mergeOperaIndex==index" class="el-icon-check"></i>
                                     </div>  
-                                    <div class="merge-field-first merge-data-item">
-                                        <el-form-item class="obj-config-can">
-                                            <el-input type="textarea" v-model="mergeAssoc.mapColText" :disabled="true"></el-input>
-                                            <i class="el-icon-setting" @click="openMergeField"></i>
+                                    <div class="merge-field-first merge-data-item"  v-if="checkedFieldList[fIndex].length" v-for="(field,fIndex) in mergeAssoc" :key="fIndex">
+                                        <el-form :model="field" ref="mergeConForm" :rules="mergeRules" :show-message="false" > 
+                                        <el-form-item prop="field">
+                                            <el-select v-model="field.field" filterable clearable placeholder="请选择" @focus="changeMergeIndex(index)">
+                                                <el-option v-for="(obj,index) in checkedFieldList[fIndex]" :key="index" :label="obj.label" :value="obj.field"></el-option>
+                                            </el-select>
                                         </el-form-item>
+                                        </el-form>
                                     </div>
                                 </div>
+<<<<<<< HEAD
                                 </el-form>
                                 <!-- <input type="hidden" :value="mapColList[0]">
                                 <input type="hidden" :value="mapColList[1]"> -->
+=======
+>>>>>>> 04364919e98c6589a4dc4d55204d8ab70f822ab5
                             </div>
                         </div>
                     </div>
-                    <div v-if="operation.type == 2" class="guanlian-operate-wrapper">
+                    <div v-if="operation.type == 2&& activeNameTag=='operation'" class="guanlian-operate-wrapper">
                         <el-form class="guanlian-operate-form" :model="form" label-width="100px" size="small" label-position="left" >
                         <div class="guanlian-operate-content">
                             <el-form-item class="guanlian-operate-textarea" label="对象关联关系">
@@ -326,6 +336,9 @@ export default {
         mergeOperaArray:[],//合并操作
         mergeOperaIndex:0,//合并操作
         mergeFieldShowFlag:false,//合并操作
+        mergeRules:{
+            field:[{required:true,trigger: 'change'}]
+        },
         compSelIndex:0,
         paramShowFlag:false,//参数配置
         authShowFlag:false,//权限配置
@@ -435,7 +448,7 @@ export default {
     },
     mapColList:{
         get(){
-            var mergeCols = [[],[]]
+            var mergeCols = []
             this.mergeOperaArray.forEach((mapCol,index)=>{
                 if(index<this.mergeOperaArray.length-1){
                     mergeCols[0] += mapCol.mapColText+';'
@@ -524,10 +537,21 @@ export default {
         if(this.mergeOperaArray.length){
             this.mergeOperaIndex = this.mergeOperaArray.length;
         }
-        this.mergeOperaArray.push({
-            mapColText:'',
-            mapColCode:''
-        });
+        var dsFields={}
+        this.mergeOperaArray.push([])
+
+        for (let i in this.checkedFieldList){
+            if(this.checkedFieldList[i].length){
+                this.mergeOperaArray[this.mergeOperaArray.length-1].push({
+                    field:'',dsIndex:i})
+            }else{
+                this.mergeOperaArray[this.mergeOperaArray.length-1].push({
+                    field:'',dsIndex:i})
+            }
+           
+        } 
+        //console.log(this.mergeOperaArray)
+      
     },
     delMerge(){
         if(this.mergeOperaArray.length){
@@ -538,20 +562,39 @@ export default {
         }  
     },
     saveMerge(){
-     /*   this.step.operation.mapColText=''
-        this.step.operation.mapColCode=''
-        this.mergeOperaArray.forEach((mapCol,index)=>{
-            if(index<this.mergeOperaArray.length-1){
-                this.step.operation.mapColText += mapCol.mapColText+';'
-                this.step.operation.mapColCode += mapCol.mapColCode+';'
-            }else{
-                this.step.operation.mapColText += mapCol.mapColText
-                this.step.operation.mapColCode += mapCol.mapColCode
-            }    
-        })
-        console.log(this.step.operation.mapColText,this.step.operation.mapColCode)
-        this.openMessage('保存成功！','success')*/
-
+         if(this.mergeOperaArray.length){
+            this.validateMerge().then((mergeValid)=>{
+                if(mergeValid){
+                    this.step.operation.mapEleCode = '' 
+                    this.step.operation.mapEle = '' 
+                    //console.log(this.mergeOperaArray)       
+                    this.mergeOperaArray.forEach((mapCol,index)=>{  
+                        for(let i in mapCol){
+                            if(mapCol[i].field){
+                                if(index ==0){
+                                    var order = mapCol[i].dsIndex
+                                    this.step.operation.mapEle += this.step.dataSource[order].id+':'
+                                }         
+                                this.step.operation.mapEleCode += mapCol[i].field+';'
+                            
+                            }
+                        
+                        }
+                        this.step.operation.mapEleCode = this.step.operation.mapEleCode.substring(0,this.step.operation.mapEleCode.length-1)
+                        this.step.operation.mapEleCode += '^'
+                    })
+                    this.step.operation.mapEleCode = this.step.operation.mapEleCode.substring(0,this.step.operation.mapEleCode.length-1)
+                    this.step.operation.mapEle = this.step.operation.mapEle.substring(0,this.step.operation.mapEle.length-1)
+                    //console.log(this.step.operation.mapEleCode)
+                  
+                    this.openMessage('保存成功!','success');
+        
+                }else{ 
+                    this.openMessage('选项不能为空!，若放弃请删除该行!','warning');
+                    return false;
+                }
+            })
+        }
     },
     changeMergeIndex(index){
         if(this.mergeOperaIndex == index){
@@ -637,19 +680,65 @@ export default {
     deleteResult(){
         this.step.result.rows.splice(this.resultRowIndex,1)
     },
-  },
-  created(){    
-    this.currentDataSourceTreeNode = this.selectDsTreeData[0];
-    if(this.step.operation.type==1&&this.step.operation.mapColText){
-        var mapColTextArr = this.step.operation.mapColText.split(';')
-        var mapColCodeArr = this.step.operation.mapColCode.split(';')
-        for(let i in mapColTextArr){
-            this.mergeOperaArray.push({
-                mapColText:mapColTextArr[i],
-                mapColCode:mapColCodeArr[i]
-            })
+    createMergeOperation(){
+        if(this.operation.mapEleCode&&this.operation.type == 1){
+            this.mergeOperaArray = []
+            var dsfields = this.operation.mapEleCode.split('^')
+            var dsIds = this.operation.mapEle.split(':')
+            var dsIndexs = []
+            for(let i in  dsIds){
+                var dsIndex = this.step.dataSource.findIndex(function(value, index, arr){
+                                        return value.id == dsIds[i];
+                                    })
+                dsIndexs.push(dsIndex)
+            }
+            for(let i in dsfields){
+                this.mergeOperaArray.push([])
+                var fields = dsfields[i].split(';')             
+                var checkIndex =-1;
+                for(let j=0;j<this.checkedFieldList.length;j++){
+                    checkIndex ++;
+                    var oldIndex = dsIndexs.findIndex((value,index,arr)=>{
+                        return j == value
+                    })
+                // console.log(dsIndexs,oldIndex)
+                    if(this.checkedFieldList[j].length&&oldIndex>=0){
+                        this.mergeOperaArray[i].push({
+                            field: fields[oldIndex],
+                            dsIndex: dsIndexs[oldIndex]
+                        })
+                    
+                    }else{
+                        this.mergeOperaArray[i].push({
+                            field: '',
+                            dsIndex: j
+                        })
+                    }
+                }
+            }
         }
+    },
+    handleTabClick(){
+        if(this.step.operation.type==1){
+            this.createMergeOperation()
+        }   
+    },
+    validateMerge(){
+       var mergeValid = true
+        for(let i=0; i<this.$refs.mergeConForm.length; i++){
+            if(mergeValid){
+                this.$refs.mergeConForm[i].validate((valid)=>{
+                    if(!valid){  
+                        mergeValid = false;   
+                    }
+                })
+            }
+        }
+        return  Promise.resolve(mergeValid)   
     }
+  },
+  created(){   
+      this.createMergeOperation()
   },
   components:{
       draggable,
@@ -707,7 +796,7 @@ export default {
     display:flex;
 }
 .obj-config-wrapper .left-obj-config{
-    flex: 0 0 500px;
+    flex: 0 0 auto;
     width: 500px;
     height: 520px;
     border-top: 1px solid #E6E7EB;
@@ -775,7 +864,7 @@ export default {
 }
 .obj-config-quan .el-icon-setting,.obj-config-can .el-icon-setting{
     position: absolute;
-    right: 12px;
+    right: 16px;
     top: 0;
     font-size: 16px;
     color: #C3C5C8;
@@ -846,7 +935,7 @@ export default {
     width: 100%;
 }
 .duibi-operate-wrapper .duibi-form-right{
-    flex: 0 0 300px;
+    flex: 0 0 auto;
     width: 300px;
     padding: 10px 20px;
     border-top: 1px solid #E6E7EB;
@@ -973,8 +1062,8 @@ export default {
     font-size: 12px;
     font-weight: normal;
     display: flex;
-    height: 60px;
-    line-height: 60px;
+    height: 32px;
+    line-height: 32px;
     border-bottom: 1px solid #E6E7EB; 
 }
 .merge-list-item:hover .el-input__inner,.merge-list-item:hover .merge-symbol{
@@ -992,7 +1081,7 @@ export default {
 }
 .merge-select{
     border-left:none;
-    flex: 0 0 32px;
+    flex: 0 0 auto;
     width: 32px;
     text-align: center;
     font-size: 14px;
@@ -1036,6 +1125,9 @@ export default {
 }
 .merge-data-item .el-select .el-input .el-select__caret.is-reverse {
     opacity: 1;
+}
+.merge-data-item  .el-form-item.is-error .el-input__inner,.merge-data-item  .el-form-item.is-error .el-input__inner:focus {
+    border-bottom: 1px solid #f56c6c;
 }
 .result-config-menu{
   height: 40px;
@@ -1103,31 +1195,31 @@ export default {
 }
 .result-select{
     border-left:none;
-    flex: 0 0 20px;
+    flex: 0 0 auto;
     width: 20px;
     text-align: center;
     font-size: 14px;
     color: #109EFF;
 }
 .result-sort{
-    flex: 0 0 32px;
+    flex: 0 0 auto;
     width: 32px;
     text-align: center;
 }
 .result-fieldType1,.result-fieldType2{
-    flex: 0 0 60px;
+    flex: 0 0 auto;
     width: 60px;
 }
 .result-fieldWidth,.result-colWidth{
-    flex: 0 0 60px;
+    flex: 0 0 auto;
     width: 60px;
 }
 .result-alignType{
-    flex:0 0 60px;
+    flex:0 0 auto;
     width: 60px;
 }
 .result-showArea{
-    flex:0 0 80px;
+    flex:0 0 auto;
     width: 80px;
 }
 .result-field,.result-colTitle1,.result-colTitle2,.result-fieldName,
@@ -1135,11 +1227,11 @@ export default {
     flex: 0.2;
 }
 .result-finally-show .result-fieldType1{
-    flex: 0 0 60px;
+    flex: 0 0 auto;
     width: 60px;
 }
 .result-finally-show .result-fieldWidth{
-    flex: 0 0 60px;
+    flex: 0 0 auto;
     width: 60px;
 }
 .result-finally-show .result-field,
@@ -1184,4 +1276,5 @@ export default {
 .result-data-item .el-select .el-input .el-select__caret.is-reverse {
     opacity: 1;
 }
+
 </style>

@@ -294,14 +294,14 @@ export default {
 }
 .assoc-select{
     border-left:none;
-    flex: 0 0 32px;
+    flex: 0 0 auto;
     width: 32px;
     text-align: center;
     font-size: 14px;
     color: #109EFF
 }
 .assoc-symbol{
-    flex: 0 0 80px;
+    flex: 0 0 auto;
     width: 80px;
     text-align: center;
     font-size: 14px;

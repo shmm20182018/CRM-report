@@ -252,15 +252,16 @@
                 </el-tabs>
             </div>
         </div>
-        <div class="filter-config-wrapper" v-show="filterConfigShow" v-drag="dragFilterDOM">
+        <div class="filter-config-wrapper" v-show="filterConfigShow" v-drag="dragFilterDOM" :style="filterConStyle">
             <p class="config-title" id="dragFilter">
                 <i class="el-icon-menu"></i>
                 <span>{{'参数设置'}}</span>
                 <i class="el-icon-close close-config" @click="closeFilterConfig"></i>
+                <i class="full-screen-icon" :class="filterFullScreen?'icon-shrink':'icon-enlarge'"  @click="filterFullScreenToggle"></i>
             </p>
-            <filter-config ref="paramsConfig"  v-if="filterConfigShow"
+            <filter-config ref="paramsConfig"  v-if="filterConfigShow" 
              @on-filter-Close-Valid="filterCloseValid" :filterParams="reportInfo.params">
-             </filter-config>
+            </filter-config>
         </div>
     </div>
 </template>
@@ -276,6 +277,7 @@ export default {
       return {  
         reportTitle:'报表定义',
         fullscreen: true,
+        filterFullScreen: true,
         dragPropertyDOM:'',
         dragFilterDOM:'',
         openDataSourceIndex:0,  //待打开数据源的索引
@@ -323,6 +325,16 @@ export default {
             border: '1px solid #ccc',
             background: '#fff',
         },
+        filterConStyle:{
+            position:'fixed',
+            left:'0',
+            top: '0',
+            right:'0',
+            bottom:'0',
+            width:'auto',
+            height: 'auto',
+            background: '#fff',
+        },
         activeNames:1,
         activeName2: 'first0',
         activeNameCon:'dataSource',
@@ -358,7 +370,7 @@ export default {
             } 
         },
         preview(){
-            var Tmpurl="WebReport/Index.html#/T/"+this.reportInfo.code;
+            var Tmpurl="WebReport/ReportShow/Index.html#/PC/T/"+this.reportInfo.code;
             var scH=window.screen.height;
             var scW=window.screen.width;
             var posTop=(scH-600)/2;
@@ -548,11 +560,33 @@ export default {
                     right:'auto',
                     bottom:'auto',
                     width:'900px',
-                    height: '600px'
+                    height: '560px'
                 })    
             }
             this.fullscreen = !this.fullscreen
-        },  
+        },   
+         filterFullScreenToggle () {
+            if(!this.filterFullScreen){
+                this.filterConStyle = Object.assign(this.filterConStyle,{
+                    left: '0',
+                    top: '0',
+                    right:'0',
+                    bottom:'0',
+                    width:'auto',
+                    height: 'auto'
+                })
+            }else{
+                this.filterConStyle = Object.assign(this.filterConStyle,{
+                    left: 'calc(50% - 450px)',
+                    top: '5px',
+                    right:'auto',
+                    bottom:'auto',
+                    width:'900px',
+                    height: '560px'
+                })    
+            }
+            this.filterFullScreen = !this.filterFullScreen
+        },   
         operaTypeChange(stepIndex){
             this.$set(this.reportInfo.steps[stepIndex].operation,'mapColText','')//关系操作、合并操作共用一个mapColText，下拉变化后解析会出错
             this.$set(this.reportInfo.steps[stepIndex].operation,'mapColFormula', '')
@@ -897,10 +931,6 @@ body .el-select-dropdown__item.selected {
 }
 .filter-config-wrapper{
     position:fixed;
-    left:calc(50% - 450px);
-    top: 20px;
-    width:900px;
-    height: 600px;
     border: 1px solid #ccc;
     background: #fff;
     z-index: 1002;
@@ -937,7 +967,7 @@ body .el-select-dropdown__item.selected {
     color: #808080;
     z-index: 10;
 }
-.right-propterty-config .config-title .full-screen-icon{
+.data-define .full-screen-icon{
     position: absolute;
     top: 0;
     right: 40px;

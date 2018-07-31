@@ -793,7 +793,7 @@ export default {
     text-align: center;
 }
 .obj-config-wrapper,.ope-config-wrapper,.res-config-wrapper{
-    height: 520px;
+    height: 480px;
 }
 .obj-config-wrapper{
     width: 100%;
@@ -802,7 +802,7 @@ export default {
 .obj-config-wrapper .left-obj-config{
     flex: 0 0 auto;
     width: 500px;
-    height: 520px;
+    height: 480px;
     border-top: 1px solid #E6E7EB;
     padding-top: 5px;
     box-sizing: border-box;
@@ -834,7 +834,7 @@ export default {
 }
 .obj-config-wrapper .el-tree{
   margin-left: 8px;
-  height: 450px;
+  height: 400px;
   overflow-y: auto;
 }
 .obj-config-wrapper .el-collapse {
@@ -943,7 +943,6 @@ export default {
     width: 300px;
     padding: 10px 20px;
     border-top: 1px solid #E6E7EB;
-    height: 100%;
 }
 .duibi-checkedcol-list{
     display: flex;
@@ -1042,7 +1041,7 @@ export default {
     width: 100%;
     border:1px solid #E6E7EB;
     font-size: 12px;
-    height: 460px;
+    height: 420px;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -1055,6 +1054,7 @@ export default {
     height: 32px;
     line-height: 32px;
     border-bottom: 1px solid #E6E7EB; 
+    box-sizing: content-box;
 }
 .merge-title-item{
     font-size: 12px;
@@ -1068,6 +1068,7 @@ export default {
     height: 32px;
     line-height: 32px;
     border-bottom: 1px solid #E6E7EB; 
+    box-sizing: content-box;
 }
 .merge-list-item:hover .el-input__inner,.merge-list-item:hover .merge-symbol{
     border-radius: 0;
@@ -1168,7 +1169,7 @@ export default {
     width: 100%;
     border:1px solid #E6E7EB;
     font-size: 12px;
-    height: 460px;
+    height: 420px;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -1177,6 +1178,7 @@ export default {
     height: 32px;
     line-height: 32px;
     border-bottom: 1px solid #E6E7EB; 
+    box-sizing: content-box;
 }
 .result-list-title:hover,.result-data-item:hover{
     background-color: #f5f7fa;

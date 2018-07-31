@@ -264,7 +264,8 @@ export default {
 .assoc-list-title,.assoc-list-item{
     height: 32px;
     line-height: 32px;
-    border-bottom: 1px solid #E6E7EB; 
+    border-bottom: 1px solid #E6E7EB;
+    box-sizing: content-box; 
 }
 .assoc-list-title:hover,.assoc-data-item:hover{
     background-color: #f5f7fa;

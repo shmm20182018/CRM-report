@@ -223,9 +223,10 @@ export default {
   display: flex;
 }
 .filter-config-left{
-  flex: 1;
+  flex: 0 0 auto;
+  width: 500px;
   margin:10px;
-  height: 515px;
+  height: 475px;
   overflow: auto;
   box-sizing: border-box;
   border: 1px solid #E6E7EB;
@@ -263,24 +264,25 @@ export default {
   overflow:hidden;
 }
 .filter-config-right{
-  flex: 0 0 450px;
-  width: 450px;
-  height: 515px;
-  margin:10px 10px 10px 0;
+  flex:1;
+  height: 485px;
+  margin:0 10px 0 0;
   padding: 0 10px;
   box-sizing: border-box;
-  border: 1px solid #E6E7EB;
   border-left: 1px solid #E6E7EB;
+  border-right: 1px solid #E6E7EB;
+  border-bottom: 1px solid #E6E7EB;
 }
 .filter-config-right .el-collapse {
   border-top: none;
 }
 .filter-config-right .el-collapse-item__header{
-  height:42px;
-  line-height: 42px;
+  height:30px;
+  line-height: 30px;
 }
 .filter-config-right .el-collapse-item__arrow{
   float:none;
+  line-height: 30px;
 }
 .filter-config-right .el-collapse-item__content {
     margin-bottom: 0;

@@ -312,6 +312,7 @@ export default {
     height: 32px;
     line-height: 32px;
     border-bottom: 1px solid #E6E7EB; 
+    box-sizing: content-box;
 }
 .canshu-list-title:hover,.canshu-data-item:hover{
   background-color: #f5f7fa;

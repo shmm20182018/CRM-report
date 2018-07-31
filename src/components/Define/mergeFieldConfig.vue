@@ -193,6 +193,7 @@ export default {
     height: 32px;
     line-height: 32px;
     border-bottom: 1px solid #E6E7EB; 
+    box-sizing: content-box;
 }
 .quanxian-list-title{
     display: flex;

@@ -158,7 +158,7 @@ export default {
   .filterForm .el-date-editor.el-input, .el-date-editor.el-input__inner {
     width: 100%;
   }
-  .filterForm .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item{
+  .filterForm .el-form-item--mini.el-form-item, .filterForm .el-form-item--small.el-form-item{
     display: flex;
     align-items: center;
     width: 100%;

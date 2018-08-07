@@ -30,7 +30,7 @@
     </el-form>
     <i v-if="!isLineFeed && !phoneFlag"  class="el-icon-search last-search-btn" @click.prevent="submitForm('ruleForm')"></i>
     <el-form v-if="phoneFlag" class="phone-filter-btn-form" size="mini">
-        <el-button class="phone-filter-btn-right" type="primary" @click.prevent="submitForm('ruleForm')">查询</el-button>
+        <el-button class="phone-filter-btn-last-right" type="primary" @click.prevent="submitForm('ruleForm')">查询</el-button>
         <el-button  @click="resetForm('ruleForm')">重置</el-button>
      </el-form>
   </div>
@@ -231,7 +231,7 @@ export default {
     flex: 1;
   }
   .phone-style-class .filterForm .el-form-item__label{
-    font-size: 14px
+    font-size: 12px
   }
   .phone-style-class  .filterForm .filtertool-btn{
     padding-left: 0;
@@ -288,41 +288,51 @@ export default {
     margin-right: 0 !important;
   }
   .phone-style-class .filter-toggle-wrapper {
+    display: block;
     margin-left: calc(50% - 15px);
     width: 30px;
     margin-bottom: 0;
+    height: 16px;
+    line-height: 16px;
+    font-size: 14px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    text-align: center;
+    color: #7591bc;
+    background-color:#DDE6F5;
+    cursor: pointer;
 }
-  .phone-style-class ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-    color:    #ccc;
-    font-size: 14px;
-  }
-  .phone-style-class :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color:    #ccc;
-    font-size: 14px;
-  }
-  .phone-style-class ::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color:    #ccc;
-    font-size: 14px;
-  }
-  .phone-style-class :-ms-input-placeholder { /* Internet Explorer 10-11 */
-    color:    #ccc;
-    font-size: 14px;
-  }
-  .phone-style-class ::-ms-input-placeholder { /* Microsoft Edge */
-    color:    #ccc;
-    font-size: 14px;
-  }
-  .phone-filter-btn-form{
-     height: 48px;
-     line-height: 48px;
-  }
-  .phone-filter-btn-form .el-button {
-    float: right;
-    padding: 8px 20px;
-    border-radius: 6px;
-    margin-top: 8px;
+.phone-style-class ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+  color:    #ccc;
+  font-size: 14px;
 }
-.phone-filter-btn-right{
+.phone-style-class :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+  color:    #ccc;
+  font-size: 14px;
+}
+.phone-style-class ::-moz-placeholder { /* Mozilla Firefox 19+ */
+  color:    #ccc;
+  font-size: 14px;
+}
+.phone-style-class :-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color:    #ccc;
+  font-size: 14px;
+}
+.phone-style-class ::-ms-input-placeholder { /* Microsoft Edge */
+  color:    #ccc;
+  font-size: 14px;
+}
+.phone-filter-btn-form{
+    height: 48px;
+    line-height: 48px;
+}
+.phone-filter-btn-form .el-button {
+  float: right;
+  padding: 8px 20px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+.phone-filter-btn-last-right{
   margin-left: 10px;
   margin-right: 10px;
 }

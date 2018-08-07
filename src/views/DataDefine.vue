@@ -122,7 +122,8 @@
                                         :dataSourceIndex="openDataSourceIndex"
                                         :activeNameCon="activeNameCon"
                                         :filterParams="reportInfo.params"
-                                        :fullscreen="fullscreen">
+                                        :fullscreen="fullscreen"
+                                        :mergeFieldList="mergeFieldList">
                                     </property-config>
                                 </div>
                             </div>  
@@ -179,7 +180,7 @@
                             </el-row>
                         </el-form> 
                     </el-tab-pane>
-                    <el-tab-pane label="结果保存设置" name="second" class="collapse2">
+                   <!-- <el-tab-pane label="结果保存设置" name="second" class="collapse2">
                         <el-form :inline="true" :model="reportInfo" label-width="80px" size="mini">
                             <el-row>
                              <el-col :span="8">
@@ -248,7 +249,7 @@
                                 </el-col>
                             </el-row>
                         </el-form>
-                    </el-tab-pane>
+                    </el-tab-pane>-->
                 </el-tabs>
             </div>
         </div>
@@ -274,7 +275,8 @@ import DataSource from '../viewModel/dataSource.js'
 
 export default {
     data() {
-      return {  
+      return { 
+        mergeFieldList:[] ,
         reportTitle:'报表定义',
         fullscreen: true,
         filterFullScreen: true,
@@ -529,6 +531,7 @@ export default {
                     mapColText:'',
                     mapColCode:'',
                     mapColFormula:'',
+                    mapEle:'',//合并操作数据源id
                     linkType:'L',
                     compType:['','','','','']
                 },
@@ -565,7 +568,7 @@ export default {
             }
             this.fullscreen = !this.fullscreen
         },   
-         filterFullScreenToggle () {
+        filterFullScreenToggle () {
             if(!this.filterFullScreen){
                 this.filterConStyle = Object.assign(this.filterConStyle,{
                     left: '0',

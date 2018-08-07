@@ -123,7 +123,7 @@
                                 <el-button @click="openAssoc" class="guanlian-operate-btn">设置关系</el-button>
                             </el-form-item>
                             <el-form-item  label="关联方式">
-                                <el-select v-model="operation.mapELe" placeholder="">
+                                <el-select v-model="operation.linkType" placeholder="">
                                     <el-option label="左联接" value="L"></el-option>
                                     <el-option label="等值联接" value="I"></el-option>
                                 </el-select> 
@@ -191,6 +191,7 @@
                                 <div class="result-fieldFormula result-title-item">辅助列公式</div>
                                 <div class="result-colTitle2 result-title-item" v-show="resultFinallyShowFlag">标题</div>
                                 <div class="result-colWidth result-title-item" v-show="resultFinallyShowFlag">列宽</div>
+                                <div class="result-keyField result-title-item" v-show="resultFinallyShowFlag">列属性</div>
                                 <div class="result-alignType result-title-item" v-show="resultFinallyShowFlag">对齐方式</div>
                                 <div class="result-fieldType2 result-title-item" v-show="resultFinallyShowFlag">显示类型</div>
                                 <div class="result-showArea result-title-item" v-show="resultFinallyShowFlag">显示位置</div>
@@ -246,6 +247,14 @@
                                     <el-form-item>
                                         <el-input  v-model.number="row.colWidth" type="number"  min="0"></el-input>  
                                     </el-form-item>
+                                </div>
+                                <div class="result-keyField result-data-item" v-show="resultFinallyShowFlag">
+                                   <el-form-item >
+                                        <el-select v-model="row.isKeyField"  clearable placeholder="" @focus="changeResultRowIndex(index)">
+                                            <el-option label="主列" value="0"></el-option>
+                                            <el-option label="数据列" value="1"></el-option>
+                                        </el-select>
+                                    </el-form-item> 
                                 </div>
                                 <div class="result-alignType result-data-item" v-show="resultFinallyShowFlag">
                                     <el-form-item >
@@ -311,12 +320,11 @@
 <script>
 import draggable from 'vuedraggable'
 import AssocOperation from './AssocOperation.vue'//关系操作
-import mergeFieldConfig from './mergeFieldConfig.vue'//合并操作
 import ResultRow from '../../viewModel/resultRow.js'
 import AuthConifg from './AuthConfig.vue'//语义对象权限配置
 import ParamConfig from './ParamConfig.vue'//语义对象参数配置
 export default {
-  props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','fullscreen'],
+  props:['step','stepIndex','dataSourceIndex','activeNameCon','filterParams','fullscreen','mergeFieldList'],
   data () {
     return {
         operation: this.step.operation,   //操作对象
@@ -501,7 +509,7 @@ export default {
         currentNode.useFlag = isChecked == true ? '1':'0';
 
         if(isChecked && !currentNode.tableName){
-            this.step.result.rows.push(ResultRow(currentNode.id,this.selectDsTreeData[0].id,currentNode))
+            this.step.result.rows.push(new ResultRow(currentNode.id,this.selectDsTreeData[0].id,currentNode,'',this.step.operation.type,'new'))
         }else if(!isChecked && !currentNode.tableName){
             var currentIndex = this.step.result.rows.findIndex(function(value, index, arr) {
                                     return value.id == currentNode.id;
@@ -577,15 +585,22 @@ export default {
             this.validateMerge().then((mergeValid)=>{
                 if(mergeValid){
                     this.step.operation.mapEleCode = '' 
-                    this.step.operation.mapEle = ''     
-                    this.mergeOperaArray.forEach((mapCol,index)=>{  
+                    this.step.operation.mapEle = '' 
+                    this.mergeFieldList.length = 0    
+                    this.mergeOperaArray.forEach((mapCol,index)=>{
+                        if(index==0){
+                            for(var i=0;i<mapCol.length;i++) {
+                                this.mergeFieldList.push([]) 
+                            }
+                        } 
                         for(let i in mapCol){
                             if(mapCol[i].field){
-                                if(index ==0){
+                                if(index == 0){
                                     var order = mapCol[i].dsIndex
                                     this.step.operation.mapEle += this.step.dataSource[order].id+':'
                                 }         
                                 this.step.operation.mapEleCode += mapCol[i].field+';'
+                                this.mergeFieldList[i].push(mapCol[i].field)
                             }                       
                         }
                         this.step.operation.mapEleCode = this.step.operation.mapEleCode.substring(0,this.step.operation.mapEleCode.length-1)
@@ -611,6 +626,7 @@ export default {
     },
     changeResultRowIndex(index){
         this.resultRowIndex = index;
+        //console.log(this.step.result.rows)
     },
     createResultOnceAgain(){
         /**重新生成结果待优化的问题：当发生数据源删除后，结果明细里的记录不会被删除，目前只能手动删除
@@ -618,23 +634,40 @@ export default {
          */
         var self = this;
         var dataColList = [];
-        self.step.result.rows.length = 0;
-        this.checkedFieldList.forEach(function(nodeList,index){
-            if(!(self.operation.type=='1' && index>0))
-            {         
-                var srcId = self.step.dataSource[index].id;
+        var oldRows = [...self.step.result.rows];
+        self.step.result.rows.splice(0,self.step.result.rows.length)
+        this.checkedFieldList.forEach(function(nodeList,index){                      
+            var srcId = self.step.dataSource[index].id;
+            if(!(self.operation.type=='1' && index>0)){
                 nodeList.forEach(function(node){
                     if(!node.tableName){
-                        // var find = self.step.result.rows.find(function(row){
-                        //     return row.fieldId==node.fieldId;
-                        // })
-
-                        var find =  ResultRow(self.guid(),srcId,node);
+                        var oldResultRow = oldRows.find((row)=>{
+                            return row.field == node.field
+                        })    
+                        if(oldResultRow) {var find = new ResultRow(self.guid(),srcId,oldResultRow,'',self.operation.type);}        
+                        else{var find = new ResultRow(self.guid(),srcId,node,'',self.operation.type);}
                         self.step.result.rows.push(find);
 
                         if(self.operation.type=='3' && node.isUnoCol=='1')
                             dataColList.push(find);
                     }
+                })
+            }else {
+                nodeList.forEach(function(node){
+                    if(!node.tableName){   
+                        console.log(self.mergeFieldList)             
+                        var findIndex = self.mergeFieldList[index].findIndex((field)=>{ 
+                            return field == node.field
+                        })
+                        if(findIndex == -1){
+                            var oldResultRow = oldRows.find((row)=>{
+                                row.fieldId == node.fieldId
+                            }) 
+                            if(oldResultRow) {var find = new ResultRow(self.guid(),srcId,oldResultRow,'',self.operation.type);}        
+                            else{var find = new ResultRow(self.guid(),srcId,node,'',self.operation.type);}
+                            self.step.result.rows.push(find);
+                        }
+                    } 
                 })
             }
         })
@@ -669,7 +702,7 @@ export default {
              
                     dataColList.forEach(function(dataCol){
                         var field = item+dataCol.field;
-                        var row =  ResultRow(self.guid(),'','',dataCol);
+                        var row =  new ResultRow(self.guid(),'','',dataCol,'3');
                         row.field = field;
                         row.fieldName = itemName+row.fieldName;
                         row.aliasCol = field;
@@ -747,7 +780,6 @@ export default {
   components:{
       draggable,
       AssocOperation:AssocOperation,
-      mergeField:mergeFieldConfig,
       AuthConifg:AuthConifg,
       ParamConfig:ParamConfig
   }
@@ -1225,6 +1257,10 @@ export default {
 .result-fieldWidth,.result-colWidth{
     flex: 0 0 auto;
     width: 60px;
+}
+.result-keyField{
+    flex:0 0 auto;
+    width: 80px;
 }
 .result-alignType{
     flex:0 0 auto;

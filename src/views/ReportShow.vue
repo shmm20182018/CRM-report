@@ -1,6 +1,6 @@
 <template>
   <div :class="phoneClass" class="report-show-wrapper" v-wechat-title="reportTitle">
-    <el-tooltip v-if="phoneFlag" content="过滤条件区" placement="bottom" effect="light">
+    <el-tooltip v-if="phoneFlag" content="过滤条件区" placement="bottom" effect="dark">
       <div class="filter-toggle-wrapper" @click="showToggle('filter')">
         <i :class="iconArrowFilter" class="icon-toggle"></i>
       </div>
@@ -15,25 +15,35 @@
                      ref="filter"></filter-form>
       </transition>
     </div>
-    <el-tooltip v-if="!phoneFlag" content="过滤条件区" placement="bottom" effect="light">
-      <div class="filter-toggle-wrapper" @click="showToggle('filter')">
-        <i :class="iconArrowFilter" class="icon-toggle"></i>
-      </div>
-    </el-tooltip>
-    <div class="report-title" v-if="reportInfo.chartInfo.series">
+    <div class="filter-toggle-wrapper" v-if="!phoneFlag">
+      <i class="toogle-blank-wrapper"></i>
+      <el-tooltip  content="过滤条件区" placement="bottom" effect="light">  
+        <i :class="iconArrowFilter" class="icon-toggle icon-toggle-filter" @click="showToggle('filter')" style="margin-right:20px"></i>
+      </el-tooltip>
+      <el-tooltip  content="图表展示区" placement="bottom" effect="light">  
+        <i :class="iconArrowChart" class="icon-toggle icon-toggle-filter" @click="showToggle('chart')"></i>
+      </el-tooltip>
+      <i class="toogle-blank-wrapper"></i>
+     </div>
+   <div class="report-title" v-if="reportInfo.chartInfo.series&&phoneFlag">
         <div class="chart-toggle-wrapper" @click="showToggle('chart')">
-          <i>{{reportTitle}}</i>  
+          <i>{{'图表展示区'}}</i>  
           <i :class="iconArrowChart" class="icon-toggle"></i>
         </div>
     </div>
     <div class="chart-wrapper" v-if="reportInfo.chartInfo.series"  :class="showChartFlag?'':'chart-wrapper-hide'">
       <transition name="fade">
-        <server-chart v-show="showChartFlag" :chartInfo="reportInfo.chartInfo" :queryParams = "queryParams"></server-chart> 
+        <server-chart v-show="showChartFlag" 
+          :chartInfo="reportInfo.chartInfo" 
+          :queryParams = "queryParams"
+          :phoneFlag="phoneFlag">
+        </server-chart> 
       </transition> 
     </div>
     <div class="report-title" v-if="reportInfo.tableInfo.columns">
       <div class="table-toggle-wrapper" @click="showToggle('table')">
-        <i>{{reportTableTitle}}</i>  
+        <i v-if="!phoneFlag">{{reportTitle}}</i>  
+        <i v-if="phoneFlag">{{'表格展示区'}}</i> 
         <i :class="iconArrowTable" class="icon-toggle"></i>
       </div>
     </div>
@@ -86,21 +96,21 @@ export default {
       }else if(this.$route.params.pc == 'PC'){
         return 'pc-style-class'
       }
-    },
+    e},
     reportTitle(){
       if(this.reportInfo.title){
         return this.reportInfo.title
       }else if(this.reportInfo.tableInfo.title){
         return this.reportInfo.tableInfo.title
       }else{
-        return ""
+        return "图表展示区"
       }
     },
     reportTableTitle(){
       if(this.reportInfo.tableInfo.title){
         return this.reportInfo.tableInfo.title
       }else{
-        return ""
+        return "表格展示区"
       }
     },
     initApiUrl:function(){
@@ -171,7 +181,7 @@ export default {
     searchData(){
       this.$Http('post',"api/report/search",this.searchParams).then((res)=>{
 
-        console.log(res.data)
+        //console.log(res.data)
         if(res.data.tableInfo){
           this.reportInfo.tableInfo = Object.assign({},this.reportInfo.tableInfo,res.data.tableInfo); 
           if(this.phoneFlag){
@@ -182,10 +192,12 @@ export default {
           }
           this.showTableFlag =true; 
         }
-        if(res.data.chartInfo.dataset){          
-          this.$set(this.reportInfo.chartInfo,'dataset',res.data.chartInfo.dataset);
-          this.showChartFlag =true; 
-        }   
+        if(res.data.chartInfo){
+          if(res.data.chartInfo.dataset){          
+            this.$set(this.reportInfo.chartInfo,'dataset',res.data.chartInfo.dataset);
+            this.showChartFlag =true; 
+          }   
+        }
       });
     }
   },
@@ -229,7 +241,14 @@ export default {
   border-bottom: 1px solid #E1E8F5;
 }
 .filter-toggle-wrapper{
-  margin-left: 49%;
+  display: flex;
+   margin-bottom: 10px;
+}
+.toogle-blank-wrapper{
+  flex: 1;
+}
+.icon-toggle-filter{
+  flex: 0  0 auto;
   width: 2%;
   min-width: 30px;
   height: 16px;
@@ -240,7 +259,7 @@ export default {
   text-align: center;
   color: #7591bc;
   background-color:#DDE6F5;
-  margin-bottom: 10px;
+  cursor: pointer;
 }
 .img-toggle{
   height: 16px;

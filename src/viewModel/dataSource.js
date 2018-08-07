@@ -1,11 +1,6 @@
 
 import guid from '../utils/guid.js'
-/**在vue中不知道为什么导出class无法使用，除非直接在单文件组中定义class
- * 还是直接导出构造函数吧
- */
-function NewReportDataSourceViewModel(data,type){
-    return new ReportDataSourceViewModel(data,type);
-}
+
 export default class ReportDataSourceViewModel {
     /**从语义对象构造数据源
      * 从结果构造数据源
@@ -65,5 +60,4 @@ class ReportDataSourceFieldsViewModel{
         this.hasChild = false;
     }
 }
-//export default NewReportDataSourceViewModel
 //export default ReportDataSourceViewModel

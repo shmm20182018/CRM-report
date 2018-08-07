@@ -2,14 +2,16 @@
   <el-col :span="toolSize">
     <div class="grid-content">
       <el-form-item :label="param.title" :prop="param.id" class="filtertool-text help-tool">
-        <el-tooltip :disabled="tooltipFlag" effect="light" :content="toolTipContent" placement="bottom-start" offset="">
+        <el-tooltip :disabled="tooltipFlag" :effect="phoneFlag?'dark':'light'" :content="toolTipContent" placement="bottom-start" offset="">
             <div style="position:relative">
             <el-input class="help-input" 
                      ref="helpInput" 
                      v-model.lazy="inputShowText"  
                      @focus="focusHandler" 
-                     @blur="blurHandler($event)"        
-                     :disabled="param.readonly" 
+                     @blur="blurHandler($event)"
+                     @clear="clearHelp" 
+                     clearable       
+                     :disabled="param.readonly"                   
                      placeholder="请输入"
             ></el-input>
             </div>
@@ -170,7 +172,8 @@ export default {
                     var _id = id.replace(/@/g,'');
                     if(!self.ruleForm[_id]){
                         var p = self.paramsInfo.find((n) => n.id  == _id);
-                        var dependParamName = p.title;
+                        if(p){ var dependParamName = p.title;} else {var dependParamName = '';}
+                        
                         self.$message({
                             showClose: true,
                             type: 'warning',
@@ -229,7 +232,7 @@ export default {
         openHelp(){
             this.$Http('post','api/help/init',this.initRequestData).then((res)=>{
                 this.tableInfo = {...this.tableInfo,...res.data };
-                console.log(this.tableInfo)
+               // console.log(this.tableInfo)
                 //帮助多选
                 if(this.param.helpMultiSelect)
                      this.tableInfo.columns.unshift({width: 60, titleAlign: 'center',columnAlign:'center',type: 'selection'});
@@ -306,6 +309,9 @@ export default {
         onSubmit(){
             this.interTableData.length = 0;
             this.pageChange(1);
+        },
+        clearHelp(){
+           this.setHelpValue('','','');
         }
     },
     created(){
@@ -320,8 +326,11 @@ export default {
 }
 </script>
 <style>
-.filtertool-text{
-  width: 320px;
+.help-input .el-input .el-input__clear:hover {
+    color: #7591bc;
+}
+.help-input .el-input__suffix{
+  right: 18px;
 }
 .content-wrapper tbody tr{
     cursor: pointer;
@@ -566,10 +575,6 @@ export default {
     font-size: 12px;
     color: #808080;
     background:#fff;
-}
-body .el-tooltip__popper.is-dark {
-    background: #F5F7F9;
-    color: #C3C5C8;
 }
 .help-tool .v-table-views{
     height: 314px !important;
